@@ -1,0 +1,86 @@
+
+rule create_care_prediction_file:
+	output:
+		r"data\interim\care\{label}_ch3_frame{frame}_Nz{Nz}.tif"
+	params:
+		output_dir = r"data\interim\care",
+ 		input_dir = r"Y:\Daniel\000_Microscope data\2020.09.15_CNN3\kdv1502R_5L_30ms_300gain002\Pos5",
+		model_basedir = r"Y:\Eva\CARE\Models",
+		model_name = "2020-01-04_v-cholerae",
+	resources:
+		nvidia_gpu=1
+	conda:
+		r"..\envs\care.yml"
+	shell:
+		r"python scripts\care_prediction.py " + 
+			r'--input-dir "{params.input_dir}" --input-pattern {wildcards.label}_ch1_frame{wildcards.frame}_Nz{wildcards.Nz}.tif ' + 
+			r"--output-dir {params.output_dir} --output-name {wildcards.label}_ch3_frame{wildcards.frame}_Nz{wildcards.Nz}.tif " + 
+			r"--model-basedir {params.model_basedir} --model-name {params.model_name} " + 
+			r"--input-axes ZYX --n-tiles 16 --model-type care --overview-plane"
+			
+			
+rule create_care_prediction_folder:
+	output:
+		directory(r"data\interim\care")
+	params:
+		input_dir = r"Y:\Daniel\000_Microscope data\2020.09.15_CNN3\kdv1502R_5L_30ms_300gain002\Pos5",
+		input_pattern = r'*_ch1_*.tif',
+		output_name = lambda wc: "{file_name}",
+		model_basedir = r"Y:\Eva\CARE\Models",
+		model_name = "2020-01-04_v-cholerae",
+	resources:
+		nvidia_gpu=1
+	conda:
+		r"..\envs\care.yml"
+	shell:
+		r"python scripts\care_prediction.py " + 
+			r'--input-dir "{params.input_dir}" --input-pattern {params.input_pattern} ' + 
+			r"--output-dir {output} --output-name {params.output_name}.tif " + 
+			r"--model-basedir {params.model_basedir} --model-name {params.model_name} " + 
+			r"--input-axes ZYX --n-tiles 16 --model-type care --overview-plane"
+			
+rule care_folder:
+	output:
+	
+			
+rule care_dataset:
+	output:
+		touch(r"..\2021_Iterative_Biofilm_Annotation\datasets\.{dataset_name}-care.chkpnt"),
+	input:
+		r"..\2021_Iterative_Biofilm_Annotation\datasets\{dataset_name}-care\test\images",
+		r"..\2021_Iterative_Biofilm_Annotation\datasets\{dataset_name}-care\test\masks",
+		r"..\2021_Iterative_Biofilm_Annotation\datasets\{dataset_name}-care\valid\images",
+		r"..\2021_Iterative_Biofilm_Annotation\datasets\{dataset_name}-care\valid\masks",
+		r"..\2021_Iterative_Biofilm_Annotation\datasets\{dataset_name}-care\train\images",
+		r"..\2021_Iterative_Biofilm_Annotation\datasets\{dataset_name}-care\train\masks",
+
+rule care_dataset_copy_masks:
+	output:
+		directory(r"..\2021_Iterative_Biofilm_Annotation\datasets\{dataset_name}-care\{datatype}\masks"),
+	input:
+		r"..\2021_Iterative_Biofilm_Annotation\datasets\{dataset_name}\{datatype}\masks"
+	shell:
+		r"Xcopy /E /I {input} {output}"
+		
+		
+rule care_dataset_predict_images:
+	output:
+		directory(r"..\2021_Iterative_Biofilm_Annotation\datasets\{dataset_name}-care\{datatype}\images"),
+	input:
+		r"..\2021_Iterative_Biofilm_Annotation\datasets\{dataset_name}\{datatype}\images",
+	params:
+		input_dir = r"Y:\Daniel\000_Microscope data\2020.09.15_CNN3\kdv1502R_5L_30ms_300gain002\Pos5",
+		input_pattern = r'*_ch1_*.tif',
+		output_name = lambda wc: "{file_name}",
+		model_basedir = r"Y:\Eva\CARE\Models",
+		model_name = "2020-01-04_v-cholerae",
+	resources:
+		nvidia_gpu=1
+	conda:
+		r"..\envs\care.yml"
+	shell:
+		r"python scripts\care_prediction.py " + 
+			r'--input-dir "{input}" ' + 
+			r"--output-dir {output} --output-name {params.output_name}.tif " + 
+			r"--model-basedir {params.model_basedir} --model-name {params.model_name} " + 
+			r"--input-axes ZYX --n-tiles 16 --model-type care"

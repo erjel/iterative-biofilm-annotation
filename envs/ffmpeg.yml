@@ -1,0 +1,8 @@
+name: ffmpeg
+channels:
+  - defaults
+dependencies:
+  - ffmpeg=4.2.2=he774522_0
+  - vc=14.2=h21ff451_1
+  - vs2015_runtime=14.27.29016=h5e58377_2
+prefix: C:\Users\Eric\miniconda3\envs\ffmpeg

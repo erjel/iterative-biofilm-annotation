@@ -1,0 +1,8 @@
+.snakemake
+.ipynb_checkpoints
+Thumbs.db
+models
+data
+reports
+*.tif
+

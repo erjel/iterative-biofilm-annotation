@@ -1,0 +1,6 @@
+From frame 0 to frame 1
+-rotate by 45 degrees around (1,0,0)
+From frame 1 to frame 50
+-rotate by 180 degrees around (1,0,1)
+From frame 51 to frame 100
+-rotate by 180 degrees around (1,0,1)
