@@ -17,6 +17,8 @@ rule all:
 		r"data\interim\care",
 		r"..\2021_Iterative_Biofilm_Annotation\datasets\.eva-v1-dz400-care.chkpnt",
 		r"models\eva-v1-dz400-care_rep1",
+		r"data\interim\predictions\care\eva-v1-dz400-care_rep1\probs",
+		r"data\interim\predictions\raw\eva-v1_dz400_rep1\probs"
 		
 		
 
@@ -60,12 +62,17 @@ rule train_stardist_model:
 		
 rule stardist_prediction_probabilities:
 	output:
+		directory(r'data\interim\predictions\{data_folder}\{model_name}\probs')
 	input:
+		folder=r"Y:\Eric\prediction_test\data\interim\{data_folder}",
+		model=r"models\{model_name}"
+	params:
+		output_dir=r"data\interim\predictions"
 	resources:
 		nvidia_gpu=1
 	conda:
 		r"envs\stardist.yml"
 	shell:
-		r"python scripts\stardist_prediction.py"
+		r"python scripts\stardist_prediction.py {input.folder} {input.model} {params.output_dir}\{wildcards.data_folder} --intp-factor 4 --probs"
 		
 

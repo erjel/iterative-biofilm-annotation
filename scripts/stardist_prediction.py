@@ -1,9 +1,3 @@
-import tensorflow as tf
-
-#if tensorflow2:
-
-import tensorflow as tf
-
 #!/usr/bin/env python
 from pathlib import Path
 import os
@@ -14,12 +8,13 @@ import sys
 from csbdeep.utils import normalize
 import numpy as np
 import argparse
+import tensorflow as tf
 
 from time import time
 
 import sys
-sys.path.append(r'C:\Users\Eric\src\stardist_mpcdf')
-#sys.path.append(r'D:\Eric\stardist_mpcdf')
+#sys.path.append(r'C:\Users\Eric\src\stardist_mpcdf')
+sys.path.append(r'D:\Eric\stardist_mpcdf')
 #sys.path.append(r'D:\Users\Eric\src\stardist_mpcdf')
 
 from stardist_mpcdf.data import ImageInterpolation
@@ -48,8 +43,8 @@ def parse_args():
     data = parser.add_argument_group("input")
     data.add_argument('input_folder', metavar='DATASET', type=str)
     data.add_argument('--input-pattern', required=False, default='*.tif')
-    data.add_argument('--intp-factor', required=False, default=None)
-    data.add_argument('--overview_plane', metavar='', action='store_true', default=False)
+    data.add_argument('--intp-factor', required=False, type=int, default=None)
+    data.add_argument('--overview_plane', action='store_true', default=False)
 
     model = parser.add_argument_group('model')
     model.add_argument('model_path', metavar='MODEL', type=str)
@@ -69,7 +64,10 @@ def main():
     input_folder = Path(args.input_folder)
     
     print(f'Input folder: {args.input_folder}')
-    print(f'Use pattern: {args.input_pattern}'))
+    print(f'Use pattern: {args.input_pattern}')
+    print(f'Output folder: {args.output_path}')
+    print(f'Use pattern: {args.output_name}')
+    
     X_filenames = sorted(input_folder.glob(args.input_pattern))
 
     print(f'Found {len(X_filenames)}')
@@ -89,21 +87,22 @@ def main():
     max_size = 126 # for 11GB GPU
     #max_size = 112 # for 4GB GPU
 
-
+    
     if tf.__version__.startswith('2'):
         physical_devices = tf.config.experimental.list_physical_devices('GPU')
         config = tf.config.experimental.set_memory_growth(physical_devices[0], True)
-
+    
+    
     print(f'Load model {model_path.name}')
     model = StarDist3D(None, name=model_path.name, basedir=str(model_path.parent))
 
     for file_in in tqdm(X_filenames):
 
-        file_out = Path(args.output_dir) / args.output_name.format (
-            file_path = str(file_in.relative_to(args.input_dir).parent),
+        file_out = Path(args.output_path) / args.output_name.format (
+            file_path = str(file_in.relative_to(args.input_folder).parent),
             file_name = file_in.stem,
             file_ext = file_in.suffix,
-            model_name = Path(args.model_name).name
+            model_name = Path(args.model_path).name
         )
 
         img = imread(file_in)
@@ -118,6 +117,7 @@ def main():
             img_shape = (img_shape[0]*factor ,  *img_shape[1:])
             img = ImageInterpolation(img, factor, img_shape)
 
+        print(f'Image shape: {img_shape}')
         img = normalize(img, 1, 99.8, axis=axis_norm)
         
         predict_opts = {'show_tile_progress': True, 'verbose':True}
@@ -126,7 +126,7 @@ def main():
         _axes_net     = model.config.axes
         _permute_axes = model._make_permute_axes(_axes, _axes_net)
         _axes_net     = model.config.axes
-        _shape_inst   = tuple(s for s,a in zip(_permute_axes(x).shape, _axes_net) if a != 'C')
+        _shape_inst   = tuple(s for s,a in zip(_permute_axes(img).shape, _axes_net) if a != 'C')
 
         if np.size(img) <= max_size**3:
             n_tiles = None
@@ -134,16 +134,18 @@ def main():
             n_tiles = tuple(np.max([1, s//max_size]) for s in img.shape)
             print('Num tiles: ', n_tiles)
 
-        prob, dist = model.predict(x)
+        prob, dist = model.predict(img, n_tiles=n_tiles)
         y_ = model._instances_from_prediction(_shape_inst, prob, dist, overlap_label=overlap_label, verbose=True)[0]
-
 
         if args.probs:
             prop_out = file_out.parent / 'probs' / file_out.name
             prop_out.parent.mkdir(parents=True, exist_ok=True)
-            imsave(props, compress=9)
+            imsave(prop_out, prob, compress=9)
         
         file_out.parent.mkdir(parents=True, exist_ok=True)
-        imsave(file_out, compress=9)
+        imsave(file_out, y_ ,compress=9)
 
     return
+    
+if __name__ == '__main__':
+    main()
