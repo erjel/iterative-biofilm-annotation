@@ -5,4 +5,6 @@ models
 data
 reports
 *.tif
+*.mp4
+*.gif
 
