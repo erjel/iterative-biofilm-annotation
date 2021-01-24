@@ -1,3 +1,9 @@
+import tensorflow as tf
+
+#if tensorflow2:
+
+import tensorflow as tf
+
 #!/usr/bin/env python
 from pathlib import Path
 import os
@@ -9,123 +15,135 @@ from csbdeep.utils import normalize
 import numpy as np
 import argparse
 
-sys.path.append(str(Path(os.getcwd())))
+from time import time
 
-from stardist_mpcdf.data import readDataset
+import sys
+sys.path.append(r'C:\Users\Eric\src\stardist_mpcdf')
+#sys.path.append(r'D:\Eric\stardist_mpcdf')
+#sys.path.append(r'D:\Users\Eric\src\stardist_mpcdf')
 
-def main(model_path, dataset_path, output_path, use_overlap):
+from stardist_mpcdf.data import ImageInterpolation
 
-    stardist_mpcdf_home = Path(os.getcwd()).parent
+def allocateOnEmptyGPU():
+    import os
+    import re
+    import numpy as np
+    from subprocess import check_output
 
-    model_path = Path(model_path)
-    dataset_path = Path(dataset_path)
-    output_path = Path(output_path)
+    nvidia_smi_output = check_output(['nvidia-smi']).decode("utf-8")
+    memory_matches = re.findall('\d+MiB\s*/\s*\d+MiB', nvidia_smi_output)
+    memory_string = [match.split('MiB')[0] for match in memory_matches]
+    gpu_memory_usage = list(map(int, memory_string))
 
-    dataset_name = dataset_path.stem
-    modelname = model_path.name
-    model_basedir = model_path.parent
+    os.environ['CUDA_VISIBLE_DEVICES'] = str(np.argmin(gpu_memory_usage))
+    print('Run on GPU with ID: {}'.format(os.environ['CUDA_VISIBLE_DEVICES']))
 
-    print(dataset_path)
-    if dataset_path.is_dir():
+    return
 
-        X = readDataset(dataset_name)[0]
-        X = X['test']
+#allocateOnEmptyGPU()
 
-        input_dir = dataset_path / 'test' / 'images'
-        output_dir = output_path / 'test' / 'images'
-        filelist_x = sorted(p for p in input_dir.glob('*.tif'))
+def parse_args():
+    parser = argparse.ArgumentParser()
 
+    data = parser.add_argument_group("input")
+    data.add_argument('input_folder', metavar='DATASET', type=str)
+    data.add_argument('--input-pattern', required=False, default='*.tif')
+    data.add_argument('--intp-factor', required=False, default=None)
+    data.add_argument('--overview_plane', metavar='', action='store_true', default=False)
 
-    elif dataset_path.is_file():
-        X = [imread(str(dataset_path))]
-        X = [x[1:] if np.argmax(np.sum(x, axis=(1, 2)), axis=0) == 0 else x for x in X]
-        output_dir = Path('interference') / dataset_name / modelname
-        if use_overlap:
-            filelist_x = [Path(str(dataset_path).replace('.tif', 'O.tif'))]
-        else:
-            filelist_x = [Path(str(dataset_path).replace('.tif', 'P.tif'))]
+    model = parser.add_argument_group('model')
+    model.add_argument('model_path', metavar='MODEL', type=str)
+    parser.add_argument('--overlap', action='store_true')
+    parser.add_argument('--probs', action='store_true')
 
+    output = parser.add_argument_group('output')
+    output.add_argument('output_path', metavar='OUTPUT', type=str)
+    output.add_argument('--output-name', type=str, default='{file_path}/{model_name}/{file_name}{file_ext}')
+  
+    return parser, parser.parse_args()
+
+def main():
+    parser, args = parse_args()
+
+    model_path = Path(args.model_path)
+    input_folder = Path(args.input_folder)
+    
+    print(f'Input folder: {args.input_folder}')
+    print(f'Use pattern: {args.input_pattern}'))
+    X_filenames = sorted(input_folder.glob(args.input_pattern))
+
+    print(f'Found {len(X_filenames)}')
+
+    not args.overview_plane or print('Remove overview planes!')
+
+    args.intp_factor is None or print(f'Interpolate z direction by x{args.intp_factor}')
 
     axis_norm = (0, 1, 2)
-    X = [normalize(x, 1, 99.8, axis=axis_norm) for x in tqdm(X)]
 
-    print(dataset_name)
-
-    print('Dataset length: ', len(X))
-
-    print('Load model "{}"'.format(modelname))
-    model = StarDist3D(None, name=modelname, basedir=model_basedir)
-
-    predict_opts = {'show_tile_progress': True, 'verbose':True}
-
-
-    max_size = 224 # for 16GB GPU    
-    
-    if use_overlap:
+    if args.overlap:
         overlap_label = -1
     else:
         overlap_label = None
-    
-    Y_ = []
-    for x in tqdm(X):
-        print('Dataset shape: ', x.shape)
-        print('Dataset size: ', np.size(x))
 
-        if np.size(x) <= max_size**3: # Limited by 16GB GPU
-            y_ = model.predict_instances(x, verbose=True, overlap_label=overlap_label)[0]
+    #max_size = 224 # for 16GB GPU
+    max_size = 126 # for 11GB GPU
+    #max_size = 112 # for 4GB GPU
 
-        elif np.size(X[0]) <= 250 * 1024 * 1024 or use_overlap: # Limited by 92GB RAM
-            n_tiles = tuple(np.max([1, s//max_size]) for s in x.shape)
+
+    if tf.__version__.startswith('2'):
+        physical_devices = tf.config.experimental.list_physical_devices('GPU')
+        config = tf.config.experimental.set_memory_growth(physical_devices[0], True)
+
+    print(f'Load model {model_path.name}')
+    model = StarDist3D(None, name=model_path.name, basedir=str(model_path.parent))
+
+    for file_in in tqdm(X_filenames):
+
+        file_out = Path(args.output_dir) / args.output_name.format (
+            file_path = str(file_in.relative_to(args.input_dir).parent),
+            file_name = file_in.stem,
+            file_ext = file_in.suffix,
+            model_name = Path(args.model_name).name
+        )
+
+        img = imread(file_in)
+        
+        if args.overview_plane:
+            img = imgs[1:]
+
+        img_shape = img.shape
+        
+        if args.intp_factor is not None:
+            factor = args.intp_factor
+            img_shape = (img_shape[0]*factor ,  *img_shape[1:])
+            img = ImageInterpolation(img, factor, img_shape)
+
+        img = normalize(img, 1, 99.8, axis=axis_norm)
+        
+        predict_opts = {'show_tile_progress': True, 'verbose':True}
+
+        _axes         = model._normalize_axes(img, None)
+        _axes_net     = model.config.axes
+        _permute_axes = model._make_permute_axes(_axes, _axes_net)
+        _axes_net     = model.config.axes
+        _shape_inst   = tuple(s for s,a in zip(_permute_axes(x).shape, _axes_net) if a != 'C')
+
+        if np.size(img) <= max_size**3:
+            n_tiles = None
+        else:
+            n_tiles = tuple(np.max([1, s//max_size]) for s in img.shape)
             print('Num tiles: ', n_tiles)
-            y_ = model.predict_instances(x, verbose=True, overlap_label=overlap_label,
-                                         n_tiles=n_tiles)[0]
-            
-        else: # Split into pieces (does not support overlap label, very slow ...)
-            min_overlap=(32, 64, 64)
-            context=(32, 64, 64)
-            
-            # block size (246, 704, 704) is too large for 92GB RAM
-            # For size 299 block size 196, with overlap & context 32 does not work
-            # For size 299 block size 150, with overlap & context 32 should work
-            
-            # It would be nice to have an automatic estimation what works, such as:
-            #block_size = tuple(int(np.ceil(s/2)) + o+2*c for s, o, c in zip(x.shape, min_overlap, context))
-            # The stupid way of testing would be just running: 
-            # cover_1d = Block.cover(size, block_size, min_overlap, context, grid)
-            # ie:
-            # cover_1d = Block.cover(299, 150, 32, 32, 1)
-            
-            # This how I derived for an image with shape (299, 1024, 1024) the block size:
-            
-            block_size = (150, 704, 704)
-            print('Block size: ', block_size)
-            y_ = model.predict_instances_big(x,
-                                              axes='ZYX',
-                                              block_size=block_size,
-                                              min_overlap=min_overlap,
-                                              context=context, show_progress=True,
-                                              verbose=True,
-                                              n_tiles=tuple(np.max([1, s//max_size]) for s in x.shape))[0]
-        Y_.append(y_)
+
+        prob, dist = model.predict(x)
+        y_ = model._instances_from_prediction(_shape_inst, prob, dist, overlap_label=overlap_label, verbose=True)[0]
 
 
-    if not output_dir.is_dir():
-        os.makedirs(output_dir)
+        if args.probs:
+            prop_out = file_out.parent / 'probs' / file_out.name
+            prop_out.parent.mkdir(parents=True, exist_ok=True)
+            imsave(props, compress=9)
+        
+        file_out.parent.mkdir(parents=True, exist_ok=True)
+        imsave(file_out, compress=9)
 
-    for y, x_path in tqdm(zip(Y_, filelist_x)):
-        imsave(output_dir / x_path.name, y, compress=9)
-  
-
-      
     return
-
-
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('model_path', metavar='MODEL', type=str)
-    parser.add_argument('dataset_path', metavar='DATASET', type=str)
-    parser.add_argument('output_path', metavar='OUTPUT', type=str)
-    parser.add_argument('--overlap', action='store_true')
-    args = parser.parse_args()
-    
-    main(args.model_path, args.dataset_path, args.output_path, args.overlap)
