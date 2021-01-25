@@ -19,6 +19,8 @@ sys.path.append(r'D:\Eric\stardist_mpcdf')
 
 from stardist_mpcdf.data import ImageInterpolation
 
+os.environ['OMP_NUM_THREADS'] = '24'
+
 def allocateOnEmptyGPU():
     import os
     import re
@@ -54,6 +56,7 @@ def parse_args():
     output = parser.add_argument_group('output')
     output.add_argument('output_path', metavar='OUTPUT', type=str)
     output.add_argument('--output-name', type=str, default='{file_path}/{model_name}/{file_name}{file_ext}')
+    output.add_argument('--overwrite', action='store_true', default=False)
   
     return parser, parser.parse_args()
 
@@ -104,12 +107,20 @@ def main():
             file_ext = file_in.suffix,
             model_name = Path(args.model_path).name
         )
-
+        
+        prop_out = file_out.parent / 'probs' / file_out.name
+        
+        if not args.overwrite:
+            if args.probs and file_out.is_file() and prop_out.is_file():
+                continue
+            elif not args.probs and file_out.is_file():
+                continue
+                
         img = imread(file_in)
         
         if args.overview_plane:
             img = imgs[1:]
-
+        
         img_shape = img.shape
         
         if args.intp_factor is not None:
@@ -135,7 +146,11 @@ def main():
             print('Num tiles: ', n_tiles)
 
         prob, dist = model.predict(img, n_tiles=n_tiles)
-        y_ = model._instances_from_prediction(_shape_inst, prob, dist, overlap_label=overlap_label, verbose=True)[0]
+        y_, details = model._instances_from_prediction(_shape_inst, prob, dist, overlap_label=overlap_label, verbose=True)
+        
+        details_out = file_out.parent / 'details' /file_out.stem
+        details_out.parent.mkdir(parents=True, exist_ok=True)
+        np.save(details_out, details)
 
         if args.probs:
             prop_out = file_out.parent / 'probs' / file_out.name

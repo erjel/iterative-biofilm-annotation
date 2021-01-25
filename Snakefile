@@ -17,8 +17,10 @@ rule all:
 		r"data\interim\care",
 		r"..\2021_Iterative_Biofilm_Annotation\datasets\.eva-v1-dz400-care.chkpnt",
 		r"models\eva-v1-dz400-care_rep1",
-		r"data\interim\predictions\care\eva-v1-dz400-care_rep1\probs",
-		r"data\interim\predictions\raw\eva-v1_dz400_rep1\probs"
+		r"data\interim\predictions\care\eva-v1-dz400-care_rep1\.chkpnt",
+		expand(r"data\interim\vtk\care\eva-v1-dz400-care_rep1\frame_{frame_number}.vtk", 
+			frame_number = glob_wildcards(r"predictions\care\eva-v1-dz400-care_rep1\{label_1}_frame{frame_number}_{label_2}.tif")[1]
+		),
 		
 		
 
@@ -36,7 +38,7 @@ rule create_rendering:
 	shell:
 		r"C:\ffmpeg-3.4.2-win64-static\bin\ffmpeg.exe -pattern_type sequence -start_number 0 -framerate 15 -i data\interim\vtk_rendering\simple.%04d.png  -c:v libx264 reports\figures\segmentation_rendered.mp4"
 		
-		
+
 rule mp4_to_gif:
 	output:
 		r"reports\figures\{filename}.gif"
@@ -59,6 +61,23 @@ rule train_stardist_model:
 	shell:
 		r"python scripts\stardist_training.py {output} ..\2021_Iterative_Biofilm_Annotation\datasets\{wildcards.datasetname}"
 		
+rule stardist_prediction:
+	output:
+		touch(r'data\interim\predictions\{data_folder}\{model_name}\.chkpnt')
+	input:
+		folder=r"Y:\Eric\prediction_test\data\interim\{data_folder}",
+		model=r"models\{model_name}"
+	params:
+		output_dir=r"data\interim\predictions"
+	threads:
+		workflow.cores
+	resources:
+		nvidia_gpu=1
+	conda:
+		r"envs\stardist.yml"
+	shell:
+		r"python scripts\stardist_prediction.py {input.folder} {input.model} {params.output_dir}\{wildcards.data_folder} --intp-factor 4"
+		
 		
 rule stardist_prediction_probabilities:
 	output:
@@ -68,6 +87,8 @@ rule stardist_prediction_probabilities:
 		model=r"models\{model_name}"
 	params:
 		output_dir=r"data\interim\predictions"
+	threads:
+		workflow.cores
 	resources:
 		nvidia_gpu=1
 	conda:
