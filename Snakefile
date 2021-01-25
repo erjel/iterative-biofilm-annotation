@@ -19,24 +19,70 @@ rule all:
 		r"models\eva-v1-dz400-care_rep1",
 		r"data\interim\predictions\care\eva-v1-dz400-care_rep1\.chkpnt",
 		expand(r"data\interim\vtk\care\eva-v1-dz400-care_rep1\frame_{frame_number}.vtk", 
-			frame_number = glob_wildcards(r"predictions\care\eva-v1-dz400-care_rep1\{label_1}_frame{frame_number}_{label_2}.tif")[1]
+			frame_number = glob_wildcards(r"data\interim\predictions\care\eva-v1-dz400-care_rep1\{label_1}_frame{frame_number}_{label_2}.tif")[1]
 		),
+		r"reports\figures\care\eva-v1-dz400-care_rep1_segmentation_rendered.mp4",
+		r"data\processed\tracks\care_model_eva-v1-dz400-care_rep1.csv",
+		r"data\interim\tracking\care_model_eva-v1-dz400-care_rep1.tif",
+		
+rule seg2trackmate:
+	output:
+		r"data\interim\tracking\{data}_model_{model}.tif"
+	input:
+		r"data\interim\predictions\{data}\{model}"
+	conda:
+		r"envs\stardist.yml"
+	shell:
+		r"python scripts\create_stack_for_trackmate.py {output} {input}"
 		
 		
-
-rule create_vtk_from_labelfile:
+		
+rule trackmate2napari:
+	output:
+		r"data\processed\tracks\{data}_model_{model}.csv"
+	input:
+		r"data\interim\tracking\{data}_model_{model}_Tracks.xml"
+	conda:
+		r"envs\stardist.yml"
+	shell:
+		r"python scripts\trackmate_xml_to_napari_csv.py {input} {output}"
+	
+rule create_vtk_from_labelfile_test:
 	output:
 		r"data\interim\vtk\frame_{frame_number}.vtk"
 	input:
 		r"predictions\kdv1502R_5L_30ms_300gain002_pos5_ch1_frame{frame_number}_Nz54P.tif"
+	threads:
+		2
 	shell:
 		"""matlab -nojvm -nosplash -batch "addpath(genpath('scripts')); tif2vtk('{output}', '{input}')" """
 		
-rule create_rendering:
+rule create_vtk_from_labelfile_general:
+	output:
+		r"data\interim\vtk\{data}\{model}\frame_{frame_number}.vtk"
+	input:
+		r"data\interim\predictions\{data}\{model}\kdv1502R_5L_30ms_300gain002_pos5_ch1_frame{frame_number}_Nz54.tif"
+	threads:
+		2
+	shell:
+		"""matlab -nojvm -nosplash -batch "addpath(genpath('scripts')); tif2vtk('{output}', '{input}')" """
+		
+
+		
+rule create_rendering_test:
 	output:
 		r"reports\figures\segmentation_rendered.mp4"
 	shell:
 		r"C:\ffmpeg-3.4.2-win64-static\bin\ffmpeg.exe -pattern_type sequence -start_number 0 -framerate 15 -i data\interim\vtk_rendering\simple.%04d.png  -c:v libx264 reports\figures\segmentation_rendered.mp4"
+		
+rule create_rendering_general:
+	output:
+		r"reports\figures\{data}\{model}_segmentation_rendered.mp4",
+	conda:
+		r"envs\ffmpeg.yml"
+	shell:
+		r"ffmpeg.exe -pattern_type sequence -start_number 0 -framerate 15 -i data\interim\vtk_rendering\{wildcards.data}\{wildcards.model}\frame.%04d.png  -c:v libx264 reports\figures\{wildcards.data}\{wildcards.model}_segmentation_rendered.mp4"
+		
 		
 
 rule mp4_to_gif:

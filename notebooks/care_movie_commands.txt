@@ -1,0 +1,14 @@
+At frame 0 make layer 1 invisible
+At frame 0 make layer 2 invisible
+From frame 0 to frame 10
+-rotate by 70 degress around (1,0,0)
+From frame 11 to frame 33
+-rotate by 180 degrees around (0,1,0)
+At frame 33 make layer 0 invisible
+At frame 33 make layer 1 visible
+From frame 34 to frame 66
+-rotate by 180 degrees around (0,1,0)
+At frame 66 make layer 1 invisible
+At frame 66 make layer 2 visible
+From frame 67 to frame 100
+-rotate by 180 degrees around (0,1,0)

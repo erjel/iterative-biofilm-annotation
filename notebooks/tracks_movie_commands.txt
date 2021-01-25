@@ -1,0 +1,9 @@
+From frame 0 to frame 10
+-rotate by 70 degrees around (1,0,0)
+-shift time by 10
+From frame 11 to frame 111
+-rotate by 360 degrees around (0,1,0)
+-shift time by 44
+From frame 55 to frame 211
+-rotate by 360 degrees around (0,1,0)
+-shift time by 44

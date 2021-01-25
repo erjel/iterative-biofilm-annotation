@@ -2,6 +2,9 @@ function tif2vtk(output_path, input_path)
 
     biofilmq_path = fullfile(getenv('Home'), 'src', 'BiofilmQ', 'includes');
     addpath(genpath(biofilmq_path));
+	
+	biofilmq_path_CPU_SERVER = 'D:\Eric\bacbq';
+	addpath(genpath(biofilmq_path_CPU_SERVER));
     
     [folder, ~] = fileparts(output_path);
     
