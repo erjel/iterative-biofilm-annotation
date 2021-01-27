@@ -24,6 +24,32 @@ rule all:
 		r"reports\figures\care\eva-v1-dz400-care_rep1_segmentation_rendered.mp4",
 		r"data\processed\tracks\care_model_eva-v1-dz400-care_rep1.csv",
 		r"data\interim\tracking\care_model_eva-v1-dz400-care_rep1.tif",
+		#r"data\processed\tracks\care_model_eva-v1-dz400-care_rep1_growthrate.csv",
+		r"data\interim\tracking\care_model_eva-v1-dz400-care_rep1.xml",
+		
+rule tracks2growthrate:
+	output:
+		r"data\processed\tracks\{data}_model_{model}_growthrate.csv",
+	input:
+		tracks_csv = r"data\processed\tracks\{data}_model_{model}.csv",
+		prediction_folder = r"data\interim\predictions\{data}\{model}",
+	threads:
+		1
+	conda:
+		r"envs\calc.yml"
+	shell:
+		r"python scripts\calc_growthrate.py {output} {input.tracks_csv} {input.prediction_folder}"
+		
+rule labelimages2trackmate:
+	output:
+		r"data\interim\tracking\{data}_model_{model}.xml",
+	input:
+		int_data_path = r'data\interim\tracking\{data}_model_{model}.zip', # created manually from care_model_eva-v1-dz400-care_rep1.tif hyperstack with Fiji
+		input_folder = r'data\interim\predictions\{data}\{model}',
+	conda:
+		r"envs\jinja2.yml"
+	shell:
+		r"python scripts\labelimage2trackmate.py --int_data_path {input.int_data_path} --input_folder {input.input_folder} --output_xml {output}"
 		
 rule seg2trackmate:
 	output:
@@ -34,7 +60,7 @@ rule seg2trackmate:
 		r"envs\stardist.yml"
 	shell:
 		r"python scripts\create_stack_for_trackmate.py {output} {input}"
-		
+				
 		
 		
 rule trackmate2napari:

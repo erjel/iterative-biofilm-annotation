@@ -1,0 +1,11 @@
+name: calc
+channels:
+  - defaults
+dependencies:
+  - pandas=1.2.0
+  - tifffile=2020.10.1
+  - scikit-image=0.17.2
+  - matplotlib=3.3.2
+  - pip=20.3.3
+  - pip:
+    - tqdm==4.43.0
