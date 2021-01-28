@@ -23,7 +23,6 @@ rule all:
 		),
 		r"reports\figures\care\eva-v1-dz400-care_rep1_segmentation_rendered.mp4",
 		r"data\processed\tracks\care_model_eva-v1-dz400-care_rep1.csv",
-		r"data\interim\tracking\care_model_eva-v1-dz400-care_rep1.tif",
 		#r"data\processed\tracks\care_model_eva-v1-dz400-care_rep1_growthrate.csv",
 		r"data\interim\tracking\care_model_eva-v1-dz400-care_rep1.xml",
 		
@@ -44,18 +43,18 @@ rule labelimages2trackmate:
 	output:
 		r"data\interim\tracking\{data}_model_{model}.xml",
 	input:
-		int_data_path = r'data\interim\tracking\{data}_model_{model}.zip', # created manually from care_model_eva-v1-dz400-care_rep1.tif hyperstack with Fiji
+		int_data_path = r'data\interim\tracking\{data}.tif',
 		input_folder = r'data\interim\predictions\{data}\{model}',
 	conda:
 		r"envs\jinja2.yml"
 	shell:
 		r"python scripts\labelimage2trackmate.py --int_data_path {input.int_data_path} --input_folder {input.input_folder} --output_xml {output}"
 		
-rule seg2trackmate:
+rule stack4trackmate:
 	output:
-		r"data\interim\tracking\{data}_model_{model}.tif"
+		r"data\interim\tracking\{data}.tif"
 	input:
-		r"data\interim\predictions\{data}\{model}"
+		r"data\interim\{data}"
 	conda:
 		r"envs\stardist.yml"
 	shell:

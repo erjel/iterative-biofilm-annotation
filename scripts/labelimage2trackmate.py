@@ -12,9 +12,9 @@ def parse_args():
 
     parser = ArgumentParser()
 
-    parser.add_argument('--int_data_path', type=str, default=r"T:\to_delete\care_model_eva-v1-dz400-care_rep1_v4.zip")
-    parser.add_argument('--input_folder', type=str, default=r'T:\to_delete\debug')
-    parser.add_argument('--output_xml', type=str, default=r"Y:\Eric\prediction_test\data\interim\tracking\debug_full.xml")
+    parser.add_argument('--int_data_path', type=str)
+    parser.add_argument('--input_folder', type=str)
+    parser.add_argument('--output_xml', type=str)
 
     return parser, parser.parse_args()
 

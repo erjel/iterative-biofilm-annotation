@@ -1,4 +1,4 @@
-from tifffile import imread
+from tifffile import imread, imwrite
 from pathlib import Path
 from tqdm import tqdm
 import numpy as np
@@ -29,36 +29,25 @@ def main():
 	img = imread(str(img_files[0]))
 
 	shape = np.asarray(img.shape, dtype='int')
-	factor = 2
-	shape = (shape/ factor) * np.asarray([len(img_files), 1, 1])
+	shape = img.shape
 
-	Tracking_stack = np.zeros(shape.astype('int'), dtype=np.int8)
-	print(Tracking_stack.shape)
+	stack = np.zeros((len(img_files),shape[0], 1, *shape[1:], 1), dtype=np.uint8)
 
-	from tifffile import imsave
-	import os
-	from skimage.measure import regionprops
-	import numpy as np
+	for i, img_file in enumerate(tqdm(img_files),):
+		if i != 0: # first image already loaded
+			img = imread(str(img_file))
 
-	for i, img_file in enumerate(tqdm(img_files)):
+		img = img - np.min(img)
+		img = img / np.max(img)
+		img[img < 0 ] = 0
+		img[img > 1] = 1
+		img = img * 2**8 - 1
+		img = img.astype(np.uint8)
 
-		img = imread(str(img_file))
-		shape = img.shape
+		stack[i] = img[:, None, :, :, None]
 
-		props = regionprops(img)
-		
-		centroids = np.asarray([p.centroid for p in props])
-		centroids = centroids / factor
-		
-		centroids = np.rint(centroids)
-		centroids = centroids.astype(np.int16)
-			
-		for z, y, x in centroids:
-			Tracking_stack[int(z+shape[0]/2*i), y, x] = 2**8-1
-
-	imsave(output_stack , Tracking_stack)
-
-	print(shape[0] // 2, len(img_files))
+	imwrite(output_stack, stack, imagej=True, metadata={'axes': 'TZCYXS'}, compression=('DEFLATE', 1))
+	
 	
 	return
 	
