@@ -16,7 +16,7 @@ def parse_args():
     parser.add_argument('tracks_csv', type=str)
     parser.add_argument('prediction_folder', type=str)
     parser.add_argument('--prediction_file_pattern', type=str, default='*_frame{frame:06d}*.tif')
-    parser.add_argument('--factor', type=float, default=2)
+    parser.add_argument('--factor', type=float, default=1)
 
     return parser, parser.parse_args()
 

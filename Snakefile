@@ -23,8 +23,20 @@ rule all:
 		),
 		r"reports\figures\care\eva-v1-dz400-care_rep1_segmentation_rendered.mp4",
 		r"data\processed\tracks\care_model_eva-v1-dz400-care_rep1.csv",
-		#r"data\processed\tracks\care_model_eva-v1-dz400-care_rep1_growthrate.csv",
+		r"data\processed\tracks\care_model_eva-v1-dz400-care_rep1_growthrate.csv",
 		r"data\interim\tracking\care_model_eva-v1-dz400-care_rep1.xml",
+		r'reports\figures\care\eva-v1-dz400-care_rep1_single_cell_growthrate.png',
+
+
+rule plot_growthrate:
+	output:
+		r'reports\figures\{data}\{modelname}_single_cell_growthrate.png',
+	input:
+		r'data\processed\tracks\{data}_model_{modelname}_growthrate.csv',
+	conda:
+		r'envs\calc.yml'
+	shell:
+		r"python scripts\plot_growthrate.py {output} {input}"
 		
 rule tracks2growthrate:
 	output:
