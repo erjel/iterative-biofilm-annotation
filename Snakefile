@@ -26,7 +26,17 @@ rule all:
 		r"data\processed\tracks\care_model_eva-v1-dz400-care_rep1_growthrate.csv",
 		r"data\interim\tracking\care_model_eva-v1-dz400-care_rep1.xml",
 		r'reports\figures\care\eva-v1-dz400-care_rep1_single_cell_growthrate.png',
+		r'reports\figures\care\eva-v1-dz400-care_rep1_growthrate_heatmap.png',
 
+rule plot_growthrate_heatmap:
+	output:
+		r'reports\figures\{data}\{modelname}_growthrate_heatmap.png',
+	input:
+		r'data\processed\tracks\{data}_model_{modelname}_growthrate.csv',
+	conda:
+		r'envs\plot.yml'
+	shell:
+		r"python scripts\plot_growthrate_heatmap.py {output} {input}"
 
 rule plot_growthrate:
 	output:

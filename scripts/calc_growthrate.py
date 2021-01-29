@@ -59,7 +59,13 @@ def main():
         _, inv_order = np.unique(label_, return_inverse=True)
         df.at[belongs_to_frame, 'volume'] = area[inv_order]
 
-    output_name = Path(output_csv)
+    for i, row in df.iterrows():
+        if i > 0 and (df.loc[i-1, 'track_id'] == df.loc[i, 'track_id']):
+            df.loc[i, 'volume_diff'] = df.loc[i, 'volume'] - df.loc[i-1, 'volume']
+        else:
+            df.loc[i, 'volume_diff'] = np.nan
+
+    output_name = Path(args.output_csv)
 
     if not output_name.parent.is_dir():
         output_name.parent.mkdir(parents=True, exist_ok=True)

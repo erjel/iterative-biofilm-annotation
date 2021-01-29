@@ -1,0 +1,5 @@
+name: plot
+channels:
+  - defaults
+dependencies:
+  - seaborn=0.11.1
