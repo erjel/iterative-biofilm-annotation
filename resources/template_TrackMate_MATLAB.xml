@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TrackMate version="6.0.1">
+  <Log>
+	Created with custom script
+  </Log>
+  <Model spatialunits=" " timeunits="frame">
+    <FeatureDeclarations>
+      <SpotFeatures>
+        <Feature feature="QUALITY" name="Quality" shortname="Quality" dimension="QUALITY" isint="false" />
+        <Feature feature="POSITION_X" name="X" shortname="X" dimension="POSITION" isint="false" />
+        <Feature feature="POSITION_Y" name="Y" shortname="Y" dimension="POSITION" isint="false" />
+        <Feature feature="POSITION_Z" name="Z" shortname="Z" dimension="POSITION" isint="false" />
+        <Feature feature="POSITION_T" name="T" shortname="T" dimension="TIME" isint="false" />
+        <Feature feature="FRAME" name="Frame" shortname="Frame" dimension="NONE" isint="true" />
+        <Feature feature="RADIUS" name="Radius" shortname="R" dimension="LENGTH" isint="false" />
+        <Feature feature="VISIBILITY" name="Visibility" shortname="Visibility" dimension="NONE" isint="true" />
+        <Feature feature="MANUAL_COLOR" name="Manual spot color" shortname="Spot color" dimension="NONE" isint="true" />
+        <Feature feature="MEAN_INTENSITY" name="Mean intensity" shortname="Mean" dimension="INTENSITY" isint="false" />
+        <Feature feature="MEDIAN_INTENSITY" name="Median intensity" shortname="Median" dimension="INTENSITY" isint="false" />
+        <Feature feature="MIN_INTENSITY" name="Minimal intensity" shortname="Min" dimension="INTENSITY" isint="false" />
+        <Feature feature="MAX_INTENSITY" name="Maximal intensity" shortname="Max" dimension="INTENSITY" isint="false" />
+        <Feature feature="TOTAL_INTENSITY" name="Total intensity" shortname="Total int." dimension="INTENSITY" isint="false" />
+        <Feature feature="STANDARD_DEVIATION" name="Standard deviation" shortname="Stdev." dimension="INTENSITY" isint="false" />
+        <Feature feature="ESTIMATED_DIAMETER" name="Estimated diameter" shortname="Diam." dimension="LENGTH" isint="false" />
+        <Feature feature="CONTRAST" name="Contrast" shortname="Constrast" dimension="NONE" isint="false" />
+        <Feature feature="SNR" name="Signal/Noise ratio" shortname="SNR" dimension="NONE" isint="false" />
+      </SpotFeatures>
+      <EdgeFeatures>
+        <Feature feature="SPOT_SOURCE_ID" name="Source spot ID" shortname="Source ID" dimension="NONE" isint="true" />
+        <Feature feature="SPOT_TARGET_ID" name="Target spot ID" shortname="Target ID" dimension="NONE" isint="true" />
+        <Feature feature="LINK_COST" name="Link cost" shortname="Cost" dimension="NONE" isint="false" />
+        <Feature feature="EDGE_TIME" name="Time (mean)" shortname="T" dimension="TIME" isint="false" />
+        <Feature feature="EDGE_X_LOCATION" name="X Location (mean)" shortname="X" dimension="POSITION" isint="false" />
+        <Feature feature="EDGE_Y_LOCATION" name="Y Location (mean)" shortname="Y" dimension="POSITION" isint="false" />
+        <Feature feature="EDGE_Z_LOCATION" name="Z Location (mean)" shortname="Z" dimension="POSITION" isint="false" />
+        <Feature feature="VELOCITY" name="Velocity" shortname="V" dimension="VELOCITY" isint="false" />
+        <Feature feature="DISPLACEMENT" name="Displacement" shortname="D" dimension="LENGTH" isint="false" />
+        <Feature feature="MANUAL_COLOR" name="Manual edge color" shortname="Edge color" dimension="NONE" isint="true" />
+      </EdgeFeatures>
+      <TrackFeatures>
+        <Feature feature="NUMBER_SPOTS" name="Number of spots in track" shortname="N spots" dimension="NONE" isint="true" />
+        <Feature feature="NUMBER_GAPS" name="Number of gaps" shortname="Gaps" dimension="NONE" isint="true" />
+        <Feature feature="LONGEST_GAP" name="Longest gap" shortname="Longest gap" dimension="NONE" isint="true" />
+        <Feature feature="NUMBER_SPLITS" name="Number of split events" shortname="Splits" dimension="NONE" isint="true" />
+        <Feature feature="NUMBER_MERGES" name="Number of merge events" shortname="Merges" dimension="NONE" isint="true" />
+        <Feature feature="NUMBER_COMPLEX" name="Complex points" shortname="Complex" dimension="NONE" isint="true" />
+        <Feature feature="TRACK_DURATION" name="Duration of track" shortname="Duration" dimension="TIME" isint="false" />
+        <Feature feature="TRACK_START" name="Track start" shortname="T start" dimension="TIME" isint="false" />
+        <Feature feature="TRACK_STOP" name="Track stop" shortname="T stop" dimension="TIME" isint="false" />
+        <Feature feature="TRACK_DISPLACEMENT" name="Track displacement" shortname="Displacement" dimension="LENGTH" isint="false" />
+        <Feature feature="TRACK_INDEX" name="Track index" shortname="Index" dimension="NONE" isint="true" />
+        <Feature feature="TRACK_ID" name="Track ID" shortname="ID" dimension="NONE" isint="true" />
+        <Feature feature="TRACK_X_LOCATION" name="X Location (mean)" shortname="X" dimension="POSITION" isint="false" />
+        <Feature feature="TRACK_Y_LOCATION" name="Y Location (mean)" shortname="Y" dimension="POSITION" isint="false" />
+        <Feature feature="TRACK_Z_LOCATION" name="Z Location (mean)" shortname="Z" dimension="POSITION" isint="false" />
+        <Feature feature="TRACK_MEAN_SPEED" name="Mean velocity" shortname="Mean V" dimension="VELOCITY" isint="false" />
+        <Feature feature="TRACK_MAX_SPEED" name="Maximal velocity" shortname="Max V" dimension="VELOCITY" isint="false" />
+        <Feature feature="TRACK_MIN_SPEED" name="Minimal velocity" shortname="Min V" dimension="VELOCITY" isint="false" />
+        <Feature feature="TRACK_MEDIAN_SPEED" name="Median velocity" shortname="Median V" dimension="VELOCITY" isint="false" />
+        <Feature feature="TRACK_STD_SPEED" name="Velocity standard deviation" shortname="V std" dimension="VELOCITY" isint="false" />
+        <Feature feature="TRACK_MEAN_QUALITY" name="Mean quality" shortname="Mean Q" dimension="QUALITY" isint="false" />
+        <Feature feature="TRACK_MAX_QUALITY" name="Maximal quality" shortname="Max Q" dimension="QUALITY" isint="false" />
+        <Feature feature="TRACK_MIN_QUALITY" name="Minimal quality" shortname="Min Q" dimension="QUALITY" isint="false" />
+        <Feature feature="TRACK_MEDIAN_QUALITY" name="Median quality" shortname="Median Q" dimension="QUALITY" isint="false" />
+        <Feature feature="TRACK_STD_QUALITY" name="Quality standard deviation" shortname="Q std" dimension="QUALITY" isint="false" />
+      </TrackFeatures>
+    </FeatureDeclarations>
+%s    <AllTracks>
+    </AllTracks>
+    <FilteredTracks>
+    </FilteredTracks>
+  </Model>
+  <Settings>
+%s
+%s
+    <DetectorSettings DETECTOR_NAME="LOG_DETECTOR" TARGET_CHANNEL="1" RADIUS="5.5" THRESHOLD="100.0" DO_MEDIAN_FILTERING="true" DO_SUBPIXEL_LOCALIZATION="true" />
+    <InitialSpotFilter feature="QUALITY" value="0.0" isabove="true" />
+    <SpotFilterCollection />
+    <TrackerSettings TRACKER_NAME="SIMPLE_SPARSE_LAP_TRACKER" CUTOFF_PERCENTILE="0.9" ALTERNATIVE_LINKING_COST_FACTOR="1.05" BLOCKING_VALUE="Infinity">
+      <Linking LINKING_MAX_DISTANCE="15.0">
+        <FeaturePenalties />
+      </Linking>
+      <GapClosing ALLOW_GAP_CLOSING="true" GAP_CLOSING_MAX_DISTANCE="15.0" MAX_FRAME_GAP="2">
+        <FeaturePenalties />
+      </GapClosing>
+      <TrackSplitting ALLOW_TRACK_SPLITTING="false" SPLITTING_MAX_DISTANCE="15.0">
+        <FeaturePenalties />
+      </TrackSplitting>
+      <TrackMerging ALLOW_TRACK_MERGING="false" MERGING_MAX_DISTANCE="15.0">
+        <FeaturePenalties />
+      </TrackMerging>
+    </TrackerSettings>
+    <TrackFilterCollection />
+    <AnalyzerCollection>
+      <SpotAnalyzers>
+        <Analyzer key="MANUAL_SPOT_COLOR_ANALYZER" />
+        <Analyzer key="Spot descriptive statistics" />
+        <Analyzer key="Spot radius estimator" />
+        <Analyzer key="Spot contrast and SNR" />
+      </SpotAnalyzers>
+      <EdgeAnalyzers>
+        <Analyzer key="Edge target" />
+        <Analyzer key="Edge mean location" />
+        <Analyzer key="Edge velocity" />
+        <Analyzer key="MANUAL_EDGE_COLOR_ANALYZER" />
+      </EdgeAnalyzers>
+      <TrackAnalyzers>
+        <Analyzer key="Branching analyzer" />
+        <Analyzer key="Track duration" />
+        <Analyzer key="Track index" />
+        <Analyzer key="Track location" />
+        <Analyzer key="Velocity" />
+        <Analyzer key="TRACK_SPOT_QUALITY" />
+      </TrackAnalyzers>
+    </AnalyzerCollection>
+  </Settings>
+  <GUIState state="Actions">
+    <View key="HYPERSTACKDISPLAYER" />
+  </GUIState>
+</TrackMate>
