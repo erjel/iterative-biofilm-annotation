@@ -27,6 +27,8 @@ rule all:
 		r"data\interim\tracking\care_model_eva-v1-dz400-care_rep1.xml",
 		r'reports\figures\care\eva-v1-dz400-care_rep1_single_cell_growthrate.png',
 		r'reports\figures\care\eva-v1-dz400-care_rep1_growthrate_heatmap.png',
+		r'reports\figures\care\BiofilmQ_single_cell_growthrate.png',
+		r'reports\figures\care\BiofilmQ_growthrate_heatmap.png',
 
 rule plot_growthrate_heatmap:
 	output:
