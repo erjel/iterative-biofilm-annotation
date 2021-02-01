@@ -17,6 +17,8 @@ def parse_args():
     parser.add_argument('prediction_folder', type=str)
     parser.add_argument('--prediction_file_pattern', type=str, default='*_frame{frame:06d}*.tif')
     parser.add_argument('--factor', type=float, default=1)
+    parser.add_argument('--transl_csv', type=str, default=None)
+    parser.add_argument('--crop_csv', type=str, default=None)
 
     return parser, parser.parse_args()
 
@@ -25,6 +27,9 @@ def main():
     parser, args = parse_args()
 
     tracks = np.genfromtxt(args.tracks_csv, delimiter=',')
+    if (not args.transl_csv is None) and (not args.crop_csv is None):
+        transl = np.genfromtxt(args.transl_csv  , delimiter=',')
+        crop = np.genfromtxt(args.crop_csv , delimiter=',')
 
     
     df = pd.DataFrame(tracks, columns=['track_id', 'frame', 'z', 'y', 'x'])
@@ -34,7 +39,7 @@ def main():
     root_path = Path(args.prediction_folder)
 
 
-    for frame in tqdm(df['frame'].unique()):
+    for i, frame in tqdm(enumerate(df['frame'].unique())):
         print(int(frame)+1)
         candidates = sorted(root_path.glob(args.prediction_file_pattern.format(frame=int(frame+1))))
         print(candidates)
@@ -46,9 +51,15 @@ def main():
         df_ = df[['z', 'y', 'x']][belongs_to_frame]
         print(len(df_), np.max(im))
         values = (df_.values * args.factor).astype('int')
-        z = values[:, 0]
-        y = values[:, 1]
-        x = values[:, 2]
+        if (not args.transl_csv is None) and (not args.crop_csv is None):
+            z = values[:, 0] + int(transl[i, 2] - crop[i, 2])
+            y = values[:, 1] + int(transl[i, 1] - crop[i, 1])
+            x = values[:, 2] + int(transl[i, 0] - crop[i, 0])
+        else:
+            z = values[:, 0]
+            y = values[:, 1]
+            x = values[:, 2]
+
         
         label_ = im[z, y, x]
         df.at[belongs_to_frame, 'seg_id'] = label_

@@ -49,19 +49,67 @@ rule plot_growthrate:
 		r'envs\calc.yml'
 	shell:
 		r"python scripts\plot_growthrate.py {output} {input}"
+
+ruleorder: tracks2growthrateBiofilmQ > tracks2growthrate
 		
+rule tracks2growthrateBiofilmQ:
+	output:
+		r"data\processed\tracks\{data}_model_BiofilmQ_growthrate.csv",
+	input:
+		tracks_csv = r"data\processed\tracks\{data}_model_BiofilmQ.csv",
+		prediction_folder = r"data\interim\predictions\{data}\BiofilmQ",
+		translations = r"data\interim\tracking\{data}_model_BiofilmQ_translations.csv",
+		crop = r"data\interim\tracking\{data}_model_BiofilmQ_crop_offsets.csv",
+	threads:
+		1
+	conda:
+		r"envs\calc.yml"
+	shell:
+		r"python scripts\calc_growthrate.py {output} {input.tracks_csv} {input.prediction_folder} " +
+		r"--transl_csv {input.translations} --crop_csv {input.crop}"
+		
+
 rule tracks2growthrate:
 	output:
 		r"data\processed\tracks\{data}_model_{model}_growthrate.csv",
 	input:
 		tracks_csv = r"data\processed\tracks\{data}_model_{model}.csv",
 		prediction_folder = r"data\interim\predictions\{data}\{model}",
+	wildcard_constraints:
+		model="^(?!BiofilmQ$)"
 	threads:
 		1
 	conda:
 		r"envs\calc.yml"
 	shell:
 		r"python scripts\calc_growthrate.py {output} {input.tracks_csv} {input.prediction_folder}"
+
+rule biofilmQData2Labelimages:
+	output:
+		directory(r'Y:\Eric\prediction_test\data\interim\predictions\{data}\BiofilmQ)',
+	params:
+		input_folder = r'Y:\Daniel\000_Microscope data\2020.09.15_CNN3\kdv1502R_5L_30ms_300gain002\Pos5\data',
+	threads:
+		1
+	shell:
+		"""matlab -nojvm -nosplash -batch "addpath(genpath('scripts')); data2labelimage('{output}',  '{params.trans}', '{output.input_folder}')" """
+
+
+rule biofilmQ2trackmate:
+	output:
+		xml = r"data\interim\tracking\{data}_model_BiofilmQ.xml",
+		trans = r"data\interim\tracking\{data}_model_BiofilmQ_translations.csv",
+		crop = r"data\interim\tracking\{data}_model_BiofilmQ_crop_offsets.csv",
+	input:
+		data_folder = r'Y:\Daniel\000_Microscope data\2020.09.15_CNN3\kdv1502R_5L_30ms_300gain002\Pos5\data',
+		int_data_path = r'data\interim\tracking\{data}.tif',
+	threads:
+		1
+	shell:
+		"""matlab -nojvm -nosplash -batch "addpath(genpath('scripts')); biofilmQ2trackMate('{output.xml}',  '{output.trans}', '{output.crop}', '{input.int_data_path}', '{input.data_folder}')" """
+	
+
+
 		
 rule labelimages2trackmate:
 	output:
@@ -90,7 +138,7 @@ rule trackmate2napari:
 	output:
 		r"data\processed\tracks\{data}_model_{model}.csv"
 	input:
-		r"data\interim\tracking\{data}_model_{model}_Tracks.xml"
+		r"data\interim\tracking\{data}_model_{model}_Tracks.xml" # comes from manual TrackMate step
 	conda:
 		r"envs\stardist.yml"
 	shell:
