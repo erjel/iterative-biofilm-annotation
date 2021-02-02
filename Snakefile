@@ -86,7 +86,7 @@ rule tracks2growthrate:
 
 rule biofilmQData2Labelimages:
 	output:
-		directory(r'Y:\Eric\prediction_test\data\interim\predictions\{data}\BiofilmQ)',
+		directory(r'Y:\Eric\prediction_test\data\interim\predictions\{data}\BiofilmQ'),
 	params:
 		input_folder = r'Y:\Daniel\000_Microscope data\2020.09.15_CNN3\kdv1502R_5L_30ms_300gain002\Pos5\data',
 	threads:
