@@ -22,7 +22,7 @@ def toolbox2RawData(slice_df, axes='CYX', lowChannel='ch2', gtChannel='ch1', tes
     from posixpath import join
 
 
-    z_heights = slice_df.std_argmax + 1
+    z_heights = slice_df.std_argmax + 1 # overview plane is not account during calculation
 
     source_paths = [str(Path(p)) for p in slice_df.Path]
     target_paths = [str(Path(p)).replace(lowChannel, gtChannel) for p in slice_df.Path]
@@ -101,7 +101,7 @@ def main():
     np.random.seed(args.seed)
     
     slice_df = pd.read_csv(slice_csv)
-    slice_df.std_argmax  = slice_df.std_argmax + 1 # overview plane is not account during calculation
+    slice_df.std_argmax  = slice_df.std_argmax
 
     raw_data_train, test_data = toolbox2RawData (
         slice_df,

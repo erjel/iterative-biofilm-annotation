@@ -34,6 +34,7 @@ rule all:
 		),
 		'data/interim/metadata/raw/z_standard_deviation.csv',
 		'data/interim/training_sets/CARE_2D/raw_ch1_ch2/2021-02-03.npz',
+		'models/care/2D_raw_ch1_ch2_2021-02-03_rep1',
 
 rule calc_coverslip_slice:
 	output:

@@ -1,5 +1,20 @@
 
-rule crate_care_2D_dataset:
+rule train_care_2D:
+	output:
+		'models/care/2D_{data}_{low}_{high}_{training_data}_rep{rep}'
+	input:
+		'data/interim/training_sets/CARE_2D/{data}_{low}_{high}/{training_data}.npz'
+	params:
+		gpu_id = '1',
+		seed = '3982',
+	resources:
+		nvidia_gpu=1
+	conda:
+		'../envs/care.yml'
+	shell:
+		'python scripts/care_2D_training.py {output} {input} --gpu {params.gpu_id} --seed {params.seed}'
+
+rule create_care_2D_dataset:
 	output:
 		'data/interim/training_sets/CARE_2D/{data}_ch1_ch2/2021-02-03.npz',
 	input:
