@@ -1,4 +1,19 @@
 
+rule crate_care_2D_dataset:
+	output:
+		'data/interim/training_sets/CARE_2D/{data}_ch1_ch2/2021-02-03.npz',
+	input:
+		'data/interim/metadata/{data}/cover_slip_slice.csv',
+	params:
+		seed='7848',
+	resources:
+		nvidia_gpu=1
+	conda:
+		'../envs/care_data_gen.yml'
+	shell:
+		'python scripts/care_gen_2D_dataset.py {output} {input} --seed {params.seed}'
+
+
 rule create_care_prediction_file:
 	output:
 		r"data\interim\care\{label}_ch3_frame{frame}_Nz{Nz}.tif"

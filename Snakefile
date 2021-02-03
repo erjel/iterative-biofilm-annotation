@@ -32,7 +32,8 @@ rule all:
 		expand(r"data\interim\vtk\care\BiofilmQ\frame_{frame_number}.vtk", 
 			frame_number = glob_wildcards(r"data\interim\predictions\care\BiofilmQ\{label_1}_frame{frame_number}_{label_2}.tif")[1]
 		),
-		'data/interim/metadata/raw/z_standard_deviation.csv'
+		'data/interim/metadata/raw/z_standard_deviation.csv',
+		'data/interim/training_sets/CARE_2D/raw_ch1_ch2/2021-02-03.npz',
 
 rule calc_coverslip_slice:
 	output:
