@@ -35,6 +35,22 @@ rule all:
 		'data/interim/metadata/raw/z_standard_deviation.csv',
 		'data/interim/training_sets/CARE_2D/raw_ch1_ch2/2021-02-03.npz',
 		'models/care/2D_raw_ch1_ch2_2021-02-03_rep1',
+		'data/interim/training_sets/CARE_3D/raw_ch1_ch2/2021-02-03.npz',
+		'models/care/3D_raw_ch1_ch2_2021-02-03_rep1',
+		'models/n2v/3D_raw_ch1_rep1',
+
+rule train_n2v:
+	output:
+		'models/n2v/3D_{data}_{ch}_rep{rep}'
+	params:
+		input_folder=r'Y:\Daniel\000_Microscope data\2020.09.15_CNN3\kdv1502R_5L_30ms_300gain002\Pos5',
+		gpu='0',
+	resources:
+		nvidia_gpu=1
+	conda:
+		'envs/n2v.yml'
+	shell:
+		'python scripts/n2v_training.py'
 
 rule calc_coverslip_slice:
 	output:

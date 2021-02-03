@@ -1,18 +1,31 @@
 
-rule train_care_2D:
+
+
+rule train_care:
 	output:
-		'models/care/2D_{data}_{low}_{high}_{training_data}_rep{rep}'
+		'models/care/{dims}D_{data}_{low}_{high}_{training_data}_rep{rep}'
 	input:
-		'data/interim/training_sets/CARE_2D/{data}_{low}_{high}/{training_data}.npz'
+		'data/interim/training_sets/CARE_{dims}D/{data}_{low}_{high}/{training_data}.npz'
 	params:
 		gpu_id = '1',
-		seed = '3982',
 	resources:
 		nvidia_gpu=1
 	conda:
 		'../envs/care.yml'
 	shell:
-		'python scripts/care_2D_training.py {output} {input} --gpu {params.gpu_id} --seed {params.seed}'
+		'python scripts/care_training.py {output} {input} --gpu {params.gpu_id} --seed {wildcards.training_data}'
+
+rule create_care_3D_dataset:
+	output:
+		'data/interim/training_sets/CARE_3D/{data}_{low}_{high}/{dataset_label}.npz',
+	input:
+		'data/interim/metadata/{data}/cover_slip_slice.csv',
+	params:
+		seed = 7848,
+	conda:
+		'../envs/care_data_gen.yml',
+	shell:
+		'python scripts/care_gen_3D_dataset.py {output} {input} --seed {params.seed}'
 
 rule create_care_2D_dataset:
 	output:
@@ -21,8 +34,6 @@ rule create_care_2D_dataset:
 		'data/interim/metadata/{data}/cover_slip_slice.csv',
 	params:
 		seed='7848',
-	resources:
-		nvidia_gpu=1
 	conda:
 		'../envs/care_data_gen.yml'
 	shell:

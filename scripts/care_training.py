@@ -29,14 +29,14 @@ def parse_args():
     parser.add_argument('output_model', type=str)
     parser.add_argument('trainings_npz', type=str)
     parser.add_argument('--gpu', type=str, default='0')
-    parser.add_argument('--seed', type=int, default=3982)
+    parser.add_argument('--seed', type=str, default='3982')
 
     return parser, parser.parse_args()
 
 def main():
     parser, args = parse_args()
 
-    np.random.seed(args.seed)
+    np.random.seed(hash(args.seed) % 10**8)
 
     model_path = Path(args.output_model)
 
