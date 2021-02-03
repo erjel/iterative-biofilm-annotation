@@ -29,6 +29,21 @@ rule all:
 		r'reports\figures\care\eva-v1-dz400-care_rep1_growthrate_heatmap.png',
 		r'reports\figures\care\BiofilmQ_single_cell_growthrate.png',
 		r'reports\figures\care\BiofilmQ_growthrate_heatmap.png',
+		expand(r"data\interim\vtk\care\BiofilmQ\frame_{frame_number}.vtk", 
+			frame_number = glob_wildcards(r"data\interim\predictions\care\BiofilmQ\{label_1}_frame{frame_number}_{label_2}.tif")[1]
+		),
+		'data/interim/metadata/raw/z_standard_deviation.csv'
+
+rule calc_coverslip_slice:
+	output:
+		std_csv = 'data/interim/metadata/{data}/z_standard_deviation.csv',
+		cover_slip_slice_csv = 'data/interim/metadata/{data}/cover_slip_slice.csv',
+	input:
+		basepaths = ['Y:/Eva/CARE/08.12.20_14h', 'Y:/Eva/CARE/08.12.20_19h', 'Y:/Eva/CARE/08.12.20_24h', 'Y:/Eva/CARE/09.12.20_14h']
+	conda:
+		'envs/calc.yml'
+	shell:
+		'python scripts/calc_coverslip_slice.py {output.std_csv} {output.cover_slip_slice_csv} {input.basepaths}'
 
 rule plot_growthrate_heatmap:
 	output:
@@ -164,6 +179,16 @@ rule create_vtk_from_labelfile_general:
 	shell:
 		"""matlab -nojvm -nosplash -batch "addpath(genpath('scripts')); tif2vtk('{output}', '{input}')" """
 		
+		
+rule create_vtk_from_labelfile_general_ch2:
+	output:
+		r"data\interim\vtk\{data}\{model}\frame_{frame_number}.vtk"
+	input:
+		r"data\interim\predictions\{data}\{model}\kdv1502R_5L_30ms_300gain002_pos5_ch2_frame{frame_number}_Nz54.tif"
+	threads:
+		2
+	shell:
+		"""matlab -nojvm -nosplash -batch "addpath(genpath('scripts')); tif2vtk('{output}', '{input}')" """
 
 		
 rule create_rendering_test:
