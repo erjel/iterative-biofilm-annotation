@@ -6,6 +6,7 @@ from pathlib import Path
 import os
 
 from argparse import ArgumentParser
+from utils import use_gpu
 
 
 def parse_args():
@@ -14,19 +15,14 @@ def parse_args():
     parser.add_argument('output_tiff', type=str)
     parser.add_argument('input_tiff', type=str)
     parser.add_argument('model_path', type=str)
-    parser.add_argument('--gpu_id', type=int, default=0)
     parser.add_argument('--has_overview', action='store_true')
 
     return parser, parser.parse_args()
 
+@use_gpu
 def main():
 
     parser, args = parse_args()
-
-    os.environ["TF_FORCE_GPU_ALLOW_GROWTH"] = 'true'
-    os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
-    os.environ["CUDA_VISIBLE_DEVICES"]=str(args.gpu_id) 
-    os.environ["TF_FORCE_GPU_ALLOW_GROWTH"] = 'true'
 
     model_path = Path(args.model_path)
 

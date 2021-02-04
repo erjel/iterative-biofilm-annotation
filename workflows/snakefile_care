@@ -1,19 +1,60 @@
 
+rule care_predict_folder_as_2D_stack:
+	output:
+		touch('data/interim/predictions/raw/care/2D_{model_label}/.chkpnt'),
+	input:
+		'models/care/2D_{model_label}',
+	params:
+		input_dir = r"Y:\Daniel\000_Microscope data\2020.09.15_CNN3\kdv1502R_5L_30ms_300gain002\Pos5",
+		input_pattern = r'*_ch1_*.tif',
+		output_name = lambda wc: "{file_name}",
+		output_dir = lambda wc: f"data/interim/predictions/raw/care/2D_{wc.model_label}",
+		model_basedir = r"models\care",
+	resources:
+		nvidia_gpu=1
+	conda:
+		r"..\envs\care.yml"
+	shell:
+		r"python scripts\care_prediction.py " + 
+			r'--input-dir "{params.input_dir}" --input-pattern {params.input_pattern} ' + 
+			r"--output-dir {params.output_dir} --output-name {params.output_name}.tif " + 
+			r"--model-basedir {params.model_basedir} --model-name 2D_{wildcards.model_label} " + 
+			r"--input-axes YX --model-type care --overview_plane --model-2D " +
+			r"--imagej-tiff False"
 
+rule care_predict_folder:
+	output:
+		touch('data/interim/predictions/raw/care/3D_{model_label}/.chkpnt'),
+	input:
+		'models/care/3D_{model_label}'
+	params:
+		input_dir = r"Y:\Daniel\000_Microscope data\2020.09.15_CNN3\kdv1502R_5L_30ms_300gain002\Pos5",
+		input_pattern = r'*_ch1_*.tif',
+		output_name = lambda wc: "{file_name}",
+		output_dir = lambda wc: f"data/interim/predictions/raw/care/3D_{wc.model_label}",
+		model_basedir = r"models\care",
+	resources:
+		nvidia_gpu=1
+	conda:
+		r"..\envs\care.yml"
+	shell:
+		r"python scripts\care_prediction.py " + 
+			r'--input-dir "{params.input_dir}" --input-pattern {params.input_pattern} ' + 
+			r"--output-dir {params.output_dir} --output-name {params.output_name}.tif " + 
+			r"--model-basedir {params.model_basedir} --model-name 3D_{wildcards.model_label} " + 
+			r"--input-axes ZYX --n-tiles 16 --model-type care --overview_plane"
 
 rule train_care:
 	output:
 		directory('models/care/{dims}D_{data}_{low}_{high}_{training_data}_rep{rep}'),
-	input:
-		'data/interim/training_sets/CARE_{dims}D/{data}_{low}_{high}/{training_data}.npz'
 	params:
-		gpu_id = '0',
+		'data/interim/training_sets/CARE_{dims}D/{data}_{low}_{high}/{training_data}.npz'
 	resources:
 		nvidia_gpu=1
 	conda:
 		'../envs/care.yml'
 	shell:
-		'python scripts/care_training.py {output} {input} --gpu {params.gpu_id} --seed {wildcards.training_data}'
+		'python scripts/care_training.py {output} {params} --seed {output}'
 
 rule create_care_3D_dataset:
 	output:

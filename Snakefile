@@ -1,3 +1,4 @@
+#set CUDA_VISIBLE_DEVICES=0,1 && snakemake -j --use-conda --resources nvidia_gpu=2
 #set CUDA_VISIBLE_DEVICES=1 && snakemake -j --use-conda --resources nvidia_gpu=1
 
 include: r"workflows\snakefile_care"
@@ -42,35 +43,39 @@ rule all:
 			label_1 = glob_wildcards(r"Y:\Daniel\000_Microscope data\2020.09.15_CNN3\kdv1502R_5L_30ms_300gain002\Pos5\{label_1}_ch1_{label_2}.tif")[0],
 			label_2 = glob_wildcards(r"Y:\Daniel\000_Microscope data\2020.09.15_CNN3\kdv1502R_5L_30ms_300gain002\Pos5\{label_1}_ch1_{label_2}.tif")[1],
 		),
-
+		'data/interim/predictions/raw/care/3D_raw_ch1_ch2_2021-02-03_rep1/.chkpnt',
+		'data/interim/predictions/raw/care/2D_raw_ch1_ch2_2021-02-03_rep1/.chkpnt',
+		'models/care/3D_raw_ch2_ch1_2020-01-05_rep1',
+		'models/care/3D_raw_ch2_ch1_2020-01-05_rep2',
+		'models/care/3D_raw_ch2_ch1_2020-01-05_rep3',
+		'models/care/3D_raw_ch2_ch1_2020-01-05_rep4',
+		'models/care/3D_raw_ch2_ch1_2020-01-05_rep5',
 
 rule predict_n2v:
 	output:
 		'data/interim/predictions/raw/n2v/{model}/{tiff}.tif',
 	params:
-		model_path = r"Y:\Eric\prediction_test\debug\models\{model}", # ToDo: replace with 'models/{model}'
+		model_path = r"\models\n2v\{model}",
 		input_folder = r'Y:\Daniel\000_Microscope data\2020.09.15_CNN3\kdv1502R_5L_30ms_300gain002\Pos5',
-		gpu_id=1
 	resources:
 		nvidia_gpu=1
 	conda:
 		'envs/n2v.yml'
 	shell:
 		r'python scripts/n2v_prediction.py {output} "{params.input_folder}\{wildcards.tiff}.tif" {params.model_path}' +\
-			' --gpu_id {params.gpu_id} --has_overview'
+			' --has_overview'
 
 rule train_n2v:
 	output:
 		directory('models/n2v/3D_{data}_{ch}_rep{rep}')
 	params:
 		input_folder=r'Y:\Daniel\000_Microscope data\2020.09.15_CNN3\kdv1502R_5L_30ms_300gain002\Pos5',
-		gpu_id='0',
 	resources:
 		nvidia_gpu=1
 	conda:
 		'envs/n2v.yml'
 	shell:
-		r'python scripts/n2v_training.py {output} {params.input_folder} --gpu {params.gpu_id} --seed {output}'
+		r'python scripts/n2v_training.py {output} "{params.input_folder}" --seed {output}'
 
 rule calc_coverslip_slice:
 	output:

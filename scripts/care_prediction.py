@@ -16,6 +16,8 @@ from csbdeep.utils import Path, _raise, axes_check_and_normalize
 
 from csbdeep.data.prepare import PadAndCropResizer
 
+from utils import use_gpu
+
 
 def str2bool(v):
     if v.lower() in ('yes', 'true', 't', 'y', '1'):
@@ -47,6 +49,7 @@ def parse_args():
     model.add_argument('--model-name',        metavar='', type=str,      required=False,                         default=None,                                             help="name of CARE model")
     model.add_argument('--model-weights',     metavar='', type=str,      required=False,                         default=None,                                             help="specific name of weights file to load (located in model folder)")
     model.add_argument('--model-type',        metavar='', type=str,      required=False,                         default=None,                                             help="specific name of the model type [care, niklas_net_v2]")
+    model.add_argument('--model-2D',          metavar='', type=str2bool, required=False, const=True, nargs='?', default=False,                                             help='model is trained on 2D data')
 
     output = parser.add_argument_group("output")
     output.add_argument('--output-dir',       metavar='', type=str,      required=False,                         default=None,                                             help="path to folder where restored images will be saved")
@@ -57,7 +60,7 @@ def parse_args():
 
     return parser, parser.parse_args()
 
-
+@use_gpu
 def main():
     if not ('__file__' in locals() or '__file__' in globals()):
         print('running interactively, exiting.')
@@ -150,7 +153,13 @@ def main():
         
         if args.overview_plane:
             img = img[1:, ...]
-        restored = model.predict(img, axes=args.input_axes, normalizer=normalizer, n_tiles=args.n_tiles)
+
+        if args.model_2D:
+            restored = np.zeros_like(img)
+            for i in range(len(img)):
+                restored[i] = model.predict(img[i], axes=args.input_axes, normalizer=normalizer, n_tiles=args.n_tiles)
+        else:
+            restored = model.predict(img, axes=args.input_axes, normalizer=normalizer, n_tiles=args.n_tiles)
         
 
         # restored image could be multi-channel even if input image is not

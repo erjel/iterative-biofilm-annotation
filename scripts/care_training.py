@@ -23,6 +23,7 @@ import os
 import tensorflow as tf
 
 from argparse import ArgumentParser
+from utils import use_gpu
 
 def parse_args():
     parser = ArgumentParser()
@@ -33,6 +34,7 @@ def parse_args():
 
     return parser, parser.parse_args()
 
+@use_gpu
 def main():
     parser, args = parse_args()
 

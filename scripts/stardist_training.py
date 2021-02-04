@@ -14,24 +14,7 @@ from skimage.segmentation import relabel_sequential
 
 from pathlib import Path
 from argparse import ArgumentParser
-
-def allocateOnEmptyGPU():
-    import os
-    import re
-    import numpy as np
-    from subprocess import check_output
-
-    nvidia_smi_output = check_output(['nvidia-smi']).decode("utf-8")
-    memory_matches = re.findall('\d+MiB\s*/\s*\d+MiB', nvidia_smi_output)
-    memory_string = [match.split('MiB')[0] for match in memory_matches]
-    gpu_memory_usage = list(map(int, memory_string))
-
-    os.environ['CUDA_VISIBLE_DEVICES'] = str(np.argmin(gpu_memory_usage))
-    os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
-    print('Run on GPU with ID: {}'.format(os.environ['CUDA_VISIBLE_DEVICES']))
-
-    return
-
+from utils import use_gpu
 
 
 def random_fliprot(img, mask, axis=None): 
@@ -76,10 +59,8 @@ def parse_args():
 
     return parser, parser.parse_args()
 
+@use_gpu
 def main():
-
-
-    allocateOnEmptyGPU()
 
     parser, args = parse_args()
     args_dict = vars(args)
@@ -172,7 +153,7 @@ def main():
 
     model.train(X_trn, Y_trn,
                 validation_data=(X_vld, Y_vld),
-                epochs=400,
+                epochs=1000,
                 augmenter=augmenter)
 
     model.optimize_thresholds(X_vld, Y_vld)
