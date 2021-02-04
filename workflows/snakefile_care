@@ -3,11 +3,11 @@
 
 rule train_care:
 	output:
-		'models/care/{dims}D_{data}_{low}_{high}_{training_data}_rep{rep}'
+		directory('models/care/{dims}D_{data}_{low}_{high}_{training_data}_rep{rep}'),
 	input:
 		'data/interim/training_sets/CARE_{dims}D/{data}_{low}_{high}/{training_data}.npz'
 	params:
-		gpu_id = '1',
+		gpu_id = '0',
 	resources:
 		nvidia_gpu=1
 	conda:

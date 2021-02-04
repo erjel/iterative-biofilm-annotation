@@ -38,19 +38,39 @@ rule all:
 		'data/interim/training_sets/CARE_3D/raw_ch1_ch2/2021-02-03.npz',
 		'models/care/3D_raw_ch1_ch2_2021-02-03_rep1',
 		'models/n2v/3D_raw_ch1_rep1',
+		expand('data/interim/predictions/raw/n2v/n2v_3D_small/{label_1}_ch1_{label_2}.tif', 
+			label_1 = glob_wildcards(r"Y:\Daniel\000_Microscope data\2020.09.15_CNN3\kdv1502R_5L_30ms_300gain002\Pos5\{label_1}_ch1_{label_2}.tif")[0],
+			label_2 = glob_wildcards(r"Y:\Daniel\000_Microscope data\2020.09.15_CNN3\kdv1502R_5L_30ms_300gain002\Pos5\{label_1}_ch1_{label_2}.tif")[1],
+		),
 
-rule train_n2v:
+
+rule predict_n2v:
 	output:
-		'models/n2v/3D_{data}_{ch}_rep{rep}'
+		'data/interim/predictions/raw/n2v/{model}/{tiff}.tif',
 	params:
-		input_folder=r'Y:\Daniel\000_Microscope data\2020.09.15_CNN3\kdv1502R_5L_30ms_300gain002\Pos5',
-		gpu='0',
+		model_path = r"Y:\Eric\prediction_test\debug\models\{model}", # ToDo: replace with 'models/{model}'
+		input_folder = r'Y:\Daniel\000_Microscope data\2020.09.15_CNN3\kdv1502R_5L_30ms_300gain002\Pos5',
+		gpu_id=1
 	resources:
 		nvidia_gpu=1
 	conda:
 		'envs/n2v.yml'
 	shell:
-		'python scripts/n2v_training.py'
+		r'python scripts/n2v_prediction.py {output} "{params.input_folder}\{wildcards.tiff}.tif" {params.model_path}' +\
+			' --gpu_id {params.gpu_id} --has_overview'
+
+rule train_n2v:
+	output:
+		directory('models/n2v/3D_{data}_{ch}_rep{rep}')
+	params:
+		input_folder=r'Y:\Daniel\000_Microscope data\2020.09.15_CNN3\kdv1502R_5L_30ms_300gain002\Pos5',
+		gpu_id='0',
+	resources:
+		nvidia_gpu=1
+	conda:
+		'envs/n2v.yml'
+	shell:
+		r'python scripts/n2v_training.py {output} {params.input_folder} --gpu {params.gpu_id} --seed {output}'
 
 rule calc_coverslip_slice:
 	output:
