@@ -7,4 +7,5 @@ reports
 *.tif
 *.mp4
 *.gif
+__pycache__
 

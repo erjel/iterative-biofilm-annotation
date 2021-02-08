@@ -30,7 +30,7 @@ def main():
     imgs = [i[:, 1:np.max([34, round(n/len(imgs)*55)]), 300:700, 300:700, :] for n, i in enumerate(imgs)]
 
     patch_shape = (32, 64, 64)
-    patches = datagen.generate_patches_from_list(imgs_, shape=patch_shape)
+    patches = datagen.generate_patches_from_list(imgs, shape=patch_shape)
     del imgs
 
     idcs = np.arange(len(patches))

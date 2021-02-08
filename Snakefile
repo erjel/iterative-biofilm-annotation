@@ -45,7 +45,7 @@ rule all:
 		),
 		'data/interim/predictions/raw/care/3D_raw_ch1_ch2_2021-02-03_rep1/.chkpnt',
 		'data/interim/predictions/raw/care/2D_raw_ch1_ch2_2021-02-03_rep1/.chkpnt',
-		'models/care/3D_raw_ch2_ch1_2020-01-05_rep1',
+		'models/care/3D_raw_ch2_ch1_2020-01-05_rep1', # Uses the training data in "Y:\Eva\CARE\Created_Trainingdata\2020-01-05_ch2_ch1_testsplit.npz"
 		'models/care/3D_raw_ch2_ch1_2020-01-05_rep2',
 		'models/care/3D_raw_ch2_ch1_2020-01-05_rep3',
 		'models/care/3D_raw_ch2_ch1_2020-01-05_rep4',
