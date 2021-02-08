@@ -50,6 +50,32 @@ rule all:
 		'models/care/3D_raw_ch2_ch1_2020-01-05_rep3',
 		'models/care/3D_raw_ch2_ch1_2020-01-05_rep4',
 		'models/care/3D_raw_ch2_ch1_2020-01-05_rep5',
+		'G:/batch_decon/data/interim/huygens_parameterscan/huygens_batch_file_rep1.hgsb',
+		#'data/interim/huygens_parameterscan',
+		
+rule copy_huygens:
+	output:
+		directory('data/interim/huygens_parameterscan'),
+	params:
+		'G:/batch_decon/data/interim/huygens_parameterscan'
+	threads:
+		1
+	shell:
+		r"XCOPY {params} {output} /s /i"
+		
+rule huygens_parameterscan:
+	output:
+		'G:/batch_decon/data/interim/huygens_parameterscan/huygens_batch_file_rep1.hgsb',
+	input:
+		#r"Y:\Eva\CARE\08.12.20_19h\plasmid-100nm-19h\plasmid-100nm-19h_pos5_ch1_frame000001_Nz271.tif",
+		r"Y:\Daniel\000_Microscope data\2020.09.15_CNN3\kdv1502R_5L_30ms_300gain002\Pos5\kdv1502R_5L_30ms_300gain002_pos5_ch1_frame000083_Nz54.tif",
+	params:
+		prep_folder = 'G:/batch_decon/data/interim/huygens_parameterscan/prep_folder',
+		result_folder = 'G:/batch_decon/data/interim/huygens_parameterscan/result_folder',
+	threads:
+		1
+	shell:
+		"""matlab -nojvm -nosplash -batch "addpath(genpath('scripts')); run_huygens_parameter_scan('{output}',  '{input}', '{params.prep_folder}', '{params.result_folder}')" """
 
 rule predict_n2v:
 	output:
