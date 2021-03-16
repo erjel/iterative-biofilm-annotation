@@ -32,7 +32,7 @@ function tracks2vtk(output_path, tracks_csv_path, prediction_folder)
         Z = centroids(:, 1);
         Y = centroids(:, 2);
         X = centroids(:, 3);
-        Track_IDs = tracks_in_frame(:, 2);
+        Track_IDs = tracks_in_frame(:, 1);
         
         track_ids = nan(objects.NumObjects, 1);
         for j = 1:size(tracks_in_frame, 1)
