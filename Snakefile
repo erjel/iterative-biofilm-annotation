@@ -2,6 +2,7 @@
 #set CUDA_VISIBLE_DEVICES=1 && snakemake -j --use-conda --resources nvidia_gpu=1
 
 include: r"workflows\snakefile_care"
+include: r"workflows\snakefile_debug"
 
 from pathlib import Path
 
@@ -16,7 +17,7 @@ rule all:
 		#	label_1 = glob_wildcards(r"Y:\Daniel\000_Microscope data\2020.09.15_CNN3\kdv1502R_5L_30ms_300gain002\Pos5\{label_1}_ch1_{label_2}.tif")[0][:5],
 		#	label_2 = glob_wildcards(r"Y:\Daniel\000_Microscope data\2020.09.15_CNN3\kdv1502R_5L_30ms_300gain002\Pos5\{label_1}_ch1_{label_2}.tif")[1][:5]),
 		r"data\interim\care",
-		r"..\2021_Iterative_Biofilm_Annotation\datasets\.eva-v1-dz400-care.chkpnt",
+		r"..\2021_Iterative_Biofilm_Annotation_bk\datasets\.eva-v1-dz400-care.chkpnt",
 		r"models\eva-v1-dz400-care_rep1",
 		r"data\interim\predictions\care\eva-v1-dz400-care_rep1\.chkpnt",
 		expand(r"data\interim\vtk\care\eva-v1-dz400-care_rep1\frame_{frame_number}.vtk", 
@@ -50,8 +51,20 @@ rule all:
 		'models/care/3D_raw_ch2_ch1_2020-01-05_rep3',
 		'models/care/3D_raw_ch2_ch1_2020-01-05_rep4',
 		'models/care/3D_raw_ch2_ch1_2020-01-05_rep5',
-		'G:/batch_decon/data/interim/huygens_parameterscan/huygens_batch_file_rep1.hgsb',
+		#'G:/batch_decon/data/interim/huygens_parameterscan/huygens_batch_file_rep1.hgsb',
 		#'data/interim/huygens_parameterscan',
+		'data/processed/tracks/care_model_eva-v1-dz400-care_rep1_vtk',
+
+rule create_vtks_with_track_id:
+	output:
+		directory('data/processed/tracks/{data}_model_{model}_vtk')
+	input:
+		tracks_csv = r"data\processed\tracks\{data}_model_{model}.csv",
+		prediction_folder = r"data\interim\predictions\{data}\{model}",
+	threads:
+		1
+	shell:
+		"""matlab -nojvm -nosplash -batch "addpath(genpath('scripts')); tracks2vtk('{output}', '{input.tracks_csv}', '{input.prediction_folder}')" """
 		
 rule copy_huygens:
 	output:
@@ -290,13 +303,13 @@ rule train_stardist_model:
 	output:
 		directory(r"models\{datasetname}_rep{rep_nummer}")
 	input:
-		r"..\2021_Iterative_Biofilm_Annotation\datasets\.{datasetname}.chkpnt"
+		r"..\2021_Iterative_Biofilm_Annotation_bk\datasets\.{datasetname}.chkpnt"
 	resources:
 		nvidia_gpu=1
 	conda:
 		r"envs\stardist.yml"
 	shell:
-		r"python scripts\stardist_training.py {output} ..\2021_Iterative_Biofilm_Annotation\datasets\{wildcards.datasetname}"
+		r"python scripts\stardist_training.py {output} ..\2021_Iterative_Biofilm_Annotation_bk\datasets\{wildcards.datasetname}"
 		
 rule stardist_prediction:
 	output:
