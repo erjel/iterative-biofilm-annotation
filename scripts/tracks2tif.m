@@ -1,5 +1,4 @@
-function tracks2vtk(output_path, tracks_csv_path, prediction_folder)
-
+function tracks2tif(output_path, tracks_csv_path, prediction_folder)
     biofilmq_path = fullfile(getenv('Home'), 'src', 'BiofilmQ', 'includes');
     addpath(genpath(biofilmq_path));
 	
@@ -13,6 +12,7 @@ function tracks2vtk(output_path, tracks_csv_path, prediction_folder)
         mkdir(output_path)
     end
 
+    
     % Read track csv file
     tracks = readmatrix(tracks_csv_path);
     unique_track_ids = unique(tracks(:, 1));
@@ -28,8 +28,9 @@ function tracks2vtk(output_path, tracks_csv_path, prediction_folder)
             segmentation_files(i).folder, segmentation_files(i).name);
         
         labelimage = imread3D(segmentation_file_path);
-        objects = conncomp(labelimage);
-
+        
+        new_object_ids = [0; nan(max(labelimage(:)), 1)];
+        
         tracks_in_frame = tracks(tracks(:, 2) == i-1, :);
         centroids = round(tracks_in_frame(:, 3:end) .* scaling_factors);
         Z = centroids(:, 1);
@@ -37,25 +38,26 @@ function tracks2vtk(output_path, tracks_csv_path, prediction_folder)
         X = centroids(:, 3);
         Track_IDs = tracks_in_frame(:, 1);
         
-        track_ids = nan(objects.NumObjects, 1);
         for j = 1:size(tracks_in_frame, 1)
             x = X(j);
             y = Y(j);
             z = Z(j);
             id = labelimage(y, x, z);
             if ~(id == 0)
-                track_ids(id) = Track_IDs(j);
+                new_object_ids(id+1) = Track_IDs(j);
             end
         end
         
-        objects.stats = regionprops(objects, 'BoundingBox', 'Centroid');
+        not_assigned = isnan(new_object_ids);
+        max_assigned_id = max( new_object_ids(~not_assigned));
+        not_assigned_ids = max_assigned_id+1:max_assigned_id+sum(not_assigned);
         
-        track_ids = num2cell(track_ids);
-        [objects.stats.Track_ID] = track_ids{:};
-        
-        output_file = fullfile(output_path, sprintf('frame%06d.vtk', i));
+        new_object_ids(not_assigned) = not_assigned_ids;
+         
+        output_file = fullfile(output_path, sprintf('frame%06d.tif', i));
         fprintf('%s %d\n', output_file, isfolder(output_path));
-        objects2VTK(output_file, objects, 0.2);
-
+        
+        imwrite3D(new_object_ids(labelimage+1), output_file);
+        
     end
 end

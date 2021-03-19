@@ -54,6 +54,19 @@ rule all:
 		#'G:/batch_decon/data/interim/huygens_parameterscan/huygens_batch_file_rep1.hgsb',
 		#'data/interim/huygens_parameterscan',
 		'data/processed/tracks/care_model_eva-v1-dz400-care_rep1_vtk',
+		'data/processed/tracks/care_model_eva-v1-dz400-care_rep1_tif',
+		
+rule create_tiffs_with_track_id:
+	output:
+		directory('data/processed/tracks/{data}_model_{model}_tif')
+	input:
+		tracks_csv = r"data\processed\tracks\{data}_model_{model}.csv",
+		prediction_folder = r"data\interim\predictions\{data}\{model}",
+	threads:
+		1
+	shell:
+		"""matlab -nojvm -nosplash -batch "addpath(genpath('scripts')); tracks2tif('{output}', '{input.tracks_csv}', '{input.prediction_folder}')" """
+		
 
 rule create_vtks_with_track_id:
 	output:

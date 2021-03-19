@@ -8,4 +8,5 @@ reports
 *.mp4
 *.gif
 __pycache__
+*.asv
 
