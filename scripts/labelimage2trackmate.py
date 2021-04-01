@@ -8,32 +8,17 @@ from tqdm import tqdm
 
 from argparse import ArgumentParser
 
-def parse_args():
-
-    parser = ArgumentParser()
-
-    parser.add_argument('--int_data_path', type=str)
-    parser.add_argument('--input_folder', type=str)
-    parser.add_argument('--output_xml', type=str)
-
-    return parser, parser.parse_args()
-
-
-def main():
-    
+def labelimage2trackmate(int_data_path, input_folder, output_xml):
     int_data_shape = (54, 1024, 1024)
     int_data_scaling = np.array([0.400, 0.063, 0.063])
     int_seg_scaling = np.array([0.100, 0.063, 0.063])
     scaling_factors = int_data_scaling / int_seg_scaling
 
-    print('start stardist2trackmate.py')
 
-    parser, args = parse_args()
-
-
-    int_data_path = Path(args.int_data_path)
-    input_folder = Path(args.input_folder)
-    output_xml = Path(args.output_xml)
+    int_data_path = Path(int_data_path)
+    im_data = imread(int_data_path)
+    input_folder = Path(input_folder)
+    output_xml = Path(output_xml)
     
     output_xml.parent.mkdir(parents=True, exist_ok=True)
 
@@ -59,10 +44,21 @@ def main():
     }
 
     for frame_id, seg_file in enumerate(tqdm(seg_files)):
+    #for frame_id, seg_file in enumerate(tqdm(seg_files[:10])):
 
         img = imread(str(seg_file))
+        
+        im_data_ = im_data[frame_id]
+        
+        new_shape = np.asarray(im_data_.shape)
+        new_shape = new_shape * np.array([4, 1, 1])        
 
-        props = regionprops(img)
+        trans_matrix = np.diag([1/scaling_factors[0], 1, 1])
+        rescaled = affine_transform(im_data_, trans_matrix, output_shape=new_shape, order=1)
+        
+
+        props = regionprops(img, rescaled)
+        
         frame = {"spots": [], 'frame_id':frame_id}
         for p in props:
             spot = {}
@@ -70,20 +66,20 @@ def main():
             spot['id'] = total_num
             spot['quality'] = 1
             spot['time'] = 1.0*frame_id
-            spot['max_intensity'] = 1
+            spot['max_intensity'] = p.max_intensity
             spot['frame'] = frame_id
-            spot['median_intensity'] = 1
+            spot['median_intensity'] = p.label
             spot['visibility'] = 1
-            spot['mean_intensity'] = 1
+            spot['mean_intensity'] = p.mean_intensity
             spot['total_intensity'] = 1
-            spot['estimated_diameter'] = 20
+            spot['estimated_diameter'] = np.cbrt(p.area*3/(4* np.pi))*2
             spot['radius'] = 7
             spot['snr'] = 1
-            spot['x'] = p.centroid[2] / scaling_factors[2]
+            spot['x'] = p.centroid[2] / scaling_factors[2] # make it to physical units -> requires proper image!
             spot['y'] = p.centroid[1] / scaling_factors[1]
             spot['std'] = 1
             spot['contrast'] = 1
-            spot['manual_color'] = 1
+            spot['manual_color'] = p.label
             spot['min_intensity'] = 1
             spot['z'] = p.centroid[0] / scaling_factors[0]
             frame['spots'].append(spot)
@@ -92,7 +88,7 @@ def main():
 
     data['total_num'] = total_num
 
-    with open('resources/template_Trackmate.xml', 'r') as f:
+    with open(r'Y:\Eric\prediction_test\resources\template_TrackMate.xml', 'r') as f:
         template = ''.join(f.readlines())
 
     tmp = Template(template)
@@ -101,6 +97,28 @@ def main():
         f.write(tmp.render(data))
 
     return
+
+def parse_args():
+
+    parser = ArgumentParser()
+
+    parser.add_argument('--int_data_path', type=str)
+    parser.add_argument('--input_folder', type=str)
+    parser.add_argument('--output_xml', type=str)
+
+    return parser, parser.parse_args()
+
+
+def main():
+    print('start stardist2trackmate.py')
+
+    parser, args = parse_args()
+    
+    labelimage2trackmate(
+        args.int_data_path,
+        args.input_folder,
+        args.output_xml
+    )
 
 if __name__ == '__main__':
     main()
