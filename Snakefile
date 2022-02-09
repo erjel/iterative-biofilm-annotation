@@ -3,6 +3,7 @@
 configfile: "config.yml"
 
 include: r"workflows/snakefile_care"
+include: "workflows/stardist.smk"
 
 from pathlib import Path
 
