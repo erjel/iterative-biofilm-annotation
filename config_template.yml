@@ -1,0 +1,3 @@
+symlinks:
+  training_data: '<custom training data folder>'
+  models: '<custom models folder>'
