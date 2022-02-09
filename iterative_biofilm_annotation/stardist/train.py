@@ -60,7 +60,7 @@ def parse_args():
     return parser, parser.parse_args()
 
 @use_gpu
-def main():
+def train_stardist():
 
     parser, args = parse_args()
     args_dict = vars(args)
@@ -157,6 +157,15 @@ def main():
                 augmenter=augmenter)
 
     model.optimize_thresholds(X_vld, Y_vld)
+
+def main():
+    args = parse_args()
+
+    train_stardist(
+
+        
+    )
+
 
 if __name__ == "__main__":
     main()

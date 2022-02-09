@@ -10,5 +10,8 @@ reports
 __pycache__
 *.asv
 
+# pyenv
+.python-version
+
 # Symlink folders
 training_data/
