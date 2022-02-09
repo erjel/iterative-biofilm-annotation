@@ -10,3 +10,5 @@ reports
 __pycache__
 *.asv
 
+# Symlink folders
+training_data/
