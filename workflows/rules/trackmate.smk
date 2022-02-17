@@ -13,8 +13,6 @@ rule biofilmQ2trackmate:
         """matlab -nojvm -nosplash -batch "addpath(genpath('scripts')); biofilmQ2trackMate('{output.xml}',  '{output.trans}', '{output.crop}', '{input.int_data_path}', '{input.data_folder}')" """
     
 
-
-        
 rule labelimages2trackmate:
     output:
         "interim_data/tracking/{data}_model_{model}.xml",
@@ -57,14 +55,22 @@ rule stack4trackmate:
     shell:
         "python iterative_biofilm_annotation/trackmate/create_stack_for_trackmate.py {output} {input}"
                 
-        
-        
+          
 rule trackmate2napari:
     output:
-        r"data\processed\tracks\{data}_model_{model}.csv"
+        "tracks/{data}_model_{model}.csv"
     input:
-        r"data\interim\tracking\{data}_model_{model}_Tracks.xml" # comes from manual TrackMate step
+        "interim_data/tracking/{data}_model_{model}_Tracks.xml" # comes from manual TrackMate step
     conda:
-        r"envs\stardist.yml"
+        "../envs/stardist.yml"
+    resources:
+        partition='',
+        constraint='',
+        gres='',
+        ntasks=1,
+        cpu_per_task=1,
+        ntasks_per_node=1,
+        mem=32000,
+        time="00:15:00",
     shell:
-        r"python scripts\trackmate_xml_to_napari_csv.py {input} {output}"
+        "python iterative_biofilm_annotation/trackmate_xml_to_napari_csv.py {input} {output}"

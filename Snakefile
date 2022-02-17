@@ -16,6 +16,8 @@ rule all:
         #'interim_data/predictions/care/stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep1/.chkpnt',
         #'interim_data/trackmate_stacks/care.tif'
         'interim_data/tracking/care_model_eva-v1-dz400-care_rep1.xml',
+        # TODO(erjel): Now open trackmate and preform the tracking ...
+        # TODO: "tracks/{data}_model_{model}.csv",
         #expand(r"data\interim\vtk\frame_{frame_number}.vtk", 
         #    frame_number = glob_wildcards(r"predictions\{label_1}_frame{frame_number}_{label_2}.tif")[1]
         #),

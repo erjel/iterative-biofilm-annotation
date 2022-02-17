@@ -17,6 +17,7 @@ training_data
 models
 interim_data
 input_data
+tracks
 
 # exclude config changes
 config.yml
