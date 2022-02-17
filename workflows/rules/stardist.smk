@@ -8,7 +8,7 @@ rule train_stardist_model:
     resources:
         nvidia_gpu=1
     conda:
-        r"envs/stardist.yml"
+        r"../envs/stardist.yml"
     shell:
         r"python scripts/stardist_training.py {output} {input}"
         
@@ -25,7 +25,7 @@ rule stardist_prediction:
     resources:
         nvidia_gpu=1
     conda:
-        r"envs\stardist.yml"
+        r"../envs/stardist.yml"
     shell:
         r"python scripts\stardist_prediction.py {input.folder} {input.model} {params.output_dir}\{wildcards.data_folder} --intp-factor 4"
         
@@ -43,6 +43,6 @@ rule stardist_prediction_probabilities:
     resources:
         nvidia_gpu=1
     conda:
-        r"envs\stardist.yml"
+        r"../envs/stardist.yml"
     shell:
         r"python scripts\stardist_prediction.py {input.folder} {input.model} {params.output_dir}\{wildcards.data_folder} --intp-factor 4 --probs"

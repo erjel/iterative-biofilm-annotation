@@ -2,8 +2,8 @@
 #set CUDA_VISIBLE_DEVICES=1 && snakemake -j --use-conda --resources nvidia_gpu=1
 configfile: "config.yml"
 
-include: r"workflows/snakefile_care"
-include: "workflows/stardist.smk"
+include: r"workflows/rules/snakefile_care"
+include: "workflows/rules/stardist.smk"
 
 from pathlib import Path
 
