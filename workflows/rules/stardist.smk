@@ -3,14 +3,14 @@ rule train_stardist_model:
     output:
         directory("models/stardist_192_48x96x96_{datasetname}_True_100prc_rep{rep_nummer}")
     input:
-        "training_data/{datasetname}",
-        "models/.symlink"
+        dataset_dir = "training_data/{datasetname}",
+        output_symlink = "models/.symlink"
     resources:
         nvidia_gpu=1
     conda:
         r"../envs/stardist.yml"
     shell:
-        r"python iterative_biofilm_annotation/stardist/train.py {output} {input}"
+        r"python iterative_biofilm_annotation/stardist/train.py {output} {input.dataset_dir}"
         
 rule stardist_prediction:
     output:
