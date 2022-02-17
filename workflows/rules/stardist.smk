@@ -1,7 +1,7 @@
 
 rule train_stardist_model:
     output:
-        directory("models/stardist_192_48x96x96_{datasetname}_rep{rep_nummer}")
+        directory("models/stardist_192_48x96x96_{datasetname}_True_100prc_rep{rep_nummer}")
     input:
         "training_data/{datasetname}",
         "models/.symlink"
@@ -10,7 +10,7 @@ rule train_stardist_model:
     conda:
         r"../envs/stardist.yml"
     shell:
-        r"python scripts/stardist_training.py {output} {input}"
+        r"python iterative_biofilm_annotation/stardist/train.py {output} {input}"
         
 rule stardist_prediction:
     output:
