@@ -17,14 +17,26 @@ rule biofilmQ2trackmate:
         
 rule labelimages2trackmate:
     output:
-        r"data\interim\tracking\{data}_model_{model}.xml",
+        "interim_data/tracking/{data}_model_{model}.xml",
     input:
-        int_data_path = r'data\interim\tracking\{data}.tif',
-        input_folder = r'data\interim\predictions\{data}\{model}',
+        int_data_path = 'interim_data/trackmate_stacks/{data}.tif',
+        input_folder = 'interim_data/predictions/{data}/{model}',
     conda:
-        r"envs\jinja2.yml"
+        "../envs/jinja2.yml"
+    resources:
+        partition='',
+        constraint='',
+        gres='',
+        ntasks=1,
+        cpu_per_task=1,
+        ntasks_per_node=1,
+        mem=32000,
+        time='02:00:00',
     shell:
-        r"python scripts\labelimage2trackmate.py --int_data_path {input.int_data_path} --input_folder {input.input_folder} --output_xml {output}"
+        "python iterative_biofilm_annotation/trackmate/labelimage2trackmate.py" + \
+        " --int_data_path {input.int_data_path}" + \
+        " --input_folder {input.input_folder}" + \
+        " --output_xml {output}"
         
 rule stack4trackmate:
     output:

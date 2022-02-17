@@ -14,7 +14,8 @@ rule all:
         # TODO(erjel): Here, I use the "care" enhanced dataset instead of "raw" ...
         # TODO(erjel): stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep1 was not trained in this pipeline .. replace!
         #'interim_data/predictions/care/stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep1/.chkpnt',
-        'interim_data/trackmate_stacks/care.tif'
+        #'interim_data/trackmate_stacks/care.tif'
+        'interim_data/tracking/care_model_eva-v1-dz400-care_rep1.xml',
         #expand(r"data\interim\vtk\frame_{frame_number}.vtk", 
         #    frame_number = glob_wildcards(r"predictions\{label_1}_frame{frame_number}_{label_2}.tif")[1]
         #),
