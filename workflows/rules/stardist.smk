@@ -1,19 +1,28 @@
 
 rule train_stardist_model:
     output:
-        directory("models/stardist_192_{patch_size}_{datasetname}_True_100prc_rep{rep_number}")
+        directory("models/stardist_{n_rays}_{patchSize}_patches-{dataset_name}_{only_valid}_{percentage}prc_rep{replicate}")
     input:
-        dataset_dir = "training_data/{datasetname}",
+        dataset="training_data/patches-{dataset_name}",
         output_symlink = "models/.symlink"
     wildcard_constraints:
-        patch_size = '\d+x\d+x\d+'
+        patchSize = '\d+x\d+x\d+'
+    threads:
+        workflow.cores
     resources:
-        nvidia_gpu=1
+        time="16:00:00",
     conda:
         r"../envs/stardist.yml"
     shell:
-        r"python iterative_biofilm_annotation/stardist/train.py {output} {input.dataset_dir}" + \
-        " --patch_size {wildcards.patch_size}"
+        "python iterative_biofilm_annotation/stardist/train.py" + \
+        " stardist_{wildcards.n_rays}_{wildcards.patchSize}_patches-{wildcards.dataset_name}_{wildcards.only_valid}_{wildcards.percentage}prc_rep{wildcards.replicate}" + \
+        " models" + \
+        " patches-{wildcards.dataset_name}" + \
+        " {wildcards.n_rays}" + \ 
+        " {wildcards.patchSize}" + \
+        " {wildcards.only_valid}" + \
+        " --percentage {wildcards.percentage}"
+        
         
 rule stardist_prediction:
     output:
