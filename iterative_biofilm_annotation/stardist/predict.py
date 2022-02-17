@@ -12,12 +12,7 @@ import tensorflow as tf
 
 from time import time
 
-import sys
-#sys.path.append(r'C:\Users\Eric\src\stardist_mpcdf')
-sys.path.append(r'D:\Eric\stardist_mpcdf')
-#sys.path.append(r'D:\Users\Eric\src\stardist_mpcdf')
-
-from stardist_mpcdf.data import ImageInterpolation
+from data import ImageInterpolation
 
 os.environ['OMP_NUM_THREADS'] = '24'
 

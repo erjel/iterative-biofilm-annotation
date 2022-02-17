@@ -1,7 +1,6 @@
 .snakemake
 .ipynb_checkpoints
 Thumbs.db
-models
 data
 reports
 *.tif
@@ -14,7 +13,10 @@ __pycache__
 .python-version
 
 # Symlink folders
-training_data/
+training_data
+models
+interim_data
+input_data
 
 # exclude config changes
 config.yml

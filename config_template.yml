@@ -1,3 +1,5 @@
 symlinks:
   training_data: '<custom training data folder>'
   models: '<custom models folder>'
+  input_data: '<custom input (aka time series experimental) data folder'
+  interim_data: '<scratch storage>'

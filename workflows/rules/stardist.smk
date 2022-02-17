@@ -26,20 +26,23 @@ rule train_stardist_model:
         
 rule stardist_prediction:
     output:
-        touch(r'data\interim\predictions\{data_folder}\{model_name}\.chkpnt')
+        touch('interim_data/predictions/{data_folder}/{model_name}/.chkpnt')
     input:
-        folder=r"Y:\Eric\prediction_test\data\interim\{data_folder}",
-        model=r"models\{model_name}"
+        folder="input_data/{data_folder}",
+    # TODO(erjel): Make the model dependentcy explicit again
     params:
-        output_dir=r"data\interim\predictions"
+        model="models/{model_name}",
+        output_dir="interim_data/predictions",
     threads:
         workflow.cores
-    resources:
-        nvidia_gpu=1
     conda:
         r"../envs/stardist.yml"
     shell:
-        r"python scripts\stardist_prediction.py {input.folder} {input.model} {params.output_dir}\{wildcards.data_folder} --intp-factor 4"
+        r"python iterative_biofilm_annotation/stardist/predict.py" + \
+        " {input.folder}" + \
+        " {params.model}" + \
+        " {params.output_dir}\{wildcards.data_folder}" +\
+        " --intp-factor 4"
         
         
 rule stardist_prediction_probabilities:
