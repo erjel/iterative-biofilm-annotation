@@ -44,7 +44,7 @@ rule stardist_prediction:
         " {params.output_dir}\{wildcards.data_folder}" +\
         " --intp-factor 4"
         
-        
+# TODO(erjel): Is this rule required at some point?        
 rule stardist_prediction_probabilities:
     output:
         directory(r'data\interim\predictions\{data_folder}\{model_name}\probs')
