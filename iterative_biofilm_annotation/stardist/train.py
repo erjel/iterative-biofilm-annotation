@@ -15,6 +15,8 @@ from skimage.segmentation import relabel_sequential
 from pathlib import Path
 from argparse import ArgumentParser
 
+from typing import Tuple
+
 
 def random_fliprot(img, mask, axis=None): 
     if axis is None:
@@ -50,29 +52,16 @@ def augmenter(x, y):
     x = random_intensity_change(x)
     return x, y
 
-def parse_args():
-    parser = ArgumentParser()
 
-    parser.add_argument('model_folder', type=str, help="Full model folder (including model name)")
-    parser.add_argument('dataset_folder', type=str, help="Dataset folder")
+def train_stardist(model_folder: Path, dataset_folder: Path, train_patch_size: Tuple[int]):
 
-    return parser, parser.parse_args()
-
-def train_stardist():
-
-    parser, args = parse_args()
-    args_dict = vars(args)
-
-    modelname = Path(args.model_folder).name
-    basedir = Path(args.model_folder).parent
-    dataset_folder = Path(args.dataset_folder)
+    modelname = model_folder.name
+    basedir = model_folder.parent
 
 
     n_rays = 192
     del_empty_patches = False
     percentage = 100
-    train_patch_size = (64, 192, 192)    
-
 
     X_trn_paths = sorted((dataset_folder / 'train' / 'images').glob('*.tif'))
     X_vld_paths = sorted((dataset_folder / 'valid' / 'images').glob('*.tif'))
@@ -156,12 +145,24 @@ def train_stardist():
 
     model.optimize_thresholds(X_vld, Y_vld)
 
+def parse_args():
+    parser = ArgumentParser()
+
+    parser.add_argument('model_folder', type=Path, help="Full model folder (including model name)")
+    parser.add_argument('dataset_folder', type=Path, help="Dataset folder")
+    parser.add_argument('--patch_size', type=str, default='64x128x128')
+
+    return parser, parser.parse_args()
+
 def main():
-    args = parse_args()
+    parser, args = parse_args()
+
+    patch_size = tuple(int(v) for v in args.patch_size.split('x'))
 
     train_stardist(
-
-        
+        args.model_folder,
+        args.dataset_folder,
+        patch_size        
     )
 
 

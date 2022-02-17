@@ -1,16 +1,19 @@
 
 rule train_stardist_model:
     output:
-        directory("models/stardist_192_48x96x96_{datasetname}_True_100prc_rep{rep_nummer}")
+        directory("models/stardist_192_{patch_size}_{datasetname}_True_100prc_rep{rep_number}")
     input:
         dataset_dir = "training_data/{datasetname}",
         output_symlink = "models/.symlink"
+    wildcard_constraints:
+        patch_size = '\d+x\d+x\d+'
     resources:
         nvidia_gpu=1
     conda:
         r"../envs/stardist.yml"
     shell:
-        r"python iterative_biofilm_annotation/stardist/train.py {output} {input.dataset_dir}"
+        r"python iterative_biofilm_annotation/stardist/train.py {output} {input.dataset_dir}" + \
+        " --patch_size {wildcards.patch_size}"
         
 rule stardist_prediction:
     output:
