@@ -3,6 +3,7 @@ configfile: "config.yml"
 
 include: r"workflows/rules/snakefile_care"
 include: "workflows/rules/stardist.smk"
+include: "workflows/rules/trackmate.smk"
 
 from pathlib import Path
 
@@ -12,7 +13,8 @@ rule all:
         #'models/stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep5'
         # TODO(erjel): Here, I use the "care" enhanced dataset instead of "raw" ...
         # TODO(erjel): stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep1 was not trained in this pipeline .. replace!
-        'interim_data/predictions/care/stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep1/.chkpnt',
+        #'interim_data/predictions/care/stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep1/.chkpnt',
+        'interim_data/trackmate_stacks/care.tif'
         #expand(r"data\interim\vtk\frame_{frame_number}.vtk", 
         #    frame_number = glob_wildcards(r"predictions\{label_1}_frame{frame_number}_{label_2}.tif")[1]
         #),
@@ -232,56 +234,6 @@ rule biofilmQData2Labelimages:
     shell:
         """matlab -nojvm -nosplash -batch "addpath(genpath('scripts')); data2labelimage('{output}',  '{params.trans}', '{output.input_folder}')" """
 
-
-rule biofilmQ2trackmate:
-    output:
-        xml = r"data\interim\tracking\{data}_model_BiofilmQ.xml",
-        trans = r"data\interim\tracking\{data}_model_BiofilmQ_translations.csv",
-        crop = r"data\interim\tracking\{data}_model_BiofilmQ_crop_offsets.csv",
-    input:
-        data_folder = r'Y:\Daniel\000_Microscope data\2020.09.15_CNN3\kdv1502R_5L_30ms_300gain002\Pos5\data',
-        int_data_path = r'data\interim\tracking\{data}.tif',
-    threads:
-        1
-    shell:
-        """matlab -nojvm -nosplash -batch "addpath(genpath('scripts')); biofilmQ2trackMate('{output.xml}',  '{output.trans}', '{output.crop}', '{input.int_data_path}', '{input.data_folder}')" """
-    
-
-
-        
-rule labelimages2trackmate:
-    output:
-        r"data\interim\tracking\{data}_model_{model}.xml",
-    input:
-        int_data_path = r'data\interim\tracking\{data}.tif',
-        input_folder = r'data\interim\predictions\{data}\{model}',
-    conda:
-        r"envs\jinja2.yml"
-    shell:
-        r"python scripts\labelimage2trackmate.py --int_data_path {input.int_data_path} --input_folder {input.input_folder} --output_xml {output}"
-        
-rule stack4trackmate:
-    output:
-        r"data\interim\tracking\{data}.tif"
-    input:
-        r"data\interim\{data}"
-    conda:
-        r"envs\stardist.yml"
-    shell:
-        r"python scripts\create_stack_for_trackmate.py {output} {input}"
-                
-        
-        
-rule trackmate2napari:
-    output:
-        r"data\processed\tracks\{data}_model_{model}.csv"
-    input:
-        r"data\interim\tracking\{data}_model_{model}_Tracks.xml" # comes from manual TrackMate step
-    conda:
-        r"envs\stardist.yml"
-    shell:
-        r"python scripts\trackmate_xml_to_napari_csv.py {input} {output}"
-    
 rule create_vtk_from_labelfile_test:
     output:
         r"data\interim\vtk\frame_{frame_number}.vtk"
