@@ -4,6 +4,8 @@ configfile: "config.yml"
 include: r"workflows/rules/snakefile_care"
 include: "workflows/rules/stardist.smk"
 include: "workflows/rules/trackmate.smk"
+include: "workflows/rules/analysis.smk"
+include: "workflows/rules/plotting.smk"
 
 from pathlib import Path
 
@@ -89,29 +91,6 @@ rule create_symlinks:
         "ln -s {params.target} {wildcards.directory}"
 
         
-rule create_tiffs_with_track_id:
-    output:
-        directory('data/processed/tracks/{data}_model_{model}_tif')
-    input:
-        tracks_csv = r"data\processed\tracks\{data}_model_{model}.csv",
-        prediction_folder = r"data\interim\predictions\{data}\{model}",
-    threads:
-        1
-    shell:
-        """matlab -nojvm -nosplash -batch "addpath(genpath('scripts')); tracks2tif('{output}', '{input.tracks_csv}', '{input.prediction_folder}')" """
-        
-
-rule create_vtks_with_track_id:
-    output:
-        directory('data/processed/tracks/{data}_model_{model}_vtk')
-    input:
-        tracks_csv = r"data\processed\tracks\{data}_model_{model}.csv",
-        prediction_folder = r"data\interim\predictions\{data}\{model}",
-    threads:
-        1
-    shell:
-        """matlab -nojvm -nosplash -batch "addpath(genpath('scripts')); tracks2vtk('{output}', '{input.tracks_csv}', '{input.prediction_folder}')" """
-        
 rule copy_huygens:
     output:
         directory('data/interim/huygens_parameterscan'),
@@ -173,60 +152,7 @@ rule calc_coverslip_slice:
     shell:
         'python scripts/calc_coverslip_slice.py {output.std_csv} {output.cover_slip_slice_csv} {input.basepaths}'
 
-rule plot_growthrate_heatmap:
-    output:
-        r'reports\figures\{data}\{modelname}_growthrate_heatmap.png',
-    input:
-        r'data\processed\tracks\{data}_model_{modelname}_growthrate.csv',
-    conda:
-        r'envs\plot.yml'
-    shell:
-        r"python scripts\plot_growthrate_heatmap.py {output} {input}"
-
-rule plot_growthrate:
-    output:
-        r'reports\figures\{data}\{modelname}_single_cell_growthrate.png',
-    input:
-        r'data\processed\tracks\{data}_model_{modelname}_growthrate.csv',
-    conda:
-        r'envs\calc.yml'
-    shell:
-        r"python scripts\plot_growthrate.py {output} {input}"
-
-ruleorder: tracks2growthrateBiofilmQ > tracks2growthrate
-        
-rule tracks2growthrateBiofilmQ:
-    output:
-        r"data\processed\tracks\{data}_model_BiofilmQ_growthrate.csv",
-    input:
-        tracks_csv = r"data\processed\tracks\{data}_model_BiofilmQ.csv",
-        prediction_folder = r"data\interim\predictions\{data}\BiofilmQ",
-        translations = r"data\interim\tracking\{data}_model_BiofilmQ_translations.csv",
-        crop = r"data\interim\tracking\{data}_model_BiofilmQ_crop_offsets.csv",
-    threads:
-        1
-    conda:
-        r"envs\calc.yml"
-    shell:
-        r"python scripts\calc_growthrate.py {output} {input.tracks_csv} {input.prediction_folder} " +
-        r"--transl_csv {input.translations} --crop_csv {input.crop}"
-        
-
-rule tracks2growthrate:
-    output:
-        r"data\processed\tracks\{data}_model_{model}_growthrate.csv",
-    input:
-        tracks_csv = r"data\processed\tracks\{data}_model_{model}.csv",
-        prediction_folder = r"data\interim\predictions\{data}\{model}",
-    wildcard_constraints:
-        model="^(?!BiofilmQ$)"
-    threads:
-        1
-    conda:
-        r"envs\calc.yml"
-    shell:
-        r"python scripts\calc_growthrate.py {output} {input.tracks_csv} {input.prediction_folder}"
-
+#TODO(erjel): Are the following rules unused?
 rule biofilmQData2Labelimages:
     output:
         directory(r'Y:\Eric\prediction_test\data\interim\predictions\{data}\BiofilmQ'),
