@@ -14,7 +14,6 @@ from skimage.segmentation import relabel_sequential
 
 from pathlib import Path
 from argparse import ArgumentParser
-from utils import use_gpu
 
 
 def random_fliprot(img, mask, axis=None): 
@@ -59,7 +58,6 @@ def parse_args():
 
     return parser, parser.parse_args()
 
-@use_gpu
 def train_stardist():
 
     parser, args = parse_args()
