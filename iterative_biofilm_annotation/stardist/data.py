@@ -10,7 +10,8 @@ from pathlib import Path
 from scipy.ndimage import affine_transform
 
 def getRootDir():
-    dataset_root = Path(__file__).parent.parent / 'datasets'
+    #TODO(erjel): You should have moved past hard-coded directories -.-
+    dataset_root = 'training_data'
     return dataset_root
 
 def sliceToShape(data_tuple, output_shape=(100, 100, 100), verbose=False):
