@@ -19,3 +19,6 @@ training_data/
 # exclude config changes
 config.yml
 config_local.yml
+
+# exclude slurm logs
+slurm-*.out

@@ -1,5 +1,4 @@
-#set CUDA_VISIBLE_DEVICES=0,1 && snakemake -j --use-conda --resources nvidia_gpu=2
-#set CUDA_VISIBLE_DEVICES=1 && snakemake -j --use-conda --resources nvidia_gpu=1
+# snakemake -j --profile cobra --use-conda
 configfile: "config.yml"
 
 include: r"workflows/rules/snakefile_care"
