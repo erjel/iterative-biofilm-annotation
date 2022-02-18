@@ -8,9 +8,32 @@ reports
 *.gif
 __pycache__
 *.asv
+*.png
+*.PNG
+*.eps
+*.csv
+*.vtk
+*.svg
+*.ai
+*.mat
+*.lnk
+
+*.npy
+*.xcf
+*.jpg
+*.pdf
+
+*.vtp
+*.pwin
+
+# Adobe Illustrator
+Fonts
 
 # pyenv
 .python-version
+
+# Synology dirs
+@eaDir
 
 # Symlink folders
 training_data
