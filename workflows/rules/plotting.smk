@@ -41,3 +41,17 @@ rule plot_growthrate:
         r'envs\calc.yml'
     shell:
         r"python scripts\plot_growthrate.py {output} {input}"
+
+# TODO(erjel): Probably not the correct one for the figure panel ...        
+rule collect_accuracies:
+    input:
+        config_file="config.yaml",
+        accuracy_files=expand("data/{modelname}/accuracy_{{datasetname}}.csv",
+            modelname=config['strdist_models_raw_collected'] + config['cellpose_models_raw_collected2'] + ['BiofilmQ_with_Huygens', 'BiofilmQ', 'default_cellpose'])
+    output:
+        png="results/accuracy_{datasetname}_collected.png",
+        eps="results/accuracy_{datasetname}_collected.eps"
+    conda:
+        "envs/plotting.yaml"
+    shell:
+        "python scripts/plot_collected_accuracies.py {wildcards.datasetname} {output.eps} {input.accuracy_files}"
