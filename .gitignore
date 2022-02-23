@@ -41,6 +41,7 @@ models
 interim_data
 input_data
 tracks
+accuracies
 
 # exclude config changes
 config.yml

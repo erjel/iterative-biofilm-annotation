@@ -42,14 +42,14 @@ rule tracks2growthrate:
 # Model prediction accuracies #
 ###############################
 
-#TODO(erjel): From stardist_mpcdf repo: What is the difference to the rule calc_accuracies ?
-rule calc_accuracies_verbose:
+rule calc_accuracies:
     output:
-        "data/{modelname}/accuracy_{datasetname}_verbose.csv"
+        "accuracies/{modelname}/{datasetname}.csv"
     input:
-        pred_path="predictions/{modelname}/datasets/{datasetname}",
-        gt_path="datasets/{datasetname}"
+        pred_path="interim_data/predictions/{datasetname}/{modelname}",
+        gt_path="training_data/{datasetname}"
     conda:
-        "envs/stardist_new.yaml"
+        "../envs/stardist.yml"
     shell:
+        #TODO(erjel): From stardist_mpcdf repo: What is the difference to the rule calc_accuracies ?
         "python scripts/calculate_accuracy_verbose.py {output} {input.pred_path} {input.gt_path}"

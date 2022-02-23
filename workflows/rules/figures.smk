@@ -42,16 +42,32 @@ rule plot_growthrate:
     shell:
         r"python scripts\plot_growthrate.py {output} {input}"
 
-# TODO(erjel): Probably not the correct one for the figure panel ...        
-rule collect_accuracies:
-    input:
-        config_file="config.yaml",
-        accuracy_files=expand("data/{modelname}/accuracy_{{datasetname}}.csv",
-            modelname=config['strdist_models_raw_collected'] + config['cellpose_models_raw_collected2'] + ['BiofilmQ_with_Huygens', 'BiofilmQ', 'default_cellpose'])
+rule plot_fig3a:
     output:
-        png="results/accuracy_{datasetname}_collected.png",
-        eps="results/accuracy_{datasetname}_collected.eps"
+        output_dir = directory('figures/fig3a'),
+    input:
+        cellpose_accuracies = expand(
+            "accuracies/horovod_cellpose_patches-semimanual-raw-64x128x128_prc100_bs8_lr0.00625_wd0.00001_mt0.7_sge_rep{rep}/full_semimanual-raw.csv",
+            rep = range(1, 6)
+        ),
+        stardist_accuracies = expand(
+            "accuracies/stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep{rep}/full_semimanual-raw.csv",
+            rep = range(1, 6)
+        ),
+    params:
+        # TODO(erjel): Can this also be a snakemake workflow?
+        biofilmq_improved_accuracy = "accuracies/biofilmq_seeded_watershed/full_semimanual-raw.csv",
+        biofilmq_accuracy = "accuracies/biofilmq_hartmann_et_al/full_semimanual-raw.csv",
     conda:
-        "envs/plotting.yaml"
+        "../envs/plot.yml"
     shell:
-        "python scripts/plot_collected_accuracies.py {wildcards.datasetname} {output.eps} {input.accuracy_files}"
+        "python iterative_biofilm_annotation/figures/fig3a_segmentation_comparision.py" + \
+            " {output.output_dir}" + \
+            " --stardist_accuracies {input.stardist_accuracies}" + \
+            " --cellpose_accuracies {input.cellpose_accuracies}" + \
+            " --biofilmq_improved_accuracies {params.biofilmq_improved_accuracy}" + \
+            " --biofilmq_accuracies {params.biofilmq_accuracy}" # + \
+            # " --stardist_improved_accuracies {input.stardist_improved_accuracies}"
+    
+
+
