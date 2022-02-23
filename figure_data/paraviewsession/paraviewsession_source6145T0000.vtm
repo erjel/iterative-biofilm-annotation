@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<VTKFile type="vtkMultiBlockDataSet" version="1.0" byte_order="LittleEndian" header_type="UInt32" compressor="vtkZLibDataCompressor">
+  <vtkMultiBlockDataSet>
+    <DataSet index="0" file="paraviewsession_source6145T0000/paraviewsession_source6145T0000_0_0.vtp">
+    </DataSet>
+  </vtkMultiBlockDataSet>
+</VTKFile>

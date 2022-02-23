@@ -1,7 +1,6 @@
 .snakemake
 .ipynb_checkpoints
 Thumbs.db
-models
 data
 reports
 *.tif
@@ -9,12 +8,40 @@ reports
 *.gif
 __pycache__
 *.asv
+*.png
+*.PNG
+*.eps
+*.csv
+*.vtk
+*.svg
+*.ai
+*.mat
+*.lnk
+
+*.npy
+*.xcf
+*.jpg
+*.pdf
+
+*.vtp
+*.pwin
+
+# Adobe Illustrator
+Fonts
 
 # pyenv
 .python-version
 
+# Synology dirs
+@eaDir
+
 # Symlink folders
-training_data/
+training_data
+models
+interim_data
+input_data
+tracks
+accuracies
 
 # exclude config changes
 config.yml

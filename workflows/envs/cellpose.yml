@@ -1,0 +1,21 @@
+name: cellpose
+dependencies:
+    - cudatoolkit=10.1
+    - cudnn=7.6
+    - python=3.7
+    - pip=20.1.1
+    - mkl=2019.3
+    - numpy=1.18.1
+    - scikit-image=0.16.2
+    - numba=0.49.1
+    - pyqt=5.9.2
+    - scipy=1.4.1
+    - matplotlib=3.1.3
+    - pip:
+        - opencv_python==4.2.0.34 
+        - pyqtgraph==0.11.0rc0
+        - natsort==7.0.1
+        - tqdm==4.46.1
+        - cellpose==0.0.2.8
+        - mxnet-cu101mkl==1.6.0
+        - tifffile==2020.6.3

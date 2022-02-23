@@ -1,0 +1,9 @@
+channels:
+  - defaults
+dependencies:
+  - python=3.9.1
+  - pip
+  - pip:
+    - jinja2==2.11.2
+    - scikit-image==0.18.1
+    - tqdm==4.56.0

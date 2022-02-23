@@ -3,12 +3,14 @@ from pathlib import Path
 from skimage.measure import regionprops
 from jinja2 import Template
 import numpy as np
+from scipy.ndimage import affine_transform
 
 from tqdm import tqdm
 
 from argparse import ArgumentParser
 
 def labelimage2trackmate(int_data_path, input_folder, output_xml):
+    # TODO(erjel): Get rid of hard-coded properties!
     int_data_shape = (54, 1024, 1024)
     int_data_scaling = np.array([0.400, 0.063, 0.063])
     int_seg_scaling = np.array([0.100, 0.063, 0.063])
@@ -54,6 +56,7 @@ def labelimage2trackmate(int_data_path, input_folder, output_xml):
         new_shape = new_shape * np.array([4, 1, 1])        
 
         trans_matrix = np.diag([1/scaling_factors[0], 1, 1])
+        #TODO(erjel): Niklas mentioned problems with interpolation (use zoom?)
         rescaled = affine_transform(im_data_, trans_matrix, output_shape=new_shape, order=1)
         
 
@@ -88,7 +91,7 @@ def labelimage2trackmate(int_data_path, input_folder, output_xml):
 
     data['total_num'] = total_num
 
-    with open(r'Y:\Eric\prediction_test\resources\template_TrackMate.xml', 'r') as f:
+    with open('resources/template_TrackMate.xml', 'r') as f:
         template = ''.join(f.readlines())
 
     tmp = Template(template)

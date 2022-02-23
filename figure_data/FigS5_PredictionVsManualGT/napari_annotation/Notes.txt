@@ -1,0 +1,48 @@
+predictions come from
+Z:\Eric\stardist\predictions\stardist_example_data_v2_clean_aug_lvl2\2019_12_04_beforeafter\exp2_KDV613max2000_10min\Pos1\pred_overlap\Pos1_ch1_frame000001_Nz300O.tif
+
+raw (deconvolved) input comes from:
+"Z:\Takuya\Experimental data\2019_12_04_beforeafter\exp2_KDV613max2000_10min\Pos1\Pos1_ch2_frame000001_Nz300.tif"
+
+-> Overview plane was removed for higher contrast during manual corrections
+
+Start the manual correction by:
+guiInterfaceTAKUYA('Z:\Eric\stardist\manual_corrections\test')
+
+Left click: -> to merge (will overwrite previous selection)
+right click: -> split (will overwrite previous selection)
+double click: -> un sure
+
+zoom: up-arrow/ down-arrow
+next/ previous: right/ left-arrow
+
+
+focus on the center overlap. That's the important one!
+
+
+Enhancements:
+- color overlap in question red
+- show classifier probabiltiy for merging and splitting (only select those for which the classifier is unsure and train on the fly)
+- show same labels in different views in different colors
+- show mean/ maximum projections for bounding box for the two objects
+- Same IDs different overlap: Only decide once!
+- principle component through combined object for better decision
+- height dependent probababilty threshold?
+- Refinforcement learning: Starting from the easiest ones (high confidence)/ on the fly learning? Proposal and seek for feedback if unsure ...
+
+Workflow after:
+1.) CalcalculateNeighborLabels.m
+2.) PlotEachDeatures.m
+3.) MergeSplitOverlapObjects.m
+4.) Manual annotation
+5.) Control whether there are merge conflicts with AfterAnnotationMerge.m
+6.) If there are correct them with napari
+7.) Continue with the script and save the final results
+
+
+
+
+
+
+
+

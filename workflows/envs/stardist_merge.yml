@@ -1,0 +1,9 @@
+channels:
+  - defaults
+dependencies:
+  - python=3.7.9
+  - pip
+  - libgcc
+  - tensorflow-gpu=2.1.0
+  - pip:
+    - merge-stardist-masks==0.0.1

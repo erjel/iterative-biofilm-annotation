@@ -3,13 +3,29 @@ configfile: "config.yml"
 
 include: r"workflows/rules/snakefile_care"
 include: "workflows/rules/stardist.smk"
+include: "workflows/rules/cellpose.smk"
+include: "workflows/rules/stardist_merge.smk"
+include: "workflows/rules/trackmate.smk"
+include: "workflows/rules/analysis.smk"
+include: "workflows/rules/figures.smk"
 
 from pathlib import Path
 
 
 rule all:
     input:
-        'models/stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep5'
+        #'models/stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep5'
+        # TODO(erjel): Here, I use the "care" enhanced dataset instead of "raw" ...
+        # TODO(erjel): stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep1 was not trained in this pipeline .. replace!
+        #'interim_data/predictions/care/stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep1/.chkpnt',
+        #'interim_data/trackmate_stacks/care.tif'
+        'interim_data/tracking/care_model_eva-v1-dz400-care_rep1.xml',
+        # TODO(erjel): Now open trackmate and preform the tracking ...
+        # TODO: "tracks/{data}_model_{model}.csv",
+        # TODO(gatoniel): Figure out how to reduce the memory footprint
+        #'interim_data/predictions/care_merge/eva-v1-dz400-care_rep1_merge/.chkpnt',
+        'figures/fig3a'
+
         #expand(r"data\interim\vtk\frame_{frame_number}.vtk", 
         #    frame_number = glob_wildcards(r"predictions\{label_1}_frame{frame_number}_{label_2}.tif")[1]
         #),
@@ -81,29 +97,6 @@ rule create_symlinks:
         "ln -s {params.target} {wildcards.directory}"
 
         
-rule create_tiffs_with_track_id:
-    output:
-        directory('data/processed/tracks/{data}_model_{model}_tif')
-    input:
-        tracks_csv = r"data\processed\tracks\{data}_model_{model}.csv",
-        prediction_folder = r"data\interim\predictions\{data}\{model}",
-    threads:
-        1
-    shell:
-        """matlab -nojvm -nosplash -batch "addpath(genpath('scripts')); tracks2tif('{output}', '{input.tracks_csv}', '{input.prediction_folder}')" """
-        
-
-rule create_vtks_with_track_id:
-    output:
-        directory('data/processed/tracks/{data}_model_{model}_vtk')
-    input:
-        tracks_csv = r"data\processed\tracks\{data}_model_{model}.csv",
-        prediction_folder = r"data\interim\predictions\{data}\{model}",
-    threads:
-        1
-    shell:
-        """matlab -nojvm -nosplash -batch "addpath(genpath('scripts')); tracks2vtk('{output}', '{input.tracks_csv}', '{input.prediction_folder}')" """
-        
 rule copy_huygens:
     output:
         directory('data/interim/huygens_parameterscan'),
@@ -165,60 +158,7 @@ rule calc_coverslip_slice:
     shell:
         'python scripts/calc_coverslip_slice.py {output.std_csv} {output.cover_slip_slice_csv} {input.basepaths}'
 
-rule plot_growthrate_heatmap:
-    output:
-        r'reports\figures\{data}\{modelname}_growthrate_heatmap.png',
-    input:
-        r'data\processed\tracks\{data}_model_{modelname}_growthrate.csv',
-    conda:
-        r'envs\plot.yml'
-    shell:
-        r"python scripts\plot_growthrate_heatmap.py {output} {input}"
-
-rule plot_growthrate:
-    output:
-        r'reports\figures\{data}\{modelname}_single_cell_growthrate.png',
-    input:
-        r'data\processed\tracks\{data}_model_{modelname}_growthrate.csv',
-    conda:
-        r'envs\calc.yml'
-    shell:
-        r"python scripts\plot_growthrate.py {output} {input}"
-
-ruleorder: tracks2growthrateBiofilmQ > tracks2growthrate
-        
-rule tracks2growthrateBiofilmQ:
-    output:
-        r"data\processed\tracks\{data}_model_BiofilmQ_growthrate.csv",
-    input:
-        tracks_csv = r"data\processed\tracks\{data}_model_BiofilmQ.csv",
-        prediction_folder = r"data\interim\predictions\{data}\BiofilmQ",
-        translations = r"data\interim\tracking\{data}_model_BiofilmQ_translations.csv",
-        crop = r"data\interim\tracking\{data}_model_BiofilmQ_crop_offsets.csv",
-    threads:
-        1
-    conda:
-        r"envs\calc.yml"
-    shell:
-        r"python scripts\calc_growthrate.py {output} {input.tracks_csv} {input.prediction_folder} " +
-        r"--transl_csv {input.translations} --crop_csv {input.crop}"
-        
-
-rule tracks2growthrate:
-    output:
-        r"data\processed\tracks\{data}_model_{model}_growthrate.csv",
-    input:
-        tracks_csv = r"data\processed\tracks\{data}_model_{model}.csv",
-        prediction_folder = r"data\interim\predictions\{data}\{model}",
-    wildcard_constraints:
-        model="^(?!BiofilmQ$)"
-    threads:
-        1
-    conda:
-        r"envs\calc.yml"
-    shell:
-        r"python scripts\calc_growthrate.py {output} {input.tracks_csv} {input.prediction_folder}"
-
+#TODO(erjel): Are the following rules unused?
 rule biofilmQData2Labelimages:
     output:
         directory(r'Y:\Eric\prediction_test\data\interim\predictions\{data}\BiofilmQ'),
@@ -229,56 +169,6 @@ rule biofilmQData2Labelimages:
     shell:
         """matlab -nojvm -nosplash -batch "addpath(genpath('scripts')); data2labelimage('{output}',  '{params.trans}', '{output.input_folder}')" """
 
-
-rule biofilmQ2trackmate:
-    output:
-        xml = r"data\interim\tracking\{data}_model_BiofilmQ.xml",
-        trans = r"data\interim\tracking\{data}_model_BiofilmQ_translations.csv",
-        crop = r"data\interim\tracking\{data}_model_BiofilmQ_crop_offsets.csv",
-    input:
-        data_folder = r'Y:\Daniel\000_Microscope data\2020.09.15_CNN3\kdv1502R_5L_30ms_300gain002\Pos5\data',
-        int_data_path = r'data\interim\tracking\{data}.tif',
-    threads:
-        1
-    shell:
-        """matlab -nojvm -nosplash -batch "addpath(genpath('scripts')); biofilmQ2trackMate('{output.xml}',  '{output.trans}', '{output.crop}', '{input.int_data_path}', '{input.data_folder}')" """
-    
-
-
-        
-rule labelimages2trackmate:
-    output:
-        r"data\interim\tracking\{data}_model_{model}.xml",
-    input:
-        int_data_path = r'data\interim\tracking\{data}.tif',
-        input_folder = r'data\interim\predictions\{data}\{model}',
-    conda:
-        r"envs\jinja2.yml"
-    shell:
-        r"python scripts\labelimage2trackmate.py --int_data_path {input.int_data_path} --input_folder {input.input_folder} --output_xml {output}"
-        
-rule stack4trackmate:
-    output:
-        r"data\interim\tracking\{data}.tif"
-    input:
-        r"data\interim\{data}"
-    conda:
-        r"envs\stardist.yml"
-    shell:
-        r"python scripts\create_stack_for_trackmate.py {output} {input}"
-                
-        
-        
-rule trackmate2napari:
-    output:
-        r"data\processed\tracks\{data}_model_{model}.csv"
-    input:
-        r"data\interim\tracking\{data}_model_{model}_Tracks.xml" # comes from manual TrackMate step
-    conda:
-        r"envs\stardist.yml"
-    shell:
-        r"python scripts\trackmate_xml_to_napari_csv.py {input} {output}"
-    
 rule create_vtk_from_labelfile_test:
     output:
         r"data\interim\vtk\frame_{frame_number}.vtk"
