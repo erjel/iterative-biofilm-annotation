@@ -1,18 +1,29 @@
 #!/usr/bin/env python
-from pathlib import Path
+import argparse
+import logging
 import os
-from tqdm import tqdm
-from tifffile import imsave, imread
-from stardist.models.model3d import StarDist3D
+from pathlib import Path
+from time import time
 import sys
+
 from csbdeep.utils import normalize
 import numpy as np
-import argparse
+from stardist.models.model3d import StarDist3D
 import tensorflow as tf
-
-from time import time
+from tifffile import imsave, imread
+from tqdm import tqdm
 
 from data import ImageInterpolation
+
+try:
+    from merge_stardist_masks.naive_fusion import naive_fusion
+    from stardist.rays3d import rays_from_json
+    MERGE_AVAILABLE = True
+except ImportError:
+    MERGE_AVAILABLE = False
+
+logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 os.environ['OMP_NUM_THREADS'] = '24'
 
@@ -52,27 +63,37 @@ def parse_args():
     output.add_argument('output_path', metavar='OUTPUT', type=str)
     output.add_argument('--output-name', type=str, default='{file_path}/{model_name}/{file_name}{file_ext}')
     output.add_argument('--overwrite', action='store_true', default=False)
+    output.add_argument('--use-merge', action='store_true', default=False)
   
     return parser, parser.parse_args()
 
 def main():
     parser, args = parse_args()
 
+    use_merge = args.use_merge
+
+    if use_merge and not MERGE_AVAILABLE:
+        logger.info(
+            'To use the merging post-processing install "merge-stardist-masks". \n' + \
+            'The prediction will proceed with the merging post-processing'
+        )
+        use_merge = MERGE_AVAILABLE
+
     model_path = Path(args.model_path)
     input_folder = Path(args.input_folder)
     
-    print(f'Input folder: {args.input_folder}')
-    print(f'Use pattern: {args.input_pattern}')
-    print(f'Output folder: {args.output_path}')
-    print(f'Use pattern: {args.output_name}')
+    logger.info(f'Input folder: {args.input_folder}')
+    logger.info(f'Use pattern: {args.input_pattern}')
+    logger.info(f'Output folder: {args.output_path}')
+    logger.info(f'Use pattern: {args.output_name}')
     
     X_filenames = sorted(input_folder.glob(args.input_pattern))
 
-    print(f'Found {len(X_filenames)}')
+    logger.info(f'Found {len(X_filenames)}')
 
-    not args.overview_plane or print('Remove overview planes!')
+    not args.overview_plane or logger.info('Remove overview planes!')
 
-    args.intp_factor is None or print(f'Interpolate z direction by x{args.intp_factor}')
+    args.intp_factor is None or logger.info(f'Interpolate z direction by x{args.intp_factor}')
 
     axis_norm = (0, 1, 2)
 
@@ -91,7 +112,7 @@ def main():
         config = tf.config.experimental.set_memory_growth(physical_devices[0], True)
     
     
-    print(f'Load model {model_path.name}')
+    logger.info(f'Load model {model_path.name}')
     model = StarDist3D(None, name=model_path.name, basedir=str(model_path.parent))
 
     for file_in in tqdm(X_filenames):
@@ -100,7 +121,7 @@ def main():
             file_path = str(file_in.relative_to(args.input_folder).parent),
             file_name = file_in.stem,
             file_ext = file_in.suffix,
-            model_name = Path(args.model_path).name
+            model_name = Path(args.model_path).name if not use_merge else f'{Path(args.model_path).name}_merge'
         )
         
         prop_out = file_out.parent / 'probs' / file_out.name
@@ -123,7 +144,7 @@ def main():
             img_shape = (img_shape[0]*factor ,  *img_shape[1:])
             img = ImageInterpolation(img, factor, img_shape)
 
-        print(f'Image shape: {img_shape}')
+        logger.info(f'Image shape: {img_shape}')
         img = normalize(img, 1, 99.8, axis=axis_norm)
         
         predict_opts = {'show_tile_progress': True, 'verbose':True}
@@ -138,14 +159,21 @@ def main():
             n_tiles = None
         else:
             n_tiles = tuple(np.max([1, s//max_size]) for s in img.shape)
-            print('Num tiles: ', n_tiles)
+            logger.info(f'Num tiles: {n_tiles}')
 
-        prob, dist = model.predict(img, n_tiles=n_tiles)
-        y_, details = model._instances_from_prediction(_shape_inst, prob, dist, overlap_label=overlap_label, verbose=True)
         
-        details_out = file_out.parent / 'details' /file_out.stem
-        details_out.parent.mkdir(parents=True, exist_ok=True)
-        np.save(details_out, details)
+        prob, dist = model.predict(img, n_tiles=n_tiles)
+        if use_merge:
+            rays = rays_from_json(model.config.rays_json)
+
+            y_ = naive_fusion(dist, prob, rays, grid=model.config.grid)
+
+        else:
+            y_, details = model._instances_from_prediction(_shape_inst, prob, dist, overlap_label=overlap_label, verbose=True)
+        
+            details_out = file_out.parent / 'details' /file_out.stem
+            details_out.parent.mkdir(parents=True, exist_ok=True)
+            np.save(details_out, details)
 
         if args.probs:
             prop_out = file_out.parent / 'probs' / file_out.name

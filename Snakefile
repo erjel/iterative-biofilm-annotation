@@ -3,9 +3,11 @@ configfile: "config.yml"
 
 include: r"workflows/rules/snakefile_care"
 include: "workflows/rules/stardist.smk"
+include: "workflows/rules/cellpose.smk"
+include: "workflows/rules/stardist_merge.smk"
 include: "workflows/rules/trackmate.smk"
 include: "workflows/rules/analysis.smk"
-include: "workflows/rules/plotting.smk"
+include: "workflows/rules/figures.smk"
 
 from pathlib import Path
 
@@ -20,6 +22,10 @@ rule all:
         'interim_data/tracking/care_model_eva-v1-dz400-care_rep1.xml',
         # TODO(erjel): Now open trackmate and preform the tracking ...
         # TODO: "tracks/{data}_model_{model}.csv",
+        # TODO(gatoniel): Figure out how to reduce the memory footprint
+        #'interim_data/predictions/care_merge/eva-v1-dz400-care_rep1_merge/.chkpnt',
+        'figures/fig3a'
+
         #expand(r"data\interim\vtk\frame_{frame_number}.vtk", 
         #    frame_number = glob_wildcards(r"predictions\{label_1}_frame{frame_number}_{label_2}.tif")[1]
         #),
