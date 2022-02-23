@@ -17,5 +17,5 @@ dependencies:
         - natsort==7.0.1
         - tqdm==4.46.1
         - cellpose==0.0.2.8
-        - mxnet-cu101mkl==1.6.0
+        - mxnet-cu101mkl==1.6.0.post0
         - tifffile==2020.6.3

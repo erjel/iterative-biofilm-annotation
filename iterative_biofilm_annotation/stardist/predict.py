@@ -25,7 +25,7 @@ except ImportError:
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
-os.environ['OMP_NUM_THREADS'] = '24'
+os.environ['OMP_PLACES'] = "threads"
 
 def allocateOnEmptyGPU():
     import os

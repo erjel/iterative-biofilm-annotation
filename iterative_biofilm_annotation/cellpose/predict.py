@@ -1,31 +1,43 @@
+from distutils import filelist
 from pathlib import Path
-from tifffile import imsave
+from tifffile import imsave, imread
 from cellpose import models
 import os
 import mxnet as mx
 from tqdm import tqdm
 import argparse
+import logging
 
 import sys
-from ..data import readDataset
+
+logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+
 
 def main(model_path, dataset_path, output_path):
+
+    logger.info(f'Look for data in {str(dataset_path)}')
     
-    dataset_name = dataset_path.name
+    assert dataset_path.is_dir(), f'{str(dataset_path)} is not a directory!'
 
-    X = readDataset(dataset_name)[0]
+    filelist_x = sorted(dataset_path.glob('*.tif'))
+    X = [imread(p) for p in filelist_x]
 
-    X = X['test']
+    logger.info(f'Found {len(X)} images in the data directory')
 
-    input_dir = dataset_path / 'test' / 'images'
-    output_dir = output_path / 'test' / 'images'
+    output_dir = output_path
 
     if not output_dir.is_dir():
         os.makedirs(output_dir)
 
+    logger.info(f'Search for model in "{model_path}"')
+
     model_path = sorted((model_path / 'models').glob('cellpose_*'))
-    assert(len(model_path) == 1)
+    logger.info(f'Found {len(model_path)} models')
+
+    assert len(model_path) == 1, f"model_path contains {len(model_path)} objects"
     model_path = model_path[0]
+    logger.info(f'Use model "{model_path}"')
 
     szmean = 15.
     device = mx.gpu()
@@ -45,25 +57,23 @@ def main(model_path, dataset_path, output_path):
         device=device,
         unet=False)
 
-    print(X[0].shape)
+    logger.info(f'input data has shape {X[0].shape}')
 
     Y_pred = model.eval(X, do_3D=do_3D, flow_threshold=None, channels=channels)[0]
 
-    filelist_x = sorted(p for p in input_dir.glob('*.tif'))
-    
     for y, x_path in tqdm(zip(Y_pred, filelist_x)):
         imsave(output_dir / x_path.name, y, compress=9)
 
 if __name__ == '__main__':
     
     parser = argparse.ArgumentParser()
-    parser.add_argument('model_path', metavar='MODEL', type=str)
-    parser.add_argument('dataset_path', metavar='DATASET', type=str)
-    parser.add_argument('output_path', metavar='OUTPUT', type=str)
+    parser.add_argument('model_path', metavar='MODEL', type=Path)
+    parser.add_argument('dataset_path', metavar='DATASET', type=Path)
+    parser.add_argument('output_path', metavar='OUTPUT', type=Path)
     args = parser.parse_args()
     
-    model_path = Path(args.model_path)
-    dataset_path = Path(args.dataset_path)
-    output_path = Path(args.output_path)
-    
-    main(model_path, dataset_path, output_path)
+    main(
+        args.model_path,
+        args.dataset_path,
+        args.output_path
+    )

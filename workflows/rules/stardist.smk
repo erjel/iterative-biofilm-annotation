@@ -26,7 +26,7 @@ rule train_stardist_model:
         
 rule stardist_testing:
     output:
-        touch('interim_data/predictions/{data_folder}/{model_name}')
+        directory('interim_data/predictions/{data_folder}/{model_name}')
     input:
         folder="training_data/{data_folder}",
     wildcard_constraints:
@@ -37,14 +37,21 @@ rule stardist_testing:
         output_dir="interim_data/predictions",
     threads:
         workflow.cores
+    resources:
+        time = "00:30:00",
+        constraint = "gpu",
+        gres = 'gpu:rtx5000:1',
+        cpus_per_task=40,
+        ntasks_per_core=2, # enable HT
+        ntasks_per_node=1,
+        mem='90G',
     conda:
         r"../envs/stardist.yml"
     shell:
         r"python iterative_biofilm_annotation/stardist/predict.py" + \
         " {input.folder}" + \
         " {params.model}" + \
-        " {params.output_dir}\{wildcards.data_folder}" +\
-        " --intp-factor 4"
+        " {params.output_dir}/{wildcards.data_folder}"
 
 ruleorder: stardist_merge_inference > stardist_inference # stardist_merge.smk vs stardist.smk
 
