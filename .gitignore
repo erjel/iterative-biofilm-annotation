@@ -10,3 +10,15 @@ reports
 __pycache__
 *.asv
 
+# pyenv
+.python-version
+
+# Symlink folders
+training_data/
+
+# exclude config changes
+config.yml
+config_local.yml
+
+# exclude slurm logs
+slurm-*.out
