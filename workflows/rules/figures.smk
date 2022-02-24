@@ -54,20 +54,44 @@ rule plot_fig3a:
             "accuracies/stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep{rep}/full_semimanual-raw.csv",
             rep = range(1, 6)
         ),
+        biofilmq_improved_accuracy = "accuracies/data_seeded_watershed/full_stacks_huy.csv",
+        biofilmq_accuracy = "accuracies/data_hartmann_et_al/full_stacks_huy.csv",
     params:
-        # TODO(erjel): Can this also be a snakemake workflow?
-        biofilmq_improved_accuracy = "accuracies/biofilmq_seeded_watershed/full_semimanual-raw.csv",
-        biofilmq_accuracy = "accuracies/biofilmq_hartmann_et_al/full_semimanual-raw.csv",
+        labels = [
+            'Improved Hartmann et al.',
+            'Hartmann et al.',
+            'Cellpose',
+            'Stardist',
+        ]
     conda:
         "../envs/plot.yml"
+    resources:
+        partition = 'express',
+        time="00:05:00",
+        mem='16G',
+        ntasks_per_node=1,
+        ntasks_per_core=2,
+        cpus_per_task=16,
     shell:
         "python iterative_biofilm_annotation/figures/fig3a_segmentation_comparision.py" + \
             " {output.output_dir}" + \
+            " --labels {params.labels:q}" + \
             " --stardist_accuracies {input.stardist_accuracies}" + \
             " --cellpose_accuracies {input.cellpose_accuracies}" + \
-            " --biofilmq_improved_accuracies {params.biofilmq_improved_accuracy}" + \
-            " --biofilmq_accuracies {params.biofilmq_accuracy}" # + \
+            " --biofilmq_improved_accuracies {input.biofilmq_improved_accuracy}" + \
+            " --biofilmq_accuracies {input.biofilmq_accuracy}" # + \
             # " --stardist_improved_accuracies {input.stardist_improved_accuracies}"
+
+
+rule plot_fig3b:
+    output:
+        output_dir = directory('figures/fig3b'),
+    input:
+        'dummy',
+    conda:
+        "../envs/plot.yml",
+    shell:
+        "python iterative_biofilm_annotation/figures/figb_number_accuracies.py" 
     
 
 

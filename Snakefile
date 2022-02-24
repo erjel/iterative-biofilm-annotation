@@ -28,8 +28,9 @@ rule all:
         ## Try to recreate fig3a:
         #'interim_data/predictions/full_semimanual-raw/test/images/stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep2'
         #'interim_data/predictions/full_semimanual-raw/test/images/horovod_cellpose_patches-semimanual-raw-64x128x128_prc100_bs8_lr0.00625_wd0.00001_mt0.7_sge_rep1'
-        'interim_data/predictions/full_semimanual-raw/test/images/data_seeded_watershed',
-        #'figures/fig3a'
+        #'interim_data/predictions/full_semimanual-raw/test/images/data_seeded_watershed',
+        #"accuracies/stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep2/full_semimanual-raw.csv",
+        'figures/fig3a'
 
         #expand(r"data\interim\vtk\frame_{frame_number}.vtk", 
         #    frame_number = glob_wildcards(r"predictions\{label_1}_frame{frame_number}_{label_2}.tif")[1]

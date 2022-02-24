@@ -42,14 +42,44 @@ rule tracks2growthrate:
 # Model prediction accuracies #
 ###############################
 
-rule calc_accuracies:
+rule calc_accuracies_biofilmq:
     output:
-        "accuracies/{modelname}/{datasetname}.csv"
+        csv_file = "accuracies/data_{biofilmq_setting}/full_stacks_huy.csv",
     input:
-        pred_path="interim_data/predictions/{datasetname}/{modelname}",
-        gt_path="training_data/{datasetname}"
+        pred_path= "interim_data/predictions/full_stacks_huy/data_{biofilmq_setting}",
+    params:
+        # TODO(erjel): Where does this come from?
+        gt_path = "data_BiofilmQ/full_stacks_huy/masks_intp",
+    resources:
+        partition = 'express',
+        time="00:05:00",
+        mem='16G',
+        ntasks_per_node=1,
+        ntasks_per_core=2,
+        cpus_per_task=16,
     conda:
         "../envs/stardist.yml"
     shell:
-        #TODO(erjel): From stardist_mpcdf repo: What is the difference to the rule calc_accuracies ?
-        "python scripts/calculate_accuracy_verbose.py {output} {input.pred_path} {input.gt_path}"
+        "python iterative_biofilm_annotation/analysis/calc_accuracy_verbose.py" + \
+        " {output} {input.pred_path} {params.gt_path}" + \
+        " --pattern *Nz300.tif"
+
+rule calc_accuracies:
+    output:
+        csv_file = "accuracies/{modelname}/{datasetname}.csv"
+    wildcard_constraints:
+        modelname = 'stardist_.*|horovod_.*'
+    input:
+        pred_path="interim_data/predictions/{datasetname}/test/images/{modelname}",
+        gt_path="training_data/{datasetname}/test/masks"
+    resources:
+        partition = 'express',
+        time="00:05:00",
+        mem='16G',
+        ntasks_per_node=1,
+        ntasks_per_core=2,
+        cpus_per_task=16,
+    conda:
+        "../envs/stardist.yml"
+    shell:
+        "python iterative_biofilm_annotation/analysis/calc_accuracy_verbose.py {output.csv_file} {input.pred_path} {input.gt_path}"
