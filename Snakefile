@@ -5,6 +5,7 @@ include: r"workflows/rules/snakefile_care"
 include: "workflows/rules/stardist.smk"
 include: "workflows/rules/cellpose.smk"
 include: "workflows/rules/stardist_merge.smk"
+include: "workflows/rules/biofilmq.smk"
 include: "workflows/rules/trackmate.smk"
 include: "workflows/rules/analysis.smk"
 include: "workflows/rules/figures.smk"
@@ -26,7 +27,8 @@ rule all:
         #'interim_data/predictions/care_merge/eva-v1-dz400-care_rep1_merge/.chkpnt',
         ## Try to recreate fig3a:
         #'interim_data/predictions/full_semimanual-raw/test/images/stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep2'
-        'interim_data/predictions/full_semimanual-raw/test/images/horovod_cellpose_patches-semimanual-raw-64x128x128_prc100_bs8_lr0.00625_wd0.00001_mt0.7_sge_rep1'
+        #'interim_data/predictions/full_semimanual-raw/test/images/horovod_cellpose_patches-semimanual-raw-64x128x128_prc100_bs8_lr0.00625_wd0.00001_mt0.7_sge_rep1'
+        'interim_data/predictions/full_semimanual-raw/test/images/data_seeded_watershed',
         #'figures/fig3a'
 
         #expand(r"data\interim\vtk\frame_{frame_number}.vtk", 
