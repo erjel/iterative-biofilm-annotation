@@ -165,7 +165,7 @@ def main():
         prob, dist = model.predict(img, n_tiles=n_tiles)
         if use_merge:
             rays = rays_from_json(model.config.rays_json)
-
+            # TODO(erjel): Save the dist and props on disk and use a separate job for naive fusison?
             y_ = naive_fusion(dist, prob, rays, grid=model.config.grid)
 
         else:
