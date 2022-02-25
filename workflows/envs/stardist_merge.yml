@@ -6,4 +6,4 @@ dependencies:
   - libgcc
   - tensorflow-gpu=2.1.0
   - pip:
-    - merge-stardist-masks==0.0.1
+    - merge-stardist-masks @ git+https://github.com/gatoniel/merge-stardist-masks.git@03cf08fdc97ccfa29ea42936f1cb1da32ce6a446

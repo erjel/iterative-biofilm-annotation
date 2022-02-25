@@ -12,6 +12,15 @@ rule stardist_merge_inference:
         output_dir="interim_data/predictions",
     threads:
         workflow.cores
+    resources:
+        partition = 'gpu_rtx5000',
+        time = "24:00:00", # TODO(erjel): Max timelimit found reasonable one
+        constraint = "gpu",
+        gres = 'gpu:rtx5000:2',
+        cpus_per_task=80,
+        ntasks_per_core=2, # enable HT
+        ntasks_per_node=1,
+        mem='180G',
     conda:
         r"../envs/stardist_merge.yml"
     shell:

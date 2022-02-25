@@ -43,6 +43,7 @@ input_data
 tracks
 accuracies
 data_BiofilmQ
+figures
 
 # exclude config changes
 config.yml

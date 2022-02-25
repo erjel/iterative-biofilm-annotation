@@ -26,6 +26,7 @@ logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 os.environ['OMP_PLACES'] = "threads"
+os.environ['CUDA_VISIBLE_DEVICES'] = "0"
 
 def allocateOnEmptyGPU():
     import os
