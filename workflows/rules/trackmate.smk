@@ -18,7 +18,7 @@ rule labelimages2trackmate:
         "interim_data/tracking/{data}_model_{model}.xml",
     input:
         int_data_path = 'interim_data/trackmate_stacks/{data}.tif',
-        input_folder = 'interim_data/predictions/{data}/{model}',
+        input_folder = 'interim_data/predictions/{data}/{model}/.chkpnt',
     conda:
         "../envs/jinja2.yml"
     resources:
@@ -40,7 +40,9 @@ rule stack4trackmate:
     output:
         "interim_data/trackmate_stacks/{data}.tif"
     input:
-        "input_data/{data}"
+        "input_data/.symlink"
+    params:
+        input = lambda wc: "input_data/{wc.data}"
     conda:
         "../envs/stardist.yml"
     resources:

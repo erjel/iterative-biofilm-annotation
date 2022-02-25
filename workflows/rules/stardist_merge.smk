@@ -5,11 +5,12 @@ rule stardist_merge_inference:
     output:
         touch('interim_data/predictions/{data_folder}/{model_name}_merge/.chkpnt')
     input:
-        folder="input_data/{data_folder}",
+        symlink = "input_data/.symlink"
     # TODO(erjel): Make the model dependentcy explicit again
     params:
         model="models/{model_name}",
         output_dir="interim_data/predictions",
+        folder="input_data/{data_folder}",
     threads:
         workflow.cores
     resources:
@@ -25,7 +26,7 @@ rule stardist_merge_inference:
         r"../envs/stardist_merge.yml"
     shell:
         r"python iterative_biofilm_annotation/stardist/predict.py" + \
-        " {input.folder}" + \
+        " {params.folder}" + \
         " {params.model}" + \
         " {params.output_dir}/{wildcards.data_folder}" +\
         " --intp-factor 4" + \
