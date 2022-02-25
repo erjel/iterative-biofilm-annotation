@@ -1,3 +1,4 @@
+from argparse import ArgumentParser
 from tifffile import imread
 import numpy as np
 from pathlib import Path
@@ -13,13 +14,7 @@ def getResultsAndFeatures(accuracy_file, skip):
 
     return results, features
 
-
-accuracy_files = [ 
-r"Y:\Eric\2021_Iterative_Biofilm_Annotation\data\stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_70prc_rep5\accuracy_full_semimanual-raw_verbose.csv", # stardist
-r"Y:\Eric\2021_Iterative_Biofilm_Annotation\data_BiofilmQ\full_stacks_huy\accuracies\data_seeded_watershed\Pos1_ch1_frame000001_Nz300.csv", # Improved Hartmann et al
-r"Y:\Eric\2021_Iterative_Biofilm_Annotation\data_BiofilmQ\full_stacks_huy\accuracies\data_hartmann_et_al\Pos1_ch1_frame000001_Nz300.csv", # Hartmann et al
-r"Y:\Eric\2021_Iterative_Biofilm_Annotation\data\horovod_cellpose_patches-semimanual-raw-64x128x128_prc100_bs8_lr0.00625_wd0.00001_mt0.7_sge_rep1\accuracy_full_semimanual-raw_verbose.csv" # cellpose
-    ]
+def plot_number_accuracies() -> None:
 
 results_lists = [ np.genfromtxt(accuracy_file, delimiter=',', skip_header=1) for accuracy_file in accuracy_files]
 
@@ -79,3 +74,31 @@ plt.tight_layout()
 
 plt.savefig(str(output_folder / 'Number_accuracy.svg'), bbox_inches='tight')
 plt.savefig(str(output_folder / 'Number_accuracy.png'), bbox_inches='tight')
+
+def parse_args():
+    parser = ArgumentParser()
+    parser.add_argument(output_folder, type=Path)
+    parser.add_argument('--labels', type=str, nargs='+')
+    parser,
+
+    return parser.parse_args()
+
+def main():
+    args = parse_args()
+
+    accuracy_files = [
+        # TODO(erjel): Use mean value instead of single calculation for stardist & cellpose 
+        r"Y:\Eric\2021_Iterative_Biofilm_Annotation\data\stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_70prc_rep5\accuracy_full_semimanual-raw_verbose.csv", # stardist
+        r"Y:\Eric\2021_Iterative_Biofilm_Annotation\data_BiofilmQ\full_stacks_huy\accuracies\data_seeded_watershed\Pos1_ch1_frame000001_Nz300.csv", # Improved Hartmann et al
+        r"Y:\Eric\2021_Iterative_Biofilm_Annotation\data_BiofilmQ\full_stacks_huy\accuracies\data_hartmann_et_al\Pos1_ch1_frame000001_Nz300.csv", # Hartmann et al
+        r"Y:\Eric\2021_Iterative_Biofilm_Annotation\data\horovod_cellpose_patches-semimanual-raw-64x128x128_prc100_bs8_lr0.00625_wd0.00001_mt0.7_sge_rep1\accuracy_full_semimanual-raw_verbose.csv" # cellpose
+    ]
+
+    plot_number_accuracies(
+
+    )
+
+    return
+
+if __name__ == '__main__':
+    main()

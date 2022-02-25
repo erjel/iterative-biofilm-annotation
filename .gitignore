@@ -44,6 +44,7 @@ tracks
 accuracies
 data_BiofilmQ
 figures
+!figures/*.py
 
 # exclude config changes
 config.yml
