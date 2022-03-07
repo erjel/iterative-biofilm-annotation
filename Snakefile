@@ -20,15 +20,15 @@ rule all:
         # TODO(erjel): stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep1 was not trained in this pipeline .. replace!
         #'interim_data/predictions/care/stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep1/.chkpnt',
         #'interim_data/trackmate_stacks/care.tif'
-        'interim_data/tracking/care_model_eva-v1-dz400-care_rep1.xml',
+        #'interim_data/tracking/care_model_eva-v1-dz400-care_rep1.xml',
         # TODO(erjel): Now open trackmate and preform the tracking ...
         # TODO: "tracks/{data}_model_{model}.csv",
         # TODO(gatoniel): Figure out how to reduce the memory footprint
-        'interim_data/predictions/care_merge/eva-v1-dz400-care_rep1_merge/.chkpnt',
+        #'interim_data/predictions/care_merge/eva-v1-dz400-care_rep1_merge/.chkpnt',
         ## Try to recreate fig3a:
         #'figures/fig3a'
         ## Try to recreate fig3b:
-        #"figures/fig3b"
+        "figures/fig3b"
 
         #expand(r"data\interim\vtk\frame_{frame_number}.vtk", 
         #    frame_number = glob_wildcards(r"predictions\{label_1}_frame{frame_number}_{label_2}.tif")[1]
@@ -87,14 +87,14 @@ rule bronto_download_dataset:
     input:
         'training_data/.symlink',
     shell:
-        'scp -r bronto:/volume1/bronto/Eric/2021_Iterative_Biofilm_Annotation_bk/datasets/{wildcards.dataset} ./training_data/'
+        'scp -r bronto:/volume1/bronto/Eric/2021_Iterative_Biofilm_Annotation_bk/datasets/{wildcards.dataset} ./training_data/{wildcards.dataset}'
 
 localrules:
     create_symlinks
 
 rule create_symlinks:
     output:
-        touch('{directory}/.symlink')
+        touch('.checkpoints/.symlink-{directory}')
     params:
         target = lambda wc: config["symlinks"][wc.directory]
     shell:

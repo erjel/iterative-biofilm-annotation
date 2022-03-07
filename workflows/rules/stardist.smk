@@ -38,6 +38,7 @@ rule stardist_testing:
     threads:
         workflow.cores
     resources:
+        partition = "gpu1_rtx5000",
         time = "00:30:00",
         constraint = "gpu",
         gres = 'gpu:rtx5000:1',

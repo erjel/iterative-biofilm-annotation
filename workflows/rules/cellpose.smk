@@ -6,10 +6,12 @@ rule horovod_cellpose_testing:
         directory("interim_data/predictions/{datasetname}/horovod_cellpose_{modelname}")
     input:
         dataset_path="training_data/{datasetname}",
+        symlink = ".checkpoints/.symlink-models",
     params:
         # TODO(erjel): Make it an explizit dependency
         model_path="models/horovod_cellpose_{modelname}",
     resources:
+        partition = 'gpu1_rtx5000',
         constraint = 'gpu',
         gres="gpu:rtx5000:1",
         time="01:00:00",

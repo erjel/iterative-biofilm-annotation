@@ -46,6 +46,8 @@ data_BiofilmQ
 figures
 !figures/*.py
 
+.checkpoints
+
 # exclude config changes
 config.yml
 config_local.yml

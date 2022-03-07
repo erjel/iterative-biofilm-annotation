@@ -87,11 +87,40 @@ rule plot_fig3b:
     output:
         output_dir = directory('figures/fig3b'),
     input:
-        'dummy',
+        # TODO(erjel): Use Range instead of single value
+        #cellpose_accuracies = expand(
+        #    "accuracies/horovod_cellpose_patches-semimanual-raw-64x128x128_prc100_bs8_lr0.00625_wd0.00001_mt0.7_sge_rep{rep}/full_semimanual-raw.csv",
+        #    rep = range(1, 6)
+        #),
+        #stardist_accuracies = expand(
+        #    "accuracies/stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep{rep}/full_semimanual-raw.csv",
+        #    rep = range(1, 6)
+        #),
+        cellpose_accuracies = "accuracies/horovod_cellpose_patches-semimanual-raw-64x128x128_prc100_bs8_lr0.00625_wd0.00001_mt0.7_sge_rep1/full_semimanual-raw.csv",
+        stardist_accuracies = "accuracies/stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep5/full_semimanual-raw.csv",
+        biofilmq_improved_accuracies = "accuracies/data_seeded_watershed/full_stacks_huy.csv",
+        biofilmq_accuracies = "accuracies/data_hartmann_et_al/full_stacks_huy.csv",
+    params:
+        labels = [' Stardist', ' Improved Hartmann et al.', ' Hartmann et al.', ' Cellpose'],
+        plotstyle = ['solid', 'dashed', 'dashdot', 'dotted']
     conda:
         "../envs/plot.yml",
+    resources:
+        partition = 'express',
+        time="00:05:00",
+        mem ='16G',
+        ntasks_per_node=1,
+        ntasks_per_core=2,
+        cpus_per_task=16,
     shell:
-        "python iterative_biofilm_annotation/figures/figb_number_accuracies.py" 
+        "python iterative_biofilm_annotation/figures/fig3b_number_accuracies.py" + \
+        " {output.output_dir}" + \
+        " --labels {params.labels:q}" + \
+        " --plotstyle {params.plotstyle}" + \
+        " --cellpose_accuracies {input.cellpose_accuracies}" + \
+        " --stardist_accuracies {input.stardist_accuracies}" + \
+        " --biofilmq_improved_accuracies {input.biofilmq_improved_accuracies}" + \
+        " --biofilmq_accuracies {input.biofilmq_accuracies}" 
     
 
 
