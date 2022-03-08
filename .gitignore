@@ -42,9 +42,10 @@ interim_data
 input_data
 tracks
 accuracies
+accuracies_copy_bronto
 data_BiofilmQ
 figures
-!figures/*.py
+!iterative_biofilm_annotation/figures
 
 .checkpoints
 

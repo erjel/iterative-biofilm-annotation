@@ -68,7 +68,7 @@ rule calc_accuracies:
     output:
         csv_file = "accuracies/{modelname}/{datasetname}.csv"
     wildcard_constraints:
-        modelname = 'stardist_.*|horovod_.*'
+        modelname = 'stardist_.*|horovod_.*|cellpose_.*'
     input:
         pred_path="interim_data/predictions/{datasetname}/test/images/{modelname}",
         gt_path="training_data/{datasetname}/test/masks"

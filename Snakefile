@@ -28,7 +28,9 @@ rule all:
         ## Try to recreate fig3a:
         #'figures/fig3a'
         ## Try to recreate fig3b:
-        "figures/fig3b"
+        #"figures/fig3b"
+        ## Try to recreate fig3c:
+        "figures/fig3c"
 
         #expand(r"data\interim\vtk\frame_{frame_number}.vtk", 
         #    frame_number = glob_wildcards(r"predictions\{label_1}_frame{frame_number}_{label_2}.tif")[1]
@@ -84,6 +86,8 @@ localrules:
 rule bronto_download_dataset:
     output:
         directory('training_data/{dataset}'),
+    wildcard_constraints:
+        dataset = "[^(.symlink)]"
     input:
         'training_data/.symlink',
     shell:
