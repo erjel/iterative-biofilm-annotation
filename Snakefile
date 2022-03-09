@@ -23,14 +23,15 @@ rule all:
         #'interim_data/tracking/care_model_eva-v1-dz400-care_rep1.xml',
         # TODO(erjel): Now open trackmate and preform the tracking ...
         # TODO: "tracks/{data}_model_{model}.csv",
-        # TODO(gatoniel): Figure out how to reduce the memory footprint
         #'interim_data/predictions/care_merge/eva-v1-dz400-care_rep1_merge/.chkpnt',
-        ## Try to recreate fig3a:
+        ## Try to recreate figures:
         #'figures/fig3a'
-        ## Try to recreate fig3b:
         #"figures/fig3b"
-        ## Try to recreate fig3c:
-        "figures/fig3c"
+        #"figures/fig3c"
+        'interim_data/fn_fp_visualization/stardist_fn.tif',
+        'interim_data/fn_fp_visualization/stardist_fp.tif',
+        'interim_data/fn_fp_visualization/biofilmq_fn.tif',
+        'interim_data/fn_fp_visualization/biofilmq_fp.tif',
 
         #expand(r"data\interim\vtk\frame_{frame_number}.vtk", 
         #    frame_number = glob_wildcards(r"predictions\{label_1}_frame{frame_number}_{label_2}.tif")[1]
