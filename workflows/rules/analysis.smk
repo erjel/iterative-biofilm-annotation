@@ -146,4 +146,55 @@ rule create_fn_fp_tifs:
         " {params.prediction}" + \
         " {params.gt_path_mask}" + \
         " {params.remove_pred_slice}"
+
+rule convert_tif2vtk_fn:
+    output:
+        vtk = 'interim_data/fn_fp_visualization/{filename}_fn.vtk',
+    input:
+        biofilmq_includes = 'external/BiofilmQ',
+        tif = 'interim_data/fn_fp_visualization/{filename}_fn.tif',
+    params:
+        gt_path_mask = 'training_data/full_semimanual-raw/test/masks/im0.tif',
+        x_cut = 512,
+        y_cut = 512,
+        z_cut = 25,
+    envmodules:
+        'matlab/R2019b',
+    resources:
+        partition = 'express',
+        time="00:10:00",
+        mem='32G',
+        ntasks_per_node=1,
+        ntasks_per_core=2,
+        cpus_per_task=16,
+    shell:
+        """matlab -nojvm -nosplash -batch "addpath(genpath('iterative_biofilm_annotation/analysis')); """ + \
+        """ tif2vtk('{output.vtk}', '{input.tif}', '{params.gt_path_mask}', {params.x_cut}, {params.y_cut}, {params.z_cut}  )" """
+
+rule convert_tif2vtk_fp:
+    output:
+        vtk = 'interim_data/fn_fp_visualization/{filename}_fp.vtk',
+    input:
+        biofilmq_library = 'external/BiofilmQ',
+        tif = 'interim_data/fn_fp_visualization/{filename}_fp.tif',
+    params:
+        prediction= lambda wc: {
+            'biofilmq': 'interim_data/predictions/full_stacks_huy/data_seeded_watershed-downsampled/Pos1_ch1_frame000001_Nz300.tif',
+            'stardist': 'interim_data/predictions/full_semimanual-raw/test/images/stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep5/im0.tif',
+        }[wc.filename],
+        x_cut = 512,
+        y_cut = 512,
+        z_cut = 25,
+    envmodules:
+        'matlab/R2019b'
+    resources:
+        partition = 'express',
+        time="00:10:00",
+        mem='32G',
+        ntasks_per_node=1,
+        ntasks_per_core=2,
+        cpus_per_task=16,
+    shell:
+        """matlab -nojvm -nosplash -batch "addpath(genpath('iterative_biofilm_annotation/analysis')); """ + \
+        """ tif2vtk('{output.vtk}', '{input.tif}', '{params.prediction}', {params.x_cut}, {params.y_cut}, {params.z_cut})" """
         

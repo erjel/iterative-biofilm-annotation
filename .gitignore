@@ -48,6 +48,7 @@ figures
 !iterative_biofilm_annotation/figures
 
 .checkpoints
+external
 
 # exclude config changes
 config.yml

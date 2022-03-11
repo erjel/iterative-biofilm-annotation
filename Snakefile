@@ -28,10 +28,10 @@ rule all:
         #'figures/fig3a'
         #"figures/fig3b"
         #"figures/fig3c"
-        'interim_data/fn_fp_visualization/stardist_fn.tif',
-        'interim_data/fn_fp_visualization/stardist_fp.tif',
-        'interim_data/fn_fp_visualization/biofilmq_fn.tif',
-        'interim_data/fn_fp_visualization/biofilmq_fp.tif',
+        'interim_data/fn_fp_visualization/stardist_fn.vtk',
+        'interim_data/fn_fp_visualization/stardist_fp.vtk',
+        'interim_data/fn_fp_visualization/biofilmq_fn.vtk',
+        'interim_data/fn_fp_visualization/biofilmq_fp.vtk',
 
         #expand(r"data\interim\vtk\frame_{frame_number}.vtk", 
         #    frame_number = glob_wildcards(r"predictions\{label_1}_frame{frame_number}_{label_2}.tif")[1]
@@ -104,6 +104,16 @@ rule create_symlinks:
         target = lambda wc: config["symlinks"][wc.directory]
     shell:
         "ln -s {params.target} {wildcards.directory}"
+
+localrules:
+    download_biofilmq_includes
+rule download_biofilmq_includes:
+    output:
+        directory('external/BiofilmQ')
+    envmodules:
+        'git/2.31',
+    shell:
+        'git clone git@github.com:erjel/BiofilmQ.git external/BiofilmQ'
 
         
 rule copy_huygens:
