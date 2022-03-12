@@ -28,10 +28,10 @@ rule all:
         #'figures/fig3a'
         #"figures/fig3b"
         #"figures/fig3c"
-        'interim_data/fn_fp_visualization/stardist_fn.vtk',
-        'interim_data/fn_fp_visualization/stardist_fp.vtk',
-        'interim_data/fn_fp_visualization/biofilmq_fn.vtk',
-        'interim_data/fn_fp_visualization/biofilmq_fp.vtk',
+        'figures/fig3d/stardist_fn_render.png',
+        'figures/fig3d/stardist_fp_render.png',
+        'figures/fig3d/biofilmq_fn_render.png',
+        'figures/fig3d/biofilmq_fp_render.png',
 
         #expand(r"data\interim\vtk\frame_{frame_number}.vtk", 
         #    frame_number = glob_wildcards(r"predictions\{label_1}_frame{frame_number}_{label_2}.tif")[1]

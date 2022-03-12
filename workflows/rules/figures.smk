@@ -310,3 +310,23 @@ rule plot_fig3c:
         " {input.training_data_stardist}"
         " --cellpose_accuracies {input.cellpose_accuracies}"
         " --stardist_accuracies {input.stardist_accuracies}"
+
+#TODO(erjel): Check with MCPDF whether this can run on a regular cluster node instead of using the rvs ...
+rule create_fig3d_render:
+    output:
+        'figures/fig3d/{filename}_render.png'
+    input:
+        'interim_data/fn_fp_visualization/{filename}.vtk',
+    params:
+        'resources/paraview_render_save.pvsm',
+    envmodules:
+        'paraview/5.8',
+    resources:
+        partition = 'express',
+        time="00:05:00",
+        mem ='16G',
+        ntasks_per_node=1,
+        ntasks_per_core=2,
+        cpus_per_task=16,
+    shell:
+        "vglrun pvpython iterative_biofilm_annotation/figures/fig3d_render_vtk.py {input} {output}"
