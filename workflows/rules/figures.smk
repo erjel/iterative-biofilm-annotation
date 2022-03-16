@@ -60,12 +60,14 @@ rule plot_fig3a:
         ),
         biofilmq_improved_accuracy = "accuracies/data_seeded_watershed/full_stacks_huy.csv",
         biofilmq_accuracy = "accuracies/data_hartmann_et_al/full_stacks_huy.csv",
+        stardist_improved_accuracies = "accuracies/stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep5_merge/full_semimanual-raw.csv",
     params:
         labels = [
-            'Improved Hartmann et al.',
-            'Hartmann et al.',
-            'Cellpose',
             'Stardist',
+            'Cellpose',
+            'Hartmann et al.',
+            'Improved Hartmann et al.',
+            'Stardist Improved',   
         ]
     conda:
         "../envs/plot.yml"
@@ -83,8 +85,8 @@ rule plot_fig3a:
             " --stardist_accuracies {input.stardist_accuracies}" + \
             " --cellpose_accuracies {input.cellpose_accuracies}" + \
             " --biofilmq_improved_accuracies {input.biofilmq_improved_accuracy}" + \
-            " --biofilmq_accuracies {input.biofilmq_accuracy}" # + \
-            # " --stardist_improved_accuracies {input.stardist_improved_accuracies}"
+            " --biofilmq_accuracies {input.biofilmq_accuracy}"  + \
+            " --stardist_improved_accuracies {input.stardist_improved_accuracies}"
 
 
 rule plot_fig3b:
@@ -102,11 +104,12 @@ rule plot_fig3b:
         #),
         cellpose_accuracies = "accuracies/horovod_cellpose_patches-semimanual-raw-64x128x128_prc100_bs8_lr0.00625_wd0.00001_mt0.7_sge_rep1/full_semimanual-raw.csv",
         stardist_accuracies = "accuracies/stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep5/full_semimanual-raw.csv",
+        stardist_improved_accuracies = "accuracies/stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep5_merge/full_semimanual-raw.csv",
         biofilmq_improved_accuracies = "accuracies/data_seeded_watershed/full_stacks_huy.csv",
         biofilmq_accuracies = "accuracies/data_hartmann_et_al/full_stacks_huy.csv",
     params:
-        labels = [' Stardist', ' Improved Hartmann et al.', ' Hartmann et al.', ' Cellpose'],
-        plotstyle = ['solid', 'dashed', 'dashdot', 'dotted']
+        labels = [' Stardist', ' Improved Hartmann et al.', ' Hartmann et al.', ' Cellpose', 'Stardist Improved'],
+        plotstyle = ['solid', 'dashed', 'dashdot', 'dotted', 'solid']
     conda:
         "../envs/plot.yml",
     resources:
@@ -124,7 +127,8 @@ rule plot_fig3b:
         " --cellpose_accuracies {input.cellpose_accuracies}" + \
         " --stardist_accuracies {input.stardist_accuracies}" + \
         " --biofilmq_improved_accuracies {input.biofilmq_improved_accuracies}" + \
-        " --biofilmq_accuracies {input.biofilmq_accuracies}" 
+        " --biofilmq_accuracies {input.biofilmq_accuracies}" + \
+        " --stardist_improved_accuracies {input.stardist_improved_accuracies}"
     
 
 cellpose_models_raw_full_low = [
@@ -311,7 +315,6 @@ rule plot_fig3c:
         " --cellpose_accuracies {input.cellpose_accuracies}"
         " --stardist_accuracies {input.stardist_accuracies}"
 
-#TODO(erjel): Check with MCPDF whether this can run on a regular cluster node instead of using the rvs ...
 rule create_fig3d_render:
     output:
         'figures/fig3d/{filename}_render.png'

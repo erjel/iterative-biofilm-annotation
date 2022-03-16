@@ -24,14 +24,16 @@ rule all:
         # TODO(erjel): Now open trackmate and preform the tracking ...
         # TODO: "tracks/{data}_model_{model}.csv",
         #'interim_data/predictions/care_merge/eva-v1-dz400-care_rep1_merge/.chkpnt',
+        #'interim_data/predictions/full_semimanual-raw/test/images/stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep5_merge/.chkpnt_test'
         ## Try to recreate figures:
-        #'figures/fig3a'
+        'figures/fig3a'
         #"figures/fig3b"
         #"figures/fig3c"
-        'figures/fig3d/stardist_fn_render.png',
-        'figures/fig3d/stardist_fp_render.png',
-        'figures/fig3d/biofilmq_fn_render.png',
-        'figures/fig3d/biofilmq_fp_render.png',
+        # TODO(erjel): The rendering needs to be executed in a rvs session locally ...
+        #'figures/fig3d/stardist_fn_render.png',
+        #'figures/fig3d/stardist_fp_render.png',
+        #'figures/fig3d/biofilmq_fn_render.png',
+        #'figures/fig3d/biofilmq_fp_render.png','
 
         #expand(r"data\interim\vtk\frame_{frame_number}.vtk", 
         #    frame_number = glob_wildcards(r"predictions\{label_1}_frame{frame_number}_{label_2}.tif")[1]

@@ -136,7 +136,7 @@ def main():
         img = imread(file_in)
         
         if args.overview_plane:
-            img = imgs[1:]
+            img = img[1:]
         
         img_shape = img.shape
         
@@ -164,6 +164,7 @@ def main():
 
         
         prob, dist = model.predict(img, n_tiles=n_tiles)
+        logger.info(f'Probability shape: {prob.shape}')
         if use_merge:
             rays = rays_from_json(model.config.rays_json)
             # TODO(erjel): Save the dist and props on disk and use a separate job for naive fusison?
@@ -175,6 +176,11 @@ def main():
             details_out = file_out.parent / 'details' /file_out.stem
             details_out.parent.mkdir(parents=True, exist_ok=True)
             np.save(details_out, details)
+
+        logger.info(f'Naive output shape: {y_.shape}')
+        y_ = y_[tuple(slice(0, s) for s in img_shape)]
+        logger.info(f'Cropped output shape: {y_.shape}')
+
 
         if args.probs:
             prop_out = file_out.parent / 'probs' / file_out.name

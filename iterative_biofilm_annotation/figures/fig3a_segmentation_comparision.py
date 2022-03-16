@@ -22,44 +22,27 @@ def plot_accuracy_comparison(
     stardist_improved_accuracies: Optional[List[Path]] = None
     ) -> None:
 
-    accuracy_files = \
-        stardist_accuracies + \
-        cellpose_accuracies + \
-        biofilmq_accuracies + \
-        biofilmq_improved_accuracies + \
-        stardist_improved_accuracies
+    accuracy_files = [
+        stardist_accuracies,
+        cellpose_accuracies,
+        biofilmq_accuracies,
+        biofilmq_improved_accuracies,
+        stardist_improved_accuracies,
+    ]
     
-    [logger.info(a) for a in accuracy_files]
-
-    modelnames = [Path(f).parent.name for f in accuracy_files]
-
-    logger.info(modelnames)
-
-
-    data = []
-    for i, filename in enumerate(accuracy_files):
-        logger.info(filename)
-        data_ = np.genfromtxt(str(filename), delimiter=',', skip_header=1)[:, [1, 7]]
-        data.append(data_)
-
-    modelnames_clean = [m.split('_rep')[0] for m in modelnames]
-    dummy, model_types = np.unique(modelnames_clean, return_inverse=True)
-
     f, ax = plt.subplots(1)
 
-    for model_type in range(max(model_types)+1):
-        models_of_type = np.where(model_types == model_type)[0]
-        data_ = [data[i] for i in models_of_type]
-        logger.info(len(data_))
-        data_ = np.asarray(data_)
-        logger.info(f'{data_.shape}')
-        mean = np.mean(data_, axis=0)
-        std = np.std(data_, axis=0)
+    for label, accuracy_list in zip(model_type_names, accuracy_files):
+        data = [np.genfromtxt(str(filename), delimiter=',', skip_header=1)[:, [1,7]] for filename in accuracy_list]
+        data = np.asarray(data)
+        logger.info(f'{data.shape}')
+        mean = np.mean(data, axis=0)
+        std = np.std(data, axis=0)
         logger.info(mean)
         
-        logger.info(f'length for {model_type_names[model_type]}: {len(models_of_type)}')
+        logger.info(f'length for "{label}": {len(data)}')
 
-        p, = ax.plot(mean[:, 0], mean[:, 1], label=model_type_names[model_type])
+        p, = ax.plot(mean[:, 0], mean[:, 1], label=label)
 
         ax.fill_between(mean[:, 0], mean[:, 1] - std[:, 1], mean[:, 1] + std[:, 1],
             color=p.get_color(), alpha=0.2)
@@ -73,7 +56,7 @@ def plot_accuracy_comparison(
     ax.legend()
 
     output_dir.mkdir(parents=True, exist_ok=True)
-    figure_filename = output_dir / 'segmentation_comparison.svg'
+    figure_filename = output_dir / 'segmentation_comparison'
 
     plt.savefig(f"{str(figure_filename)}.svg", bbox_inches='tight')
     plt.savefig(f"{str(figure_filename)}.png", bbox_inches='tight')

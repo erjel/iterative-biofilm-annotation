@@ -30,7 +30,7 @@ rule stardist_testing:
     input:
         folder="training_data/{data_folder}",
     wildcard_constraints:
-        model_name = "stardist_.*"
+        model_name = "stardist_.*_rep\d+"
     # TODO(erjel): Make the model dependentcy explicit again
     params:
         model="models/{model_name}",

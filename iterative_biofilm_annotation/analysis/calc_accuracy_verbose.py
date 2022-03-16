@@ -29,14 +29,18 @@ def calculateAccuracy(Y_true, Y_pred):
     return results, features
 
 def main(output_file, pred_path, gt_path, z_cutoff=None, pattern="*.tif"):
-
+    logger.info(f' Prediction directory = {str(pred_path)}')
+    logger.info(f' Ground truth directory = {str(gt_path)}')
     logger.info(f' Pattern = {pattern}')
+
     Y_pred_paths = sorted(pred_path.glob(pattern))
     Y_true_paths = sorted(gt_path.glob(pattern))
 
+    logger.info(f'Prediction images (n={len(Y_pred_paths)}):')
     for y_pred_path in Y_pred_paths:
         logger.info(y_pred_path)
 
+    logger.info(f'GT images (n={len(Y_true_paths)})')
     for y_true_path in Y_true_paths:
         logger.info(y_true_path)
     
@@ -62,7 +66,7 @@ if __name__ == '__main__':
     parser.add_argument('pred_path', metavar='PREDICTION', type=Path)
     parser.add_argument('gt_path', metavar='GT', type=Path)
     parser.add_argument('--z-cutoff', metavar='ZCUTOFF', type=int, default=None)
-    parser.add_argument('--pattern', type=str, default='*.tif')
+    parser.add_argument('--pattern', type=str, default='**/*.tif')
     args = parser.parse_args()
     
     main(args.output_file, args.pred_path, args.gt_path, args.z_cutoff, args.pattern)
