@@ -26,8 +26,8 @@ rule all:
         #'interim_data/predictions/care_merge/eva-v1-dz400-care_rep1_merge/.chkpnt',
         #'interim_data/predictions/full_semimanual-raw/test/images/stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep5_merge/.chkpnt_test'
         ## Try to recreate figures:
-        'figures/fig3a'
-        #"figures/fig3b"
+        'figures/fig3a',
+        "figures/fig3b",
         #"figures/fig3c"
         # TODO(erjel): The rendering needs to be executed in a rvs session locally ...
         #'figures/fig3d/stardist_fn_render.png',

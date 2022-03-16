@@ -25,64 +25,53 @@ def plot_number_accuracies(
         cellpose_accuracies: List[Path],
         stardist_accuracies: List[Path],
         biofilmq_improved_accuracies: List[Path],
-        biofilmq_accuracies: List[Path]
+        biofilmq_accuracies: List[Path],
+        stardist_improved_accuracies: List[Path]
+
     ) -> None:
 
-    # TODO(erjel): Dirty hack which uses only N=1 sample size for the curves
-    accuracy_files = [
-        stardist_accuracies[0],
-        biofilmq_improved_accuracies[0],
-        biofilmq_accuracies[0],
-        cellpose_accuracies[0]
+    accuracy_files_list = [
+        cellpose_accuracies,
+        stardist_accuracies,
+        biofilmq_improved_accuracies,
+        biofilmq_accuracies,
+        stardist_improved_accuracies,
     ]
 
-    results_lists = [np.genfromtxt(accuracy_file, delimiter=',', skip_header=1) for accuracy_file in accuracy_files]
-
-    with open(accuracy_files[0], 'r') as f:
+    # Get feature names from csv
+    with open(accuracy_files_list[0][0], 'r') as f:
         features = f.readline()[2:-1].split(',')
-
-    f, (ax1) = plt.subplots(1, 1, figsize=(7, 5))
-
-
-    for idx in [2, 3, 4]:    
-        results = results_lists[0]
-        ls = plotstyle[0]
-        label = labels[0]
-        
-        l, = ax1.plot(results[:, 1], results[:, idx], label=features[idx] +  label,linestyle=ls, linewidth=2)
-        
-        for results, ls, label in zip(results_lists[1:], plotstyle[1:], labels[1:]):
-
-            l, = ax1.plot(results[:, 1], results[:, idx], label=features[idx] + label, color=l.get_color(), linestyle=ls, linewidth=2)
-            
-    ax1.legend(bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0.)
-    ax1.grid()
-    ax1.set_xlabel('IoU threshold (a.u.)')
-    ax1.set_ylabel('Counts');
-
-    if not output_folder.is_dir():
-        os.makedirs(str(output_folder))
-
-    plt.savefig(str(output_folder / 'Number_accuracy.svg'), bbox_inches='tight')
 
     f, axes = plt.subplots(1, 3, figsize=(14, 3.5))
 
-
-
-    for idx,ax1 in zip([2, 3, 4], axes.flat):    
+    for idx, ax in zip([2, 3, 4], axes.flat):    
     
-        for results, ls, label in zip(results_lists, plotstyle, labels):
-
-            l, = ax1.plot(results[:, 1], results[:, idx], label= label, linestyle=ls, linewidth=2)
+        for accuracy_files, ls, label in zip(accuracy_files_list, plotstyle, labels):
             
-        ax1.grid()
-        ax1.set_xlabel('IoU threshold (a.u.)')
-        ax1.set_ylabel('Counts');
-        ax1.set_title(features[idx])
+            data = [np.genfromtxt(accuracy_file, delimiter=',', skip_header=1) for accuracy_file in accuracy_files]
+            data = np.asarray(data)
+            logger.info(f'data shape: {data.shape}')
+            mean = np.mean(data, axis=0)
+            std = np.std(data, axis=0)
 
-    ax1.legend(bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0.)
+            logger.info(f'label: {label}')
+            logger.info(mean)
+
+            p, = ax.plot(mean[:, 1], mean[:, idx], label= label, linestyle=ls, linewidth=2)
+            
+            ax.fill_between(mean[:, 1], mean[:, idx] - std[:, idx], mean[:, idx] + std[:, idx],
+                color=p.get_color(), alpha=0.2)
+
+        ax.grid()
+        ax.set_xlabel('IoU threshold (a.u.)')
+        ax.set_ylabel('Counts');
+        ax.set_title(features[idx])
+
+    ax.legend(bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0.)
 
     plt.tight_layout()
+
+    output_folder.mkdir(parents=True, exist_ok=True)
 
     plt.savefig(str(output_folder / 'Number_accuracy.svg'), bbox_inches='tight')
     plt.savefig(str(output_folder / 'Number_accuracy.png'), bbox_inches='tight')
@@ -97,6 +86,7 @@ def parse_args():
     parser.add_argument('--stardist_accuracies', type=Path, nargs='+')
     parser.add_argument('--biofilmq_improved_accuracies', type=Path, nargs='+')
     parser.add_argument('--biofilmq_accuracies', type=Path, nargs='+')
+    parser.add_argument('--stardist_improved_accuracies', type=Path, nargs='+')
 
     return parser.parse_args()
 
@@ -110,7 +100,8 @@ def main():
         args.cellpose_accuracies,
         args.stardist_accuracies,
         args.biofilmq_improved_accuracies,
-        args.biofilmq_accuracies
+        args.biofilmq_accuracies,
+        args.stardist_improved_accuracies,
     )
 
     return

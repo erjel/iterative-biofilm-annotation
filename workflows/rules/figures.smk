@@ -93,23 +93,21 @@ rule plot_fig3b:
     output:
         output_dir = directory('figures/fig3b'),
     input:
-        # TODO(erjel): Use Range instead of single value
-        #cellpose_accuracies = expand(
-        #    "accuracies/horovod_cellpose_patches-semimanual-raw-64x128x128_prc100_bs8_lr0.00625_wd0.00001_mt0.7_sge_rep{rep}/full_semimanual-raw.csv",
-        #    rep = range(1, 6)
-        #),
-        #stardist_accuracies = expand(
-        #    "accuracies/stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep{rep}/full_semimanual-raw.csv",
-        #    rep = range(1, 6)
-        #),
-        cellpose_accuracies = "accuracies/horovod_cellpose_patches-semimanual-raw-64x128x128_prc100_bs8_lr0.00625_wd0.00001_mt0.7_sge_rep1/full_semimanual-raw.csv",
-        stardist_accuracies = "accuracies/stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep5/full_semimanual-raw.csv",
+        cellpose_accuracies = expand(
+            "accuracies/horovod_cellpose_patches-semimanual-raw-64x128x128_prc100_bs8_lr0.00625_wd0.00001_mt0.7_sge_rep{rep}/full_semimanual-raw.csv",
+            rep = range(1, 6)
+        ),
+        stardist_accuracies = expand(
+            "accuracies/stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep{rep}/full_semimanual-raw.csv",
+            rep = range(1, 6)
+        ),
+        # TODO(erjel): Also use replicates for stardist improved!
         stardist_improved_accuracies = "accuracies/stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep5_merge/full_semimanual-raw.csv",
         biofilmq_improved_accuracies = "accuracies/data_seeded_watershed/full_stacks_huy.csv",
         biofilmq_accuracies = "accuracies/data_hartmann_et_al/full_stacks_huy.csv",
     params:
-        labels = [' Stardist', ' Improved Hartmann et al.', ' Hartmann et al.', ' Cellpose', 'Stardist Improved'],
-        plotstyle = ['solid', 'dashed', 'dashdot', 'dotted', 'solid']
+        labels = [' Cellpose', ' Stardist', ' Improved Hartmann et al.', ' Hartmann et al.', ' Stardist Improved'],
+        plotstyle = ['dashed', 'solid', 'dashdot', 'dotted', 'solid']
     conda:
         "../envs/plot.yml",
     resources:
