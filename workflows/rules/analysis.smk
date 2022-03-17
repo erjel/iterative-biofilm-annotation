@@ -114,7 +114,7 @@ rule create_fn_fp_tifs:
         output_fn_tif = 'interim_data/fn_fp_visualization/{seg_type}_fn.tif',
         output_fp_tif = 'interim_data/fn_fp_visualization/{seg_type}_fp.tif',
     wildcard_constraints:
-        seg_type = 'biofilmq|stardist',
+        seg_type = 'biofilmq|stardist|stardistMerge',
     input:
         # Note(erjel): I use a checkpoint here to not interfer with the standard prediction rules
         downsample_checkpoint = '.checkpoints/interim_data/predictions/full_stacks_huy/data_seeded_watershed-downsampled/Pos1_ch1_frame000001_Nz300.tif.chkpt'
@@ -125,10 +125,12 @@ rule create_fn_fp_tifs:
             'biofilmq': 'interim_data/predictions/full_stacks_huy/data_seeded_watershed-downsampled/Pos1_ch1_frame000001_Nz300.tif',
             #TODO(erjel): How to use a larger sample size than N=1?
             'stardist': 'interim_data/predictions/full_semimanual-raw/test/images/stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep5/im0.tif',
+            'stardistMerge': 'interim_data/predictions/full_semimanual-raw/test/images/stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep5_merge/im0.tif',
         }[wc.seg_type],
         remove_pred_slice = lambda wc: {
             'biofilmq': 'False',
-            'stardist': 'True'
+            'stardist': 'True',
+            'stardistMerge': 'False',
         }[wc.seg_type],
     resources:
         partition = 'express',
@@ -181,6 +183,7 @@ rule convert_tif2vtk_fp:
         prediction= lambda wc: {
             'biofilmq': 'interim_data/predictions/full_stacks_huy/data_seeded_watershed-downsampled/Pos1_ch1_frame000001_Nz300.tif',
             'stardist': 'interim_data/predictions/full_semimanual-raw/test/images/stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep5/im0.tif',
+            'stardistMerge': 'interim_data/predictions/full_semimanual-raw/test/images/stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep5_merge/im0.tif',
         }[wc.filename],
         x_cut = 512,
         y_cut = 512,
