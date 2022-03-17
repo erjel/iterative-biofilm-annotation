@@ -1,15 +1,14 @@
 from argparse import ArgumentParser, Namespace
+from functools import partial
 import logging
-import os
+from pathlib import Path
 import re
 import sys
 from typing import List
 
 import matplotlib.pyplot as plt
 import numpy as np
-from pathlib import Path
 import pandas as pd
-import matplotlib as mpl
 from tifffile import imread
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
@@ -36,115 +35,114 @@ def plot_data_abundance_vs_accuracy(
     stardist_accuracies: List[Path],
     ) -> None:
 
-    accuracy_files = []
-    for cellpose_accuracy in cellpose_accuracies:
-        for m in get_minor_models(cellpose_accuracy):
-            accuracy_files.append(m)
-
-
-    cellpose_model_paths = [Path(f).parent for f in accuracy_files if Path(f).is_file()]
-
-
-    df = pd.DataFrame(columns=['path', 'type', 'percentage', 'replicate', 'epoch', 'cell_number', 'accuracy_manual', 'accuracy_semimanual'])
-
-    p = '.*True_(?P<percentage>[\d\.]+)prc_rep(?P<replicate>\d+)_ep(?P<epoch>\d+)_dep.*'
-    pattern = re.compile(p)
-
-    for f in cellpose_model_paths:
-        match = pattern.match(str(f))
-        df = df.append({'path':str(f) , 'type':'cellpose', **match.groupdict()}, ignore_index=True)
-
-    accuracy_files = stardist_accuracies
-    accuracy_files = [Path(f).parent for f in accuracy_files if Path(f).is_file()]
-
-
-    p = '.*True_(?P<percentage>[\d\.]+)prc_rep(?P<replicate>\d+)'
-    pattern = re.compile(p)
-
-    for f in accuracy_files:
-        match = pattern.match(str(f))
-        df = df.append({'path':str(f) , 'type':'stardist', 'epoch':500, **match.groupdict()}, ignore_index=True)
-
-    Y = {
-        'train':
-            list(map(imread, training_data_stardist.glob('train/images/*.tif')))
+    accuracy_files_dict = {
+        'stardist': stardist_accuracies,
+        'cellpose': cellpose_accuracies,
     }
+
+
+    # Prepare cell number counts
+    Y = list(map(imread, training_data_stardist.glob('train/masks/*.tif')))
+
     logger.info(f'Training data: {training_data_stardist}')
-    logger.info(f"Number of training images: {len(Y['train'])}")
+    logger.info(f"Number of training images: {len(Y)}")
 
-    # TODO(erjel): Refactor this pandas chaos!
-    for s in Y.keys():
-        sum_Y = [np.sum(y) for y in Y[s]]
-        Y[s] = [Y[s][i] for i in range(len(Y[s])) if sum_Y[i] > 0]
+    # Delete all empty images to reconstruct the correct training image order
+    # TODO(erjel): Check this!
+    Y = [y for y in Y if y.max() > 0]
 
-    N_cells = [len(np.unique(y))-1 for y in Y['train']]
+    logger.info(f'Number of non-empty training images {len(Y)}')
 
-    for index, row in df.iterrows():
-        seed = int(row.replicate) if row.type == 'cellpose' else 42
-        rng = np.random.RandomState(int(row.replicate))
-        ind = rng.permutation(len(Y['train']))
-        n_val = max(1, int(round(float(row.percentage) / 100 * len(ind))))
-        df.iloc[index]['cell_number'] = np.sum([N_cells[i] for i in ind[:n_val]])
-        
-        for data_name, col in zip(['accuracy_manual_raw_v3.csv', 'accuracy_full_semimanual-raw.csv'], ['accuracy_manual', 'accuracy_semimanual']):
-        #for data_name, col in zip(['accuracy_full_semimanual-raw.csv', 'accuracy_full_semimanual-raw.csv'], ['accuracy_manual', 'accuracy_semimanual']):
-            if (Path(row.path) / data_name).is_file():
-                data = np.genfromtxt(Path(row.path) / data_name, delimiter=' ')
-                df.iloc[index][col] = data[1][np.where(data[0]==0.5)[0]][0]
+    im_labels = [np.unique(y) for y in Y]
+    im_labels = [l[l!=0] for l in im_labels]
 
-            else:
-                df.iloc[index][col] = np.nan
+    N_cells = [len(l) for l in im_labels]
 
-    logger.info(f"Unique cellpose replicate numbers: {df[df.type == 'cellpose'].replicate.unique()}")
+    def get_accuracy_vs_percent_cellnumber(
+        model_type: str,
+        accuracy_files: List[Path],
+        N_cells: List[int]
+        ) -> np.ndarray:
 
-    df = df.astype({'accuracy_manual': 'float', 'accuracy_semimanual':'float', 'percentage':'float', 'epoch':'int'})
+        # Read metadata from accuracy paths
+        p = '.*True_(?P<percentage>[\d\.]+)prc_rep(?P<replicate>\d+)'
+        pattern = re.compile(p)
 
-    logger.info(f'Pre-filtering model types: {df.type.unique()}')
-    logger.info(f"Pre-filtering cellpose selection:\n{df[(df.type=='cellpose') & (df.epoch==500)]}")
+        path_metadata = [pattern.match(str(f)).groupdict() for f in accuracy_files]
 
-    print(df[df.epoch==500].groupby(['percentage', 'type'], as_index=False)['accuracy_manual', 'accuracy_semimanual'].mean())
-
-    #df_ = df[(df.epoch==500)].groupby(['percentage', 'type'], as_index=False)['accuracy_manual'].agg({'acc_std':'std', 'acc_mean':'mean'})
-    df_ = df[(df.epoch==500)].groupby(['percentage', 'type'], as_index=False)['accuracy_semimanual'].agg({'acc_std':'std', 'acc_mean':'mean'})
-
-    df_n = df[(df.epoch==500)].groupby(['percentage', 'type'], as_index=False).agg(lambda x: np.mean(x))
-
-    logger.info(f'Available model types: {df_n.type.unique()}')
-
-    f, ax1 = plt.subplots(1)
+        df = pd.DataFrame(path_metadata)
+        df['path'] = accuracy_files
+        df = df.astype({'percentage': float, 'replicate':int})
+        df['seed'] = df.replicate.astype(int) #TODO(erjel): USE THIS DURING TRAINING!
 
 
-    selection = (df_n.type == 'stardist')
+        # Estimate the cell number
+        # Dirty hack:
+        for index, row in df.iterrows():
+            seed = row.seed
+            rng = np.random.RandomState(seed)
+            ind = rng.permutation(len(Y))
+            n_val = max(1, int(round(float(row.percentage) / 100 * len(ind))))
 
-    ax1.errorbar(df_n[selection].cell_number, df_[selection]['acc_mean'], yerr=df_[selection]['acc_std'], label='stardist')
-    ax1.set_xlabel('Cell number')
-    ax1.set_ylabel('accuracy [a.u.]')
+            df.loc[index, 'cell_number'] = np.sum([N_cells[i] for i in ind[:n_val]])
 
-    selection = (df_n.type == 'cellpose')
+        # Better solution (given that the labels per image (im_labels) are known)
+        #for index, row in df.iterrows():
+        #    seed = row.seed
+        #    rng = np.random.RandomState(seed)
+        #    ind = rng.permutation(len(Y))
+        #    n_val = max(1, int(round(float(row.percentage) / 100 * len(ind))))
+        #
+        #   df.loc[index, 'cell_number'] = len(np.unique(np.concatenate([im_labels[i] for i in ind[:n_val]])))
 
-    l = ax1.errorbar(df_n[selection].cell_number, df_[selection]['acc_mean'],
-                    yerr=df_[selection]['acc_std'], ls='--')[0]
-    ax1.set_xlabel('Cell number')
-    ax1.set_ylabel('accuracy [a.u.]')
+        # Read accuracies
+        accuracy_manual = []
+        for path in df.path:
+            data = np.genfromtxt(path, delimiter=' ')
+            accuracy_manual.append(data[1][np.where(data[0]==0.5)[0]][0])
+
+        df['accuracy'] = accuracy_manual
+
+        df = df.groupby(['percentage'], as_index=False).agg({'accuracy': ['mean', 'std'], 'cell_number': ['mean', 'std']})
+
+        return df
 
 
-    selection = (df_n.type == 'cellpose') & (df_n.percentage <= 25) & (np.logical_not(df_.acc_mean.isnull()))
+    get_accuracy_vs_percent = partial(get_accuracy_vs_percent_cellnumber, N_cells = N_cells)
 
-    logger.info(f"mean cellpose accuracies: {df_[selection]['acc_mean']}")
+    f, ax = plt.subplots(1,1,)
+    for model_type, accuracy_files in accuracy_files_dict.items():
+        data = get_accuracy_vs_percent(model_type, accuracy_files)
+        print(data)
 
-    ax1.errorbar(df_n[selection].cell_number, df_[selection]['acc_mean'],
-                yerr=df_[selection]['acc_std'], color=l.get_color(), ls='-',
-                label='cellpose')
-    ax1.set_xlabel('Cell number')
-    ax1.set_ylabel('accuracy [a.u.]')
-    ax1.legend()
-    ax1.grid()
+        #ax.errorbar(
+        #    x = data.cell_number['mean'],
+        #    y = data.accuracy['mean'],
+        #    yerr = data.accuracy['std'],
+        #    xerr = data.cell_number['std'],
+        #    label = model_type
+        #)
+
+        l, = ax.plot(data.cell_number['mean'], data.accuracy['mean'], label = model_type )
+
+        ax.fill_between(
+            x = data.cell_number['mean'],
+            y1 = data.accuracy['mean'] - data.accuracy['std'] ,
+            y2 = data.accuracy['mean'] + data.accuracy['std'] ,
+            alpha= 0.2,
+            color = l.get_color()
+        )
+
+    ax.set_xlabel('Cell number')
+    ax.set_ylabel('accuracy [a.u.]')
+    ax.legend()
+    ax.grid()
 
     output_dir.mkdir(parents=True, exist_ok=True)
+    
+    [f.savefig(output_dir / f'data_abundance_dependency.{ext}') for ext in ['png', 'svg']]
 
-    f.savefig(output_dir / 'fig3c.png')
-    f.savefig(output_dir / 'fig3c.svg')
-
+    return
     return
 
 def parse_args() -> Namespace:

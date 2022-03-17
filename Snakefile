@@ -28,7 +28,7 @@ rule all:
         ## Try to recreate figures:
         'figures/fig3a',
         "figures/fig3b",
-        #"figures/fig3c"
+        "figures/fig3c",
         # TODO(erjel): The rendering needs to be executed in a rvs session locally ...
         #'figures/fig3d/stardist_fn_render.png',
         #'figures/fig3d/stardist_fp_render.png',
