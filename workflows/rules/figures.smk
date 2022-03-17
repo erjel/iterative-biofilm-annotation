@@ -323,11 +323,9 @@ rule create_fig3d_render:
     envmodules:
         'paraview/5.8',
     resources:
-        partition = 'express',
-        time="00:05:00",
-        mem ='16G',
-        ntasks_per_node=1,
-        ntasks_per_core=2,
-        cpus_per_task=16,
+        partition = 'rvs',
+        time="00:10:00",
+        constraint = 'gpu',
+        gres="gpu:rtx5000:1",
     shell:
-        "vglrun pvpython iterative_biofilm_annotation/figures/fig3d_render_vtk.py {input} {output}"
+        "vglrun pvpython iterative_biofilm_annotation/figures/fig3d_render_vtk.py {input} {output} {params}"
