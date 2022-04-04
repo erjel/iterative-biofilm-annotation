@@ -56,11 +56,14 @@ rule plot_fig3a:
         ),
         stardist_accuracies = expand(
             "accuracies/stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep{rep}/full_semimanual-raw.csv",
-            rep = range(1, 6)
+            rep = range(6, 11)
         ),
         biofilmq_improved_accuracy = "accuracies/data_seeded_watershed/full_stacks_huy.csv",
         biofilmq_accuracy = "accuracies/data_hartmann_et_al/full_stacks_huy.csv",
-        stardist_improved_accuracies = "accuracies/stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep5_merge/full_semimanual-raw.csv",
+        stardist_improved_accuracies = expand(
+            "accuracies/stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep{rep}_merge/full_semimanual-raw.csv",
+            rep = range(6, 11)
+        ),
     params:
         labels = [
             'Stardist',
@@ -99,10 +102,12 @@ rule plot_fig3b:
         ),
         stardist_accuracies = expand(
             "accuracies/stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep{rep}/full_semimanual-raw.csv",
-            rep = range(1, 6)
+            rep = range(6, 11)
         ),
-        # TODO(erjel): Also use replicates for stardist improved!
-        stardist_improved_accuracies = "accuracies/stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep5_merge/full_semimanual-raw.csv",
+        stardist_improved_accuracies = expand(
+            "accuracies/stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep{rep}_merge/full_semimanual-raw.csv",
+            rep = range(6, 11)
+        ),
         biofilmq_improved_accuracies = "accuracies/data_seeded_watershed/full_stacks_huy.csv",
         biofilmq_accuracies = "accuracies/data_hartmann_et_al/full_stacks_huy.csv",
     params:
@@ -222,73 +227,22 @@ cellpose_models_raw_full_low = [
     "cellpose_patches-semimanual-raw-64x128x128_True_0.5prc_rep5_ep500_dep500",
 ]
 
-stardist_models = [
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep1",
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep2",
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep3",
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep4",
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep5",
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_90prc_rep1",
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_90prc_rep2",
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_90prc_rep3",
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_90prc_rep4",
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_90prc_rep5",
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_80prc_rep1",
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_80prc_rep2",
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_80prc_rep3",
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_80prc_rep4",
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_80prc_rep5",
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_70prc_rep1",
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_70prc_rep2",
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_70prc_rep3",
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_70prc_rep4",
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_70prc_rep5",
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_50prc_rep1",
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_50prc_rep2",
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_50prc_rep3",
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_50prc_rep4",
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_50prc_rep5",
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_25prc_rep1",
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_25prc_rep2",
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_25prc_rep3",
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_25prc_rep4",
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_25prc_rep5",
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_10prc_rep1",
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_10prc_rep2",
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_10prc_rep3",
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_10prc_rep4",
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_10prc_rep5",
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_5prc_rep1",
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_5prc_rep2",
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_5prc_rep3",
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_5prc_rep4",
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_5prc_rep5",
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_1prc_rep1",
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_1prc_rep2",
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_1prc_rep3",
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_1prc_rep4",
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_1prc_rep5",
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_0.8prc_rep1",
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_0.8prc_rep2",
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_0.8prc_rep3",
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_0.8prc_rep4",
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_0.8prc_rep5",
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_0.5prc_rep1",
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_0.5prc_rep2",
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_0.5prc_rep3",
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_0.5prc_rep4",
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_0.5prc_rep5",
-]
+stardist_models = expand("stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_{percentage}prc_rep{replicate}",
+    percentage = [0.5, 0.8, 1, 5, 10, 25, 50, 70, 80, 90, 100],
+    replicate = [6, 7, 8, 9, 10]
+)
 
-def get_dependency_accs(model_list: List[str], dataset:str, wildcards) -> List[str]:
-    return [str(Path('accuracies_copy_bronto') / model / f'{dataset}.csv') for model in model_list]
-    # TODO(erjel): Use just calculated accuracies instead of copies from bronto
-    #return [str(Path('accuracies') / model / f'{dataset}.csv') for model in model_list]
+stardist_models_merge = [f'{stardist_model}_merge' for stardist_model in stardist_models]
 
-get_dependency_accs_cellpose = partial(get_dependency_accs, cellpose_models_raw_full_low, 'accuracy_manual_raw_v3')
+def get_dependency_accs(model_list: List[str], dataset:str, wildcards, legacy: bool = False) -> List[str]:
+    base_path = Path('accuracies_copy_bronto') if legacy else Path('accuracies')
+    return [str(base_path / model / f'{dataset}.csv') for model in model_list]
+
+get_dependency_accs_cellpose= partial(get_dependency_accs, cellpose_models_raw_full_low, 'accuracy_manual_raw_v3', legacy = True)
 # TODO(erjel): Why not using:
 # get_dependency_accs_cellpose = partial(get_dependency_accs, cellpose_models_raw_full_low, 'full_semimanual-raw')
-get_dependency_accs_stardist = partial(get_dependency_accs, stardist_models, 'accuracy_full_semimanual-raw')
+get_dependency_accs_stardist = partial(get_dependency_accs, stardist_models, 'full_semimanual-raw')
+get_dependency_accs_stardist_merge = partial(get_dependency_accs, stardist_models_merge, 'full_semimanual-raw')
 
 rule plot_fig3c:
     output:
@@ -297,6 +251,7 @@ rule plot_fig3c:
         training_data_stardist = "training_data/patches-semimanual-raw-64x128x128",
         cellpose_accuracies = get_dependency_accs_cellpose,
         stardist_accuracies = get_dependency_accs_stardist,
+        stardist_merge_accuracies = get_dependency_accs_stardist_merge,
     conda:
         "../envs/plot.yml",
     resources:
@@ -312,6 +267,7 @@ rule plot_fig3c:
         " {input.training_data_stardist}"
         " --cellpose_accuracies {input.cellpose_accuracies}"
         " --stardist_accuracies {input.stardist_accuracies}"
+        " --stardist_merge_accuracies {input.stardist_merge_accuracies}"
 
 rule create_fig3d_render:
     output:

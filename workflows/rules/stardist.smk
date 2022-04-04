@@ -4,13 +4,20 @@ rule train_stardist_model:
         directory("models/stardist_{n_rays}_{patchSize}_patches-{dataset_name}_{only_valid}_{percentage}prc_rep{replicate}")
     input:
         dataset="training_data/patches-{dataset_name}",
-        output_symlink = "models/.symlink"
+        #output_symlink = "models/.symlink"
     wildcard_constraints:
         patchSize = '\d+x\d+x\d+'
     threads:
         workflow.cores
     resources:
         time="16:00:00",
+        partition = 'gpu_rtx5000',
+        constraint = "gpu",
+        gres = 'gpu:rtx5000:1',
+        cpus_per_task=40,
+        ntasks_per_core=2, # enable HT
+        ntasks_per_node=1,
+        mem='64G',
     conda:
         r"../envs/stardist.yml"
     shell:
@@ -29,11 +36,10 @@ rule stardist_testing:
         directory('interim_data/predictions/{data_folder}/{model_name}')
     input:
         folder="training_data/{data_folder}",
+        model="models/{model_name}",
     wildcard_constraints:
         model_name = "stardist_.*_rep\d+"
-    # TODO(erjel): Make the model dependentcy explicit again
     params:
-        model="models/{model_name}",
         output_dir="interim_data/predictions",
     threads:
         workflow.cores
@@ -51,7 +57,7 @@ rule stardist_testing:
     shell:
         r"python iterative_biofilm_annotation/stardist/predict.py" + \
         " {input.folder}" + \
-        " {params.model}" + \
+        " {input.model}" + \
         " {params.output_dir}/{wildcards.data_folder}"
 
 ruleorder: stardist_merge_inference > stardist_inference # stardist_merge.smk vs stardist.smk

@@ -5,6 +5,7 @@ from pathlib import Path
 import re
 import sys
 from typing import List
+import yaml
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -33,11 +34,13 @@ def plot_data_abundance_vs_accuracy(
     training_data_stardist: Path,
     cellpose_accuracies: List[Path],
     stardist_accuracies: List[Path],
+    stardist_merge_accuracies: List[Path],
     ) -> None:
 
     accuracy_files_dict = {
         'stardist': stardist_accuracies,
         'cellpose': cellpose_accuracies,
+        'stardist_merge': stardist_merge_accuracies,
     }
 
 
@@ -77,23 +80,32 @@ def plot_data_abundance_vs_accuracy(
 
 
         # Estimate the cell number
-        # Dirty hack:
         for index, row in df.iterrows():
-            seed = row.seed
-            rng = np.random.RandomState(seed)
-            ind = rng.permutation(len(Y))
-            n_val = max(1, int(round(float(row.percentage) / 100 * len(ind))))
+            accuracy_path = Path(row.path)
+            training_info_path = Path('models') / accuracy_path.parent.name / 'training_infos.yaml'
 
-            df.loc[index, 'cell_number'] = np.sum([N_cells[i] for i in ind[:n_val]])
+            if training_info_path.is_file():
+                with open(training_info_path, 'r') as f:
+                    training_info = yaml.load(f, Loader=yaml.BaseLoader)
 
-        # Better solution (given that the labels per image (im_labels) are known)
-        #for index, row in df.iterrows():
-        #    seed = row.seed
-        #    rng = np.random.RandomState(seed)
-        #    ind = rng.permutation(len(Y))
-        #    n_val = max(1, int(round(float(row.percentage) / 100 * len(ind))))
-        #
-        #   df.loc[index, 'cell_number'] = len(np.unique(np.concatenate([im_labels[i] for i in ind[:n_val]])))
+                df.loc[index, 'cell_number'] = training_info['num_cells_in_training_samples']
+
+            else:
+                # Dirty hack:
+                seed = row.seed
+                rng = np.random.RandomState(seed)
+                ind = rng.permutation(len(Y))
+                n_val = max(1, int(round(float(row.percentage) / 100 * len(ind))))
+
+                df.loc[index, 'cell_number'] = np.sum([N_cells[i] for i in ind[:n_val]])
+
+                # Better solution (given that the labels per image (im_labels) are known)
+                #seed = row.seed
+                #rng = np.random.RandomState(seed)
+                #ind = rng.permutation(len(Y))
+                #n_val = max(1, int(round(float(row.percentage) / 100 * len(ind))))
+                #
+                #df.loc[index, 'cell_number'] = len(np.unique(np.concatenate([im_labels[i] for i in ind[:n_val]])))
 
         # Read accuracies
         accuracy_manual = []
@@ -151,6 +163,7 @@ def parse_args() -> Namespace:
     parser.add_argument("training_data_stardist", type=Path)
     parser.add_argument("--cellpose_accuracies", type=Path, nargs='+')
     parser.add_argument("--stardist_accuracies", type=Path, nargs='+')
+    parser.add_argument("--stardist_merge_accuracies", type=Path, nargs='+')
 
     return parser.parse_args()
 
@@ -163,6 +176,7 @@ def main() -> None:
         args.training_data_stardist,
         args.cellpose_accuracies,
         args.stardist_accuracies,
+        args.stardist_merge_accuracies,
     )
 
     return

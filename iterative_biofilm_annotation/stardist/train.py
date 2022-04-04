@@ -1,10 +1,14 @@
 import os
+from random import seed
 import numpy as np
 
 from glob import glob
+import hashlib
+
 from tqdm import tqdm
 from tifffile import imread
 from csbdeep.utils import Path, normalize
+import yaml
 
 from stardist import fill_label_holes, random_label_cmap, calculate_extents, gputools_available
 from stardist import Rays_GoldenSpiral
@@ -67,16 +71,34 @@ def train(modelname, basedir, dataset_name,n_rays, train_patch_size, del_empty_p
     X['train'] = [normalize(x, 1, 99.8, axis=axis_norm) for x in tqdm(X['train'])]
     X['valid'] = [normalize(x, 1, 99.8, axis=axis_norm) for x in tqdm(X['valid'])]
 
-
+    seed = int(hashlib.sha1(modelname.encode("utf-8")).hexdigest(), 16) % (10 ** 8)
     assert(len(X['train']) > 1)
     print('Number of training patches: ', len(X['train']))
-    rng = np.random.RandomState()
+    rng = np.random.RandomState(seed=seed)
     ind = rng.permutation(len(X['train']))
     n_val = max(1, int(round(percentage / 100 * len(ind))))
     print('Number of training patches: ', n_val)
 
     X['train'] = [X['train'][i] for i in ind[:n_val]]
     Y['train'] = [Y['train'][i] for i in ind[:n_val]]
+
+    labels_in_train_samples = [np.unique(y) for y in Y['train']]
+    num_cells_in_train_samples = [len(labels[labels != 0]) for labels in labels_in_train_samples]
+
+    labels_in_valid_samples = [np.unique(y) for y in Y['valid']]
+    num_cells_in_valid_samples = [len(labels[labels != 0]) for labels in labels_in_valid_samples]
+
+    training_infos = {
+        'num_cells_in_training_samples': num_cells_in_train_samples,
+        'num_cells_in_valid_samples': num_cells_in_valid_samples,
+        'seed': seed,
+    }
+
+    training_info_file = Path(basedir) / modelname / 'training_infos.yaml'
+    training_info_file.parent.mkdir(parents=True, exist_ok=True)
+
+    with open(training_info_file, 'w') as f:
+        f.write(yaml.dump(training_infos))
    
     print(Config3D.__doc__)
     n_channel = 1
