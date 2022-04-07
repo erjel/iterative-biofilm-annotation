@@ -6,6 +6,6 @@ dependencies:
   - libgcc
   - tensorflow-gpu=2.1.0
   - pip:
-    - stardist==0.6.0
+    - stardist==0.7.3
     - numpy
     - pyyaml

@@ -1,4 +1,4 @@
-# snakemake -j --profile cobra --use-conda
+# snakemake --cores 80 --profile cobra --use-conda
 configfile: "config.yml"
 
 include: r"workflows/rules/snakefile_care"

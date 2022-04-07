@@ -110,7 +110,8 @@ def main():
     
     if tf.__version__.startswith('2'):
         physical_devices = tf.config.experimental.list_physical_devices('GPU')
-        config = tf.config.experimental.set_memory_growth(physical_devices[0], True)
+        if len(physical_devices) > 0:
+            config = tf.config.experimental.set_memory_growth(physical_devices[0], True)
     
     
     logger.info(f'Load model {model_path.name}')
@@ -137,7 +138,7 @@ def main():
         
         if args.overview_plane:
             img = img[1:]
-        
+
         img_shape = img.shape
         
         if args.intp_factor is not None:
@@ -163,15 +164,17 @@ def main():
             logger.info(f'Num tiles: {n_tiles}')
 
         
-        prob, dist = model.predict(img, n_tiles=n_tiles)
-        logger.info(f'Probability shape: {prob.shape}')
         if use_merge:
+            prob, dist = model.predict(img, n_tiles=n_tiles)
             rays = rays_from_json(model.config.rays_json)
             # TODO(erjel): Save the dist and props on disk and use a separate job for naive fusison?
             y_ = naive_fusion(dist, prob, rays, grid=model.config.grid)
 
         else:
-            y_, details = model._instances_from_prediction(_shape_inst, prob, dist, overlap_label=overlap_label, verbose=True)
+            logger.info('Start sparse prediction for standard stardist')
+            prob, dist, points = model.predict_sparse(img, n_tiles=n_tiles)
+            logger.info(f'Probability shape: {prob.shape}')
+            y_, details = model._instances_from_prediction(_shape_inst, prob, dist, points=points, overlap_label=overlap_label, verbose=True)
         
             details_out = file_out.parent / 'details' /file_out.stem
             details_out.parent.mkdir(parents=True, exist_ok=True)

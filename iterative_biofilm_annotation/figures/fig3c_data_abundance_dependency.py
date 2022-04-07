@@ -88,7 +88,7 @@ def plot_data_abundance_vs_accuracy(
                 with open(training_info_path, 'r') as f:
                     training_info = yaml.load(f, Loader=yaml.BaseLoader)
 
-                df.loc[index, 'cell_number'] = training_info['num_cells_in_training_samples']
+                df.loc[index, 'cell_number'] = np.sum([int(s) for s in training_info['num_cells_in_training_samples']])
 
             else:
                 # Dirty hack:
@@ -110,8 +110,14 @@ def plot_data_abundance_vs_accuracy(
         # Read accuracies
         accuracy_manual = []
         for path in df.path:
-            data = np.genfromtxt(path, delimiter=' ')
-            accuracy_manual.append(data[1][np.where(data[0]==0.5)[0]][0])
+            if model_type != 'cellpose':
+                data = np.genfromtxt(path, delimiter=',',skip_header=1)[:, [1,7]]
+                idx = np.where(data[:, 0] == 0.5)[0][0]
+                accuracy_manual.append(data[idx, 1])
+            else:
+                data = np.genfromtxt(path, delimiter=' ')
+                idx = np.where(data[0, :] == 0.5)[0][0]
+                accuracy_manual.append(data[1, idx])
 
         df['accuracy'] = accuracy_manual
 
