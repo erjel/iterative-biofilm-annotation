@@ -1,5 +1,6 @@
 import os
 from random import seed
+import random
 import numpy as np
 
 from glob import glob
@@ -74,7 +75,11 @@ def train(modelname, basedir, dataset_name,n_rays, train_patch_size, del_empty_p
 
     seed = int(hashlib.sha1(modelname.encode("utf-8")).hexdigest(), 16) % (10 ** 8)
     print(f'Use random seed: {seed}')
-    tf.keras.utils.set_random_seed(seed)
+    random.seed(seed)
+    np.random.seed(seed)
+    tf.random.set_seed(seed)
+
+
     assert(len(X['train']) > 1)
     print('Number of training patches: ', len(X['train']))
     rng = np.random.RandomState()
