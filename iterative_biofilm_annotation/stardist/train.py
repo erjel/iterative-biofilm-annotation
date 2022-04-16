@@ -13,6 +13,7 @@ import yaml
 from stardist import fill_label_holes, random_label_cmap, calculate_extents, gputools_available
 from stardist import Rays_GoldenSpiral
 from stardist.models import Config3D, StarDist3D, StarDistData3D
+import tensorflow as tf
 
 from skimage.segmentation import relabel_sequential
 
@@ -72,9 +73,11 @@ def train(modelname, basedir, dataset_name,n_rays, train_patch_size, del_empty_p
     X['valid'] = [normalize(x, 1, 99.8, axis=axis_norm) for x in tqdm(X['valid'])]
 
     seed = int(hashlib.sha1(modelname.encode("utf-8")).hexdigest(), 16) % (10 ** 8)
+    print(f'Use random seed: {seed}')
+    tf.keras.utils.set_random_seed(seed)
     assert(len(X['train']) > 1)
     print('Number of training patches: ', len(X['train']))
-    rng = np.random.RandomState(seed=seed)
+    rng = np.random.RandomState()
     ind = rng.permutation(len(X['train']))
     n_val = max(1, int(round(percentage / 100 * len(ind))))
     print('Number of training patches: ', n_val)

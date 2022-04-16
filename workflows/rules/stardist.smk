@@ -50,6 +50,7 @@ rule stardist_testing:
     threads:
         80
     resources:
+        partition='gpu_rtx5000',
         time = "24:00:00",
         constraint = "gpu",
         gres = 'gpu:rtx5000:2',
