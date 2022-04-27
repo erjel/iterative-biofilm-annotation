@@ -255,6 +255,36 @@ stardist_models = expand("stardist_192_48x96x96_patches-semimanual-raw-64x128x12
     percentage = [0.5, 0.8, 1, 5, 10, 25, 50, 70, 80, 90, 100],
     replicate = [6, 7, 8, 9, 10]
 )
+"""
+# Non working models:
+non_working_models = [
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_5prc_rep7", 
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_10prc_rep8",
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_80prc_rep7", # merge
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_1prc_rep6",  # merge
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_70prc_rep8", # merge
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_80prc_rep10", # merge
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep6", # merge
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_0.5prc_rep9", # merge
+]
+
+extra_models = [
+    #"stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_5prc_rep11" # fails @ merge
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_5prc_rep12", 
+    #"stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_10prc_rep11", # fails @ merge
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_10prc_rep12", 
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_80prc_rep11", # merge
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_1prc_rep11", # merge
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_70prc_rep11", # merge
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_80prc_rep12", # merge
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep11", # merge
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_0.5prc_rep11", # merge
+    ]
+
+for m_del, m_add in zip(non_working_models, extra_models):
+    stardist_models.remove(m_del)
+    stardist_models.append(m_add)
+"""
 
 # Pragmatic solution:
 available_predictions = glob_wildcards('interim_data/predictions/full_semimanual-raw/test/images/stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_{percentage}prc_rep{replicate}_merge/im0.tif')

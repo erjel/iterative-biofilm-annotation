@@ -82,7 +82,7 @@ def train(modelname, basedir, dataset_name,n_rays, train_patch_size, del_empty_p
 
     assert(len(X['train']) > 1)
     print('Number of training patches: ', len(X['train']))
-    rng = np.random.RandomState()
+    rng = np.random.RandomState(seed)
     ind = rng.permutation(len(X['train']))
     n_val = max(1, int(round(percentage / 100 * len(ind))))
     print('Number of training patches: ', n_val)
@@ -119,6 +119,7 @@ def train(modelname, basedir, dataset_name,n_rays, train_patch_size, del_empty_p
 
     # Predict on subsampled grid for increased efficiency and larger field of view
     grid = tuple(1 if a > 1.5 else 2 for a in anisotropy)
+    grid = (1, 2, 2)
 
     # Use rays on a Fibonacci lattice adjusted for measured anisotropy of the training data
     rays = Rays_GoldenSpiral(n_rays, anisotropy=anisotropy)
