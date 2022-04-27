@@ -46,7 +46,7 @@ rule plot_growthrate:
     shell:
         r"python scripts\plot_growthrate.py {output} {input}"
 
-available_predictions = glob_wildcards('interim_data/predictions/full_semimanual-raw/test/images/stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep{replicate}_merge/im0.tif')
+available_predictions = glob_wildcards('interim_data/predictions/full_semimanual-raw/test/images/stardist_96_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep{replicate}_merge/im0.tif')
 rule plot_fig3a:
     output:
         output_dir = directory('figures/fig3a'),
@@ -57,24 +57,24 @@ rule plot_fig3a:
         ),
         # TODO(erjel): Optimal solution:
         stardist_accuracies = expand(
-            "accuracies/stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep{rep}/full_semimanual-raw.csv",
+            "accuracies/stardist_96_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep{rep}/full_semimanual-raw.csv",
             rep = range(6, 11)
         ),
         # Pragmatic solution:
         #stardist_accuracies = expand(
-        #    "accuracies/stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep{rep}/full_semimanual-raw.csv",
+        #    "accuracies/stardist_96_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep{rep}/full_semimanual-raw.csv",
         #    rep = available_predictions.replicate
         #),
         biofilmq_improved_accuracy = "accuracies/data_seeded_watershed/full_stacks_huy.csv",
         biofilmq_accuracy = "accuracies/data_hartmann_et_al/full_stacks_huy.csv",
         # TODO(erjel): Optimal solution:
         stardist_improved_accuracies = expand(
-            "accuracies/stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep{rep}_merge/full_semimanual-raw.csv",
+            "accuracies/stardist_96_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep{rep}_merge/full_semimanual-raw.csv",
             rep = range(6, 11)
         ),
         # Pragmatic solution
         #stardist_improved_accuracies = expand(
-        #    "accuracies/stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep{rep}_merge/full_semimanual-raw.csv",
+        #    "accuracies/stardist_96_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep{rep}_merge/full_semimanual-raw.csv",
         #    rep = available_predictions.replicate
         #),
     params:
@@ -115,20 +115,20 @@ rule plot_fig3b:
         ),
         # TODO(erjel): Optimal solution:
         stardist_accuracies = expand(
-            "accuracies/stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep{rep}/full_semimanual-raw.csv",
+            "accuracies/stardist_96_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep{rep}/full_semimanual-raw.csv",
             rep = range(6, 11)
         ),
         stardist_improved_accuracies = expand(
-            "accuracies/stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep{rep}_merge/full_semimanual-raw.csv",
+            "accuracies/stardist_96_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep{rep}_merge/full_semimanual-raw.csv",
             rep = range(6, 11)
         ),
         # Pragmatic solution:
         #stardist_accuracies = expand(
-        #    "accuracies/stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep{rep}/full_semimanual-raw.csv",
+        #    "accuracies/stardist_96_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep{rep}/full_semimanual-raw.csv",
         #    rep = available_predictions.replicate
         #),
         #stardist_improved_accuracies = expand(
-        #    "accuracies/stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep{rep}_merge/full_semimanual-raw.csv",
+        #    "accuracies/stardist_96_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep{rep}_merge/full_semimanual-raw.csv",
         #    rep = available_predictions.replicate
         #),
         biofilmq_improved_accuracies = "accuracies/data_seeded_watershed/full_stacks_huy.csv",
@@ -251,34 +251,34 @@ cellpose_models_raw_full_low = [
 ]
 
 # Optimal solution:
-stardist_models = expand("stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_{percentage}prc_rep{replicate}",
+stardist_models = expand("stardist_96_48x96x96_patches-semimanual-raw-64x128x128_True_{percentage}prc_rep{replicate}",
     percentage = [0.5, 0.8, 1, 5, 10, 25, 50, 70, 80, 90, 100],
     replicate = [6, 7, 8, 9, 10]
 )
 """
 # Non working models:
 non_working_models = [
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_5prc_rep7", 
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_10prc_rep8",
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_80prc_rep7", # merge
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_1prc_rep6",  # merge
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_70prc_rep8", # merge
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_80prc_rep10", # merge
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep6", # merge
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_0.5prc_rep9", # merge
+    "stardist_96_48x96x96_patches-semimanual-raw-64x128x128_True_5prc_rep7", 
+    "stardist_96_48x96x96_patches-semimanual-raw-64x128x128_True_10prc_rep8",
+    "stardist_96_48x96x96_patches-semimanual-raw-64x128x128_True_80prc_rep7", # merge
+    "stardist_96_48x96x96_patches-semimanual-raw-64x128x128_True_1prc_rep6",  # merge
+    "stardist_96_48x96x96_patches-semimanual-raw-64x128x128_True_70prc_rep8", # merge
+    "stardist_96_48x96x96_patches-semimanual-raw-64x128x128_True_80prc_rep10", # merge
+    "stardist_96_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep6", # merge
+    "stardist_96_48x96x96_patches-semimanual-raw-64x128x128_True_0.5prc_rep9", # merge
 ]
 
 extra_models = [
-    #"stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_5prc_rep11" # fails @ merge
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_5prc_rep12", 
-    #"stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_10prc_rep11", # fails @ merge
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_10prc_rep12", 
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_80prc_rep11", # merge
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_1prc_rep11", # merge
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_70prc_rep11", # merge
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_80prc_rep12", # merge
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep11", # merge
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_0.5prc_rep11", # merge
+    #"stardist_96_48x96x96_patches-semimanual-raw-64x128x128_True_5prc_rep11" # fails @ merge
+    "stardist_96_48x96x96_patches-semimanual-raw-64x128x128_True_5prc_rep12", 
+    #"stardist_96_48x96x96_patches-semimanual-raw-64x128x128_True_10prc_rep11", # fails @ merge
+    "stardist_96_48x96x96_patches-semimanual-raw-64x128x128_True_10prc_rep12", 
+    "stardist_96_48x96x96_patches-semimanual-raw-64x128x128_True_80prc_rep11", # merge
+    "stardist_96_48x96x96_patches-semimanual-raw-64x128x128_True_1prc_rep11", # merge
+    "stardist_96_48x96x96_patches-semimanual-raw-64x128x128_True_70prc_rep11", # merge
+    "stardist_96_48x96x96_patches-semimanual-raw-64x128x128_True_80prc_rep12", # merge
+    "stardist_96_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep11", # merge
+    "stardist_96_48x96x96_patches-semimanual-raw-64x128x128_True_0.5prc_rep11", # merge
     ]
 
 for m_del, m_add in zip(non_working_models, extra_models):
@@ -287,8 +287,8 @@ for m_del, m_add in zip(non_working_models, extra_models):
 """
 
 # Pragmatic solution:
-available_predictions = glob_wildcards('interim_data/predictions/full_semimanual-raw/test/images/stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_{percentage}prc_rep{replicate}_merge/im0.tif')
-#stardist_models = expand("stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_{percentage}prc_rep{replicate}",
+available_predictions = glob_wildcards('interim_data/predictions/full_semimanual-raw/test/images/stardist_96_48x96x96_patches-semimanual-raw-64x128x128_True_{percentage}prc_rep{replicate}_merge/im0.tif')
+#stardist_models = expand("stardist_96_48x96x96_patches-semimanual-raw-64x128x128_True_{percentage}prc_rep{replicate}",
 #    zip,
 #    percentage = available_predictions.percentage,
 #    replicate = available_predictions.replicate,
