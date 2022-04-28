@@ -112,6 +112,7 @@ def train(modelname, basedir, dataset_name,n_rays, train_patch_size, del_empty_p
     n_channel = 1
 
     extents = calculate_extents(Y['train'][0])
+    #extents = calculate_extents(Y['train'])
     anisotropy = tuple(np.max(extents) / extents)
 
     # Use OpenCL-based computations for data generator during training (requires 'gputools')

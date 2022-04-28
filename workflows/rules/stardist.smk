@@ -11,19 +11,14 @@ rule train_stardist_model:
         workflow.cores
     resources:
         # Single GPU OOM for 
-        # - stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_0.5prc_rep6
         time="24:00:00",
-        partition = 'gpu_rtx5000',
-        #partition = 'gpu1_rtx5000',
+        partition = 'gpu1_rtx5000',
         constraint = "gpu",
-        gres = 'gpu:rtx5000:2',
-        #gres = 'gpu:rtx5000:1',
-        cpus_per_task=80,
-        #cpus_per_task=40,
+        gres = 'gpu:rtx5000:1',
+        cpus_per_task=40,
         ntasks_per_core=2, # enable HT
         ntasks_per_node=1,
-        mem='180G',
-        #mem='90G',
+        mem='90G',
     conda:
         r"../envs/stardist.yml"
     shell:

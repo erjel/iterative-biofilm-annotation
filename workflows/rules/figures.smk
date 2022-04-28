@@ -58,7 +58,7 @@ rule plot_fig3a:
         # TODO(erjel): Optimal solution:
         stardist_accuracies = expand(
             "accuracies/stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep{rep}/full_semimanual-raw.csv",
-            rep = range(6, 11)
+            rep = [6, 7, 8, 10]
         ),
         # Pragmatic solution:
         #stardist_accuracies = expand(
@@ -70,7 +70,7 @@ rule plot_fig3a:
         # TODO(erjel): Optimal solution:
         stardist_improved_accuracies = expand(
             "accuracies/stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep{rep}_merge/full_semimanual-raw.csv",
-            rep = range(6, 11)
+            rep = [6, 7, 8, 10]
         ),
         # Pragmatic solution
         #stardist_improved_accuracies = expand(
@@ -116,11 +116,11 @@ rule plot_fig3b:
         # TODO(erjel): Optimal solution:
         stardist_accuracies = expand(
             "accuracies/stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep{rep}/full_semimanual-raw.csv",
-            rep = range(6, 11)
+            rep = [6, 7, 8, 10]
         ),
         stardist_improved_accuracies = expand(
             "accuracies/stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep{rep}_merge/full_semimanual-raw.csv",
-            rep = range(6, 11)
+            rep = [6, 7, 8, 10]
         ),
         # Pragmatic solution:
         #stardist_accuracies = expand(
@@ -255,36 +255,90 @@ stardist_models = expand("stardist_192_48x96x96_patches-semimanual-raw-64x128x12
     percentage = [0.5, 0.8, 1, 5, 10, 25, 50, 70, 80, 90, 100],
     replicate = [6, 7, 8, 9, 10]
 )
-"""
 # Non working models:
 non_working_models = [
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_5prc_rep7", 
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_10prc_rep8",
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_80prc_rep7", # merge
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_1prc_rep6",  # merge
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_70prc_rep8", # merge
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_80prc_rep10", # merge
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep6", # merge
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_0.5prc_rep9", # merge
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_0.5prc_rep11",
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep9",
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_1prc_rep10",
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_25prc_rep9",
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_50prc_rep10",
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_5prc_rep10",
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_5prc_rep7",
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_70prc_rep6",
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_80prc_rep11",
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_80prc_rep7",
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_80prc_rep8",
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_80prc_rep9",
 ]
 
 extra_models = [
-    #"stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_5prc_rep11" # fails @ merge
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_5prc_rep12", 
-    #"stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_10prc_rep11", # fails @ merge
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_10prc_rep12", 
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_80prc_rep11", # merge
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_1prc_rep11", # merge
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_70prc_rep11", # merge
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_80prc_rep12", # merge
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep11", # merge
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_0.5prc_rep11", # merge
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_0.5prc_rep12",
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_0.5prc_rep13",
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_0.5prc_rep14",
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_0.5prc_rep15",
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_0.5prc_rep16",
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep11",
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep12",
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep13",
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep14",
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep15",
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_1prc_rep11",
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_1prc_rep12",
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_1prc_rep13",
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_1prc_rep14",
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_1prc_rep15",
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_25prc_rep11",
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_25prc_rep12",
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_25prc_rep13",
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_25prc_rep14",
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_25prc_rep15",
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_50prc_rep11",
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_50prc_rep12",
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_50prc_rep13",
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_50prc_rep14",
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_50prc_rep15",
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_5prc_rep11",
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_5prc_rep12",
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_5prc_rep13",
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_5prc_rep14",
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_5prc_rep15",
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_5prc_rep16",
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_5prc_rep17",
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_5prc_rep18",
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_5prc_rep19",
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_5prc_rep20",
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_5prc_rep21",
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_70prc_rep11",
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_70prc_rep12",
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_70prc_rep13",
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_70prc_rep14",
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_70prc_rep15",
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_70prc_rep16",
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_80prc_rep12",
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_80prc_rep13",
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_80prc_rep14",
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_80prc_rep15",
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_80prc_rep16",
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_80prc_rep17",
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_80prc_rep18",
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_80prc_rep19",
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_80prc_rep20",
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_80prc_rep21",
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_80prc_rep22",
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_80prc_rep23",
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_80prc_rep24",
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_80prc_rep25",
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_80prc_rep26",
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_80prc_rep27",
     ]
 
-for m_del, m_add in zip(non_working_models, extra_models):
-    stardist_models.remove(m_del)
-    stardist_models.append(m_add)
-"""
+#for m_del, m_add in zip(non_working_models, extra_models):
+for m_del in non_working_models:
+    try:
+        stardist_models.remove(m_del)
+        #stardist_models.append(m_add)
+    except:
+        print('Warning not in list!')
 
 # Pragmatic solution:
 available_predictions = glob_wildcards('interim_data/predictions/full_semimanual-raw/test/images/stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_{percentage}prc_rep{replicate}_merge/im0.tif')
