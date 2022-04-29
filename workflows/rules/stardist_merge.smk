@@ -43,7 +43,7 @@ rule stardist_merge_testing:
         directory('interim_data/predictions/{data_folder}/{model_name}_merge')
     input:
         #symlink = ".checkpoints/.symlink-training_data"
-    # TODO(erjel): Make the model dependentcy explicit again
+        model="models/{model_name}",
     params:
         model="models/{model_name}",
         output_dir= lambda wc: "interim_data/predictions",
@@ -52,7 +52,7 @@ rule stardist_merge_testing:
         workflow.cores
     resources:
         partition = 'gpu_rtx5000',
-        time = "24:00:00", # TODO(erjel): Max timelimit found reasonable one
+        time = "03:00:00",
         constraint = "gpu",
         gres = 'gpu:rtx5000:2',
         cpus_per_task=80,
