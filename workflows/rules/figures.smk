@@ -277,9 +277,9 @@ extra_models = [
     "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_5prc_rep13",
     "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_5prc_rep16",
     "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_70prc_rep12",
-    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_80prc_rep12",
     "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_80prc_rep13",
     "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_80prc_rep14",
+    "stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_80prc_rep15",
     ]
 
 for m_del, m_add in zip(non_working_models, extra_models):
