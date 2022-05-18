@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 import argparse
+from bz2 import compress
+from genericpath import exists
 import logging
 import os
 from pathlib import Path
@@ -168,7 +170,15 @@ def main():
             prob, dist = model.predict(img, n_tiles=n_tiles)
             rays = rays_from_json(model.config.rays_json)
             # TODO(erjel): Save the dist and props on disk and use a separate job for naive fusison?
-            y_ = naive_fusion(dist, prob, rays, grid=model.config.grid)
+            save_intermediate_results = False
+            if save_intermediate_results:
+                file_out.parent.mkdir(parents=True, exist_ok= True)
+                logger.info('Save probabilites')
+                imsave(file_out.parent / (file_out.stem + '_prob.tif'), prob)
+                logger.info('Save distances')
+                imsave(file_out.parent / (file_out.stem + '_dist.tif'), dist)
+                logger.info('Perform naive fusion')
+            y_ = naive_fusion(dist, prob, rays, grid=model.config.grid, prob_thresh=model.thresholds.prob)
 
         else:
             logger.info('Start sparse prediction for standard stardist')

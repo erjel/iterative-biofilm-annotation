@@ -42,7 +42,7 @@ rule tracks2growthrate:
 # Model prediction accuracies #
 ###############################
 
-rule calc_accuracies_biofilmq:
+rule calc_accuracies_biofilmq_full_stack:
     output:
         csv_file = "accuracies/data_{biofilmq_setting}/full_stacks_huy.csv",
     input:
@@ -64,11 +64,32 @@ rule calc_accuracies_biofilmq:
         " {output} {input.pred_path} {params.gt_path}" + \
         " --pattern *Nz300.tif"
 
+# TODO(erjel): Merge with other accuracy calculation
+rule calc_accuracies_biofilmq_manual_raw_v3:
+    output:
+        csv_file = "accuracies/data_{biofilmq_setting}/manual_raw_v3.csv",
+    input:
+        pred_path= "interim_data/predictions/manual_raw_v3/test/images/data_{biofilmq_setting}",
+        gt_path = "interim_data/biofilmq_gt/manual_raw_v3/test/masks/",
+    resources:
+        partition = 'express',
+        time="00:05:00",
+        mem='16G',
+        ntasks_per_node=1,
+        ntasks_per_core=2,
+        cpus_per_task=16,
+    conda:
+        "../envs/stardist.yml"
+    shell:
+        "python iterative_biofilm_annotation/analysis/calc_accuracy_verbose.py" + \
+        " {output} {input.pred_path} {input.gt_path}" + \
+        " --pattern *.tif"
+
 rule calc_accuracies:
     output:
         csv_file = "accuracies/{modelname}/{datasetname}.csv"
     wildcard_constraints:
-        modelname = 'stardist_.*|horovod_.*|cellpose_.*'
+        modelname = 'stardist_.*|horovod_.*|cellpose_.*|semi_manual'
     input:
         pred_path="interim_data/predictions/{datasetname}/test/images/{modelname}",
         gt_path="training_data/{datasetname}/test/masks"
@@ -83,6 +104,20 @@ rule calc_accuracies:
         "../envs/stardist.yml"
     shell:
         "python iterative_biofilm_annotation/analysis/calc_accuracy_verbose.py {output.csv_file} {input.pred_path} {input.gt_path}"
+
+
+localrules: create_semi_manual_prediction
+rule create_semi_manual_prediction:
+    output:
+        directory('interim_data/predictions/manual_raw_v3/test/images/semi_manual'),
+    input:
+        "training_data/full_semimanual-huy/test/masks/im0.tif",
+    run:
+        from pathlib import Path
+        from tifffile import imread, imwrite
+        CROP = (slice(10, 139), slice(255, 512), slice(255,512))
+        im = imread(snakemake.input)
+        imwrite(Path(snakemake.output) / 'im0.tif', im[CROP])
 
 rule downsample_biofilmq_prediction:
     output:
