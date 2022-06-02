@@ -374,8 +374,8 @@ rule plot_figS4:
             'Cellpose',
             'Hartmann et al.',
             'Improved Hartmann et al.',
-            'Stardist Improved',
-            'Semimanual Annotation',   
+            'Stardist improved',
+            'Semi-manual annotation',   
         ]
     conda:
         "../envs/plot.yml"
@@ -387,12 +387,12 @@ rule plot_figS4:
         ntasks_per_core=2,
         cpus_per_task=16,
     shell:
-        "python iterative_biofilm_annotation/figures/figS4_segmentation_comparision.py" + \
+        "python iterative_biofilm_annotation/figures/figS4_results_vs_manual_annotation.py" + \
             " {output.output_dir}" + \
             " --labels {params.labels:q}" + \
             " --stardist_accuracies {input.stardist_accuracies}" + \
             " --cellpose_accuracies {input.cellpose_accuracies}" + \
-            " --biofilmq_improved_accuracies {input.biofilmq_improved_accuracy}" + \
             " --biofilmq_accuracies {input.biofilmq_accuracy}"  + \
+            " --biofilmq_improved_accuracies {input.biofilmq_improved_accuracy}" + \
             " --stardist_improved_accuracies {input.stardist_improved_accuracies}" + \
             " --semimanual_accuracies {input.semimanual_accuracy}"

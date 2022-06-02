@@ -29,7 +29,7 @@ rule all:
         'figures/fig3a',
         "figures/fig3b",
         "figures/fig3c",
-        #"figures/figS4",
+        "figures/figS4",
         # TODO(erjel): The rendering needs to be executed in a rvs session locally ...
         #'figures/fig3d/stardist_fn_render.png',
         #'figures/fig3d/stardist_fp_render.png',

@@ -9,7 +9,7 @@ import argparse
 import logging
 import sys
 
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 def calculateAccuracy(Y_true, Y_pred):
