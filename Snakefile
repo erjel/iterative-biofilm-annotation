@@ -113,10 +113,10 @@ rule create_partial_datasets:
     threads:
         1
     resources:
-        time='01:00:00',
+        time='02:00:00',
         cpus_per_task = 1,
         ntasks_per_core = 1,
-        mem = '8G',
+        mem = '32G',
     conda:
         'workflows/envs/stardist.yml'
     shell:
