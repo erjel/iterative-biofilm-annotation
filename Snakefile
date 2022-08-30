@@ -15,6 +15,7 @@ from pathlib import Path
 
 rule all:
     input:
+        expand('training_data/patches-semimanual-N{num}-raw-64x128x128', num=range(1,5)),
         #'models/stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep5'
         # TODO(erjel): Here, I use the "care" enhanced dataset instead of "raw" ...
         # TODO(erjel): stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep1 was not trained in this pipeline .. replace!
@@ -86,9 +87,47 @@ rule all:
         #'data/processed/tracks/care_model_eva-v1-dz400-care_rep1_vtk',
         #'data/processed/tracks/care_model_eva-v1-dz400-care_rep1_tif',
 
+
+
+ANNOTATED_TIFS = [
+    'Pos1_ch1_frame000001_Nz300.tif', # biofilm1
+    'Pos2_ch1_frame000002_Nz290.tif', # biofilm2
+    'Pos1_ch1_frame000001_Nz150.tif', # biofilm3
+    'Pos4_ch1_frame000003_Nz220.tif', # biofilm4
+    'Pos2_ch1_frame000005_Nz170.tif', # biofilm5
+]
+
+ruleorder: create_partial_datasets > bronto_download_dataset
+rule create_partial_datasets:
+    output:
+        directory('training_data/patches-semimanual-N{num_biofilms}-{tag}-{patchsize}'),
+    input:
+        label_files = lambda wc: expand(
+            f'data_BiofilmQ/full_stacks_{wc.tag}/masks/{{tif_files}}',
+                tif_files = ANNOTATED_TIFS
+        )[1:int(wc.num_biofilms)+1],
+        image_files = lambda wc: expand(
+            f'data_BiofilmQ/full_stacks_{wc.tag}/images/{{tif_files}}',
+                tif_files = ANNOTATED_TIFS
+        )[1:int(wc.num_biofilms)+1],
+    threads:
+        1
+    resources:
+        time='01:00:00',
+        cpus_per_task = 1,
+        ntasks_per_core = 1,
+        mem = '8G',
+    conda:
+        'workflows/envs/stardist.yml'
+    shell:
+        "python -u scripts/create_partial_dataset.py" +
+        " {output}"
+        " {wildcards.patchsize}"
+        " --label_files {input.label_files}"
+        " --image_files {input.image_files}"
+
 localrules:
     bronto_download_dataset
-
 rule bronto_download_dataset:
     output:
         directory('training_data/{dataset}'),
