@@ -15,6 +15,11 @@ from pathlib import Path
 
 rule all:
     input:
+        expand(
+            "models/stardist_192_48x96x96_patches-semimanual-N{num}-raw-64x128x128_True_100prc_rep{rep}",
+                num = range(1,5),
+                rep = range(1,6),
+        ),
         expand('training_data/patches-semimanual-N{num}-raw-64x128x128', num=range(1,5)),
         #'models/stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep5'
         # TODO(erjel): Here, I use the "care" enhanced dataset instead of "raw" ...
