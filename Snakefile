@@ -5,6 +5,7 @@ include: r"workflows/rules/snakefile_care"
 include: "workflows/rules/stardist.smk"
 include: "workflows/rules/cellpose.smk"
 include: "workflows/rules/stardist_merge.smk"
+include: "workflows/rules/unet.smk"
 include: "workflows/rules/biofilmq.smk"
 include: "workflows/rules/trackmate.smk"
 include: "workflows/rules/analysis.smk"
@@ -12,6 +13,12 @@ include: "workflows/rules/figures.smk"
 
 from pathlib import Path
 
+rule unet:
+    input:
+        expand(
+            "accuracies/unet_48x96x96_patches-semimanual-raw-64x128x128_rep{rep}/full_semimanual-raw.csv",
+            rep = range(5),
+        )
 
 rule all:
     input:

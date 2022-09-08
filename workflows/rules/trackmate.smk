@@ -21,14 +21,10 @@ rule labelimages2trackmate:
         input_folder = 'interim_data/predictions/{data}/{model}/.chkpnt',
     conda:
         "../envs/jinja2.yml"
+    threads:
+        1
     resources:
-        partition='',
-        constraint='',
-        gres='',
-        ntasks=1,
-        cpu_per_task=1,
-        ntasks_per_node=1,
-        mem=32000,
+        mem_mb=32000,
         time='02:00:00',
     shell:
         "python iterative_biofilm_annotation/trackmate/labelimage2trackmate.py" + \
@@ -40,19 +36,13 @@ rule stack4trackmate:
     output:
         "interim_data/trackmate_stacks/{data}.tif"
     input:
-        "input_data/.symlink"
-    params:
-        input = lambda wc: "input_data/{wc.data}"
+        "input_data/{data}"
     conda:
         "../envs/stardist.yml"
+    threads:
+        1
     resources:
-        partition='',
-        constraint='',
-        gres='',
-        ntasks=1,
-        cpu_per_task=1,
-        ntasks_per_node=1,
-        mem=32000,
+        mem_mb=32000,
         time="00:15:00",
     shell:
         "python iterative_biofilm_annotation/trackmate/create_stack_for_trackmate.py {output} {input}"
@@ -66,9 +56,6 @@ rule trackmate2napari:
     conda:
         "../envs/stardist.yml"
     resources:
-        partition='',
-        constraint='',
-        gres='',
         ntasks=1,
         cpu_per_task=1,
         ntasks_per_node=1,

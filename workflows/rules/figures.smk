@@ -77,13 +77,15 @@ rule plot_fig3a:
         #    "accuracies/stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep{rep}_merge/full_semimanual-raw.csv",
         #    rep = available_predictions.replicate
         #),
+        unet_accuracies = "accuracies/seg_model_v3/full_semimanual-raw.csv"
     params:
         labels = [
             'Stardist',
             'Cellpose',
             'Hartmann et al.',
             'Improved Hartmann et al.',
-            'Stardist Improved',   
+            'Stardist Improved',
+            'Multi-class UNet',   
         ]
     conda:
         "../envs/plot.yml"
@@ -102,7 +104,8 @@ rule plot_fig3a:
             " --cellpose_accuracies {input.cellpose_accuracies}" + \
             " --biofilmq_improved_accuracies {input.biofilmq_improved_accuracy}" + \
             " --biofilmq_accuracies {input.biofilmq_accuracy}"  + \
-            " --stardist_improved_accuracies {input.stardist_improved_accuracies}"
+            " --stardist_improved_accuracies {input.stardist_improved_accuracies}" + \
+            " --unet_accuracies {input.unet_accuracies}"
 
 
 rule plot_fig3b:
@@ -133,18 +136,33 @@ rule plot_fig3b:
         #),
         biofilmq_improved_accuracies = "accuracies/data_seeded_watershed/full_stacks_huy.csv",
         biofilmq_accuracies = "accuracies/data_hartmann_et_al/full_stacks_huy.csv",
+        unet_accuracies = "accuracies/seg_model_v3/full_semimanual-raw.csv",
     params:
-        labels = [' Cellpose', ' Stardist', ' Improved Hartmann et al.', ' Hartmann et al.', ' Stardist Improved'],
-        plotstyle = ['dashed', 'solid', 'dashdot', 'dotted', 'solid']
+        labels = [
+            ' Cellpose',
+            ' Stardist',
+            ' Improved Hartmann et al.',
+            ' Hartmann et al.',
+            ' Stardist Improved',
+            ' Multi-class UNet'
+         ],
+        plotstyle = [
+            'dashed',
+            'solid',
+            'dashdot',
+            'dotted',
+            'solid',
+            'dashed',
+        ]
     conda:
         "../envs/plot.yml",
+    threads:
+        16
     resources:
         partition = 'express',
         time="00:05:00",
-        mem ='16G',
-        ntasks_per_node=1,
+        mem_mb ='16G',
         ntasks_per_core=2,
-        cpus_per_task=16,
     shell:
         "python iterative_biofilm_annotation/figures/fig3b_number_accuracies.py" + \
         " {output.output_dir}" + \
@@ -154,7 +172,8 @@ rule plot_fig3b:
         " --stardist_accuracies {input.stardist_accuracies}" + \
         " --biofilmq_improved_accuracies {input.biofilmq_improved_accuracies}" + \
         " --biofilmq_accuracies {input.biofilmq_accuracies}" + \
-        " --stardist_improved_accuracies {input.stardist_improved_accuracies}"
+        " --stardist_improved_accuracies {input.stardist_improved_accuracies}" + \
+        " --unet_accuracies {input.unet_accuracies}"
     
 
 cellpose_models_raw_full_low = [

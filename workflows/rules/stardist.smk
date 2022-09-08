@@ -37,7 +37,7 @@ rule stardist_testing:
         directory('interim_data/predictions/{data_folder}/{model_name}')
     input:
         folder="training_data/{data_folder}",
-        model="models/{model_name}",
+        #model="models/{model_name}",
     wildcard_constraints:
         model_name = "stardist_.*_rep\d+"
     params:

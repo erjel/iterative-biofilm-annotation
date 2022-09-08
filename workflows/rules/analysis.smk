@@ -70,13 +70,11 @@ rule calc_accuracies:
     input:
         pred_path="interim_data/predictions/{datasetname}/test/images/{modelname}",
         gt_path="training_data/{datasetname}/test/masks"
+    threads:
+        4 
     resources:
-        partition = 'express',
         time="00:05:00",
-        mem='16G',
-        ntasks_per_node=1,
-        ntasks_per_core=2,
-        cpus_per_task=16,
+        mem_mb='16G',
     conda:
         "../envs/stardist.yml"
     shell:
