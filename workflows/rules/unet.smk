@@ -53,10 +53,12 @@ rule unet_testing:
 rule unet_inference:
     output:
         touch('interim_data/predictions/{data_folder}/{model_name}/.chkpnt')
+    wildcard_constraints:
+        model_name = 'unet_.*_rep.*'
     input:
         model="models/{model_name}",
-        folder="input_data/{data_folder}",
     params:
+        folder = 'input_data/{data_folder}',
         output_dir="interim_data/predictions",
     conda:
         r"../envs/stardist.yml"
@@ -68,9 +70,10 @@ rule unet_inference:
         constraint = "gpu",
         gres = 'gpu:rtx5000:1',
         ntasks_per_core=2, # enable HT
-        mem='64G',
+        mem='16G',
     shell:
         r"python iterative_biofilm_annotation/unet/predict.py" + \
         " {params.output_dir}/{wildcards.data_folder}" + \
         " {input.model}" + \
-        " {input.folder}"
+        " {params.folder}" + \
+        " --input-pattern *_img.tif"

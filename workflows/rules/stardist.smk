@@ -66,6 +66,8 @@ ruleorder: stardist_merge_inference > stardist_inference # stardist_merge.smk vs
 rule stardist_inference:
     output:
         touch('interim_data/predictions/{data_folder}/{model_name}/.chkpnt')
+    wildcard_constraints:
+        model_name = 'stardist_*'
     input:
         symlink = "input_data/.symlink",
     # TODO(erjel): Make the model dependentcy explicit again
