@@ -8,12 +8,12 @@ rule train_unet:
     threads:
         8
     resources:
-        time="24:00:00",
+        time="12:00:00",
         partition = 'gpu1_rtx5000',
         constraint = "gpu",
         gres = 'gpu:rtx5000:1',
         ntasks_per_core=2, # enable HT
-        mem_mb='64G',
+        mem_mb='16G',
     conda:
         r"../envs/stardist.yml"
     shell:

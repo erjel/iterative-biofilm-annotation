@@ -77,7 +77,10 @@ rule plot_fig3a:
         #    "accuracies/stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep{rep}_merge/full_semimanual-raw.csv",
         #    rep = available_predictions.replicate
         #),
-        unet_accuracies = "accuracies/seg_model_v3/full_semimanual-raw.csv"
+        unet_accuracies = expand(
+            "accuracies/unet_48x96x96_patches-semimanual-raw-64x128x128_rep{rep}/full_semimanual-raw.csv",
+            rep = range(5)
+        ),
     params:
         labels = [
             'Stardist',
@@ -136,7 +139,10 @@ rule plot_fig3b:
         #),
         biofilmq_improved_accuracies = "accuracies/data_seeded_watershed/full_stacks_huy.csv",
         biofilmq_accuracies = "accuracies/data_hartmann_et_al/full_stacks_huy.csv",
-        unet_accuracies = "accuracies/seg_model_v3/full_semimanual-raw.csv",
+        unet_accuracies = expand(
+            "accuracies/unet_48x96x96_patches-semimanual-raw-64x128x128_rep{rep}/full_semimanual-raw.csv",
+            rep = range(5)
+        ),
     params:
         labels = [
             ' Cellpose',
