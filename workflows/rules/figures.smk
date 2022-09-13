@@ -81,6 +81,7 @@ rule plot_fig3a:
             "accuracies/unet_48x96x96_patches-semimanual-raw-64x128x128_rep{rep}/full_semimanual-raw.csv",
             rep = range(5)
         ),
+        bcm3d_accuracies = ["accuracies/bcm3d_2.0/full_semimanual-raw.csv"],
     params:
         labels = [
             'Stardist',
@@ -89,6 +90,7 @@ rule plot_fig3a:
             'Improved Hartmann et al.',
             'Stardist Improved',
             'Multi-class UNet',   
+            'BCM3D 2.0',
         ]
     conda:
         "../envs/plot.yml"
@@ -108,7 +110,8 @@ rule plot_fig3a:
             " --biofilmq_improved_accuracies {input.biofilmq_improved_accuracy}" + \
             " --biofilmq_accuracies {input.biofilmq_accuracy}"  + \
             " --stardist_improved_accuracies {input.stardist_improved_accuracies}" + \
-            " --unet_accuracies {input.unet_accuracies}"
+            " --unet_accuracies {input.unet_accuracies}" + \
+            " --bcm3d_accuracies {input.bcm3d_accuracies}" 
 
 
 rule plot_fig3b:
@@ -143,6 +146,7 @@ rule plot_fig3b:
             "accuracies/unet_48x96x96_patches-semimanual-raw-64x128x128_rep{rep}/full_semimanual-raw.csv",
             rep = range(5)
         ),
+        bcm3d_accuracies = ["accuracies/bcm3d_2.0/full_semimanual-raw.csv"],
     params:
         labels = [
             ' Cellpose',
@@ -150,7 +154,8 @@ rule plot_fig3b:
             ' Improved Hartmann et al.',
             ' Hartmann et al.',
             ' Stardist Improved',
-            ' Multi-class UNet'
+            ' Multi-class UNet',
+            ' BCM3D 2.0',
          ],
         plotstyle = [
             'dashed',
@@ -158,6 +163,7 @@ rule plot_fig3b:
             'dashdot',
             'dotted',
             'solid',
+            'dashed',
             'dashed',
         ]
     conda:
@@ -179,7 +185,8 @@ rule plot_fig3b:
         " --biofilmq_improved_accuracies {input.biofilmq_improved_accuracies}" + \
         " --biofilmq_accuracies {input.biofilmq_accuracies}" + \
         " --stardist_improved_accuracies {input.stardist_improved_accuracies}" + \
-        " --unet_accuracies {input.unet_accuracies}"
+        " --unet_accuracies {input.unet_accuracies}" + \
+        " --bcm3d_accuracies {input.bcm3d_accuracies}" 
     
 
 cellpose_models_raw_full_low = [

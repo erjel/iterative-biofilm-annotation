@@ -21,6 +21,7 @@ def plot_accuracy_comparison(
     biofilmq_accuracies: List[Path],
     stardist_improved_accuracies: Optional[List[Path]] = None,
     unet_accuracies: Optional[List[Path]] = None,
+    bcm3d_accuracies: Optional[List[Path]] = None,
     ) -> None:
 
     accuracy_files = [
@@ -30,6 +31,7 @@ def plot_accuracy_comparison(
         biofilmq_improved_accuracies,
         stardist_improved_accuracies,
         unet_accuracies,
+        bcm3d_accuracies,
     ]
     
     f, ax = plt.subplots(1)
@@ -74,6 +76,7 @@ def parse_args() -> Namespace:
     parser.add_argument('--biofilmq_accuracies', type=Path, nargs='+')
     parser.add_argument('--stardist_improved_accuracies', type=Path, nargs='+', default=[])
     parser.add_argument('--unet_accuracies', type=Path, nargs='+')
+    parser.add_argument('--bcm3d_accuracies', type=Path, nargs='+')
 
     return parser.parse_args()
 
@@ -89,6 +92,7 @@ def main() -> None:
         args.biofilmq_accuracies,
         args.stardist_improved_accuracies,
         args.unet_accuracies,
+        args.bcm3d_accuracies,
     )
     
 if __name__ == "__main__":
