@@ -178,7 +178,7 @@ def main():
                 logger.info('Save distances')
                 imsave(file_out.parent / (file_out.stem + '_dist.tif'), dist)
                 logger.info('Perform naive fusion')
-            y_ = naive_fusion(dist, prob, rays, grid=model.config.grid, prob_thresh=model.thresholds.prob)
+            y_ = naive_fusion(dist-1, prob, rays, grid=model.config.grid, prob_thresh=model.thresholds.prob)
 
         else:
             logger.info('Start sparse prediction for standard stardist')

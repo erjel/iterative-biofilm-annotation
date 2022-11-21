@@ -1,0 +1,11 @@
+
+channels:
+  - defaults
+dependencies:
+  - python=3.7.9
+  - pip
+  - pip:
+    - scipy
+    - tifffile
+    - edt
+    - tqdm
