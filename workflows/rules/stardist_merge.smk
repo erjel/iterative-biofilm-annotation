@@ -12,7 +12,7 @@ rule stardist_merge_inference:
         model="models/{model_name}",
         output_dir="interim_data/predictions",
     threads:
-        workflow.cores
+        40
     resources:
         partition = 'gpu_rtx5000',
         time = "24:00:00", # TODO(erjel): Max timelimit found reasonable one
@@ -21,7 +21,7 @@ rule stardist_merge_inference:
         cpus_per_task=80,
         ntasks_per_core=2, # enable HT
         ntasks_per_node=1,
-        mem='180G',
+        mem_mb='180G',
     conda:
         r"../envs/stardist_merge.yml"
     shell:
@@ -48,7 +48,7 @@ rule stardist_merge_testing:
         output_dir= lambda wc: "interim_data/predictions",
         folder="training_data/{data_folder}",
     threads:
-        workflow.cores
+        40
     resources:
         partition = 'gpu_rtx5000',
         time = "03:00:00",
@@ -57,7 +57,7 @@ rule stardist_merge_testing:
         cpus_per_task=80,
         ntasks_per_core=2, # enable HT
         ntasks_per_node=1,
-        mem='180G',
+        mem_mb='180G',
     conda:
         r"../envs/stardist_merge.yml"
     shell:

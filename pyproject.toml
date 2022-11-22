@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "interactive-biofilm-annotation"
-version = "0.1.0"
+version = "0.1.1"
 description = ""
 authors = ["Eric Jelli <eric.jelli@mpinb.mpg.de>"]
 

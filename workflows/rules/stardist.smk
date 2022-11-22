@@ -8,7 +8,7 @@ rule train_stardist_model:
     wildcard_constraints:
         patchSize = '\d+x\d+x\d+'
     threads:
-        workflow.cores
+        40
     resources:
         # Single GPU OOM for 
         time="24:00:00",
@@ -18,7 +18,7 @@ rule train_stardist_model:
         cpus_per_task=40,
         ntasks_per_core=2, # enable HT
         ntasks_per_node=1,
-        mem='90G',
+        mem_mb='90G',
     conda:
         r"../envs/stardist.yml"
     shell:
@@ -37,13 +37,13 @@ rule stardist_testing:
         directory('interim_data/predictions/{data_folder}/{model_name}')
     input:
         folder="training_data/{data_folder}",
-        #model="models/{model_name}",
+        model="models/{model_name}",
     wildcard_constraints:
         model_name = "stardist_.*_rep\d+"
     params:
         output_dir="interim_data/predictions",
     threads:
-        80
+        40
     resources:
         partition='gpu_rtx5000',
         time = "24:00:00",
@@ -52,7 +52,7 @@ rule stardist_testing:
         cpus_per_task=80,
         ntasks_per_core=2, # enable HT
         ntasks_per_node=1,
-        mem='180G',
+        mem_mb='180G',
     conda:
         r"../envs/stardist.yml"
     shell:

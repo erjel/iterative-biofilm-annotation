@@ -14,6 +14,15 @@ include: "workflows/rules/figures.smk"
 
 from pathlib import Path
 
+rule bcm3d:
+    input:
+        expand("training_data/patches-semimanual-raw-64x128x128/{usage}/target_bcm3d_{n}",
+            usage = ['train', 'valid'],
+            n = [1, 2],
+        ),
+        "models/bcmd3d_48x96x96_patches-semimanual-raw-64x128x128_1_v1",
+        "models/bcmd3d_48x96x96_patches-semimanual-raw-64x128x128_2_v1",
+
 rule unet:
     input:
         expand(
@@ -23,12 +32,6 @@ rule unet:
 
 rule all:
     input:
-        expand(
-            "models/stardist_192_48x96x96_patches-semimanual-N{num}-raw-64x128x128_True_100prc_rep{rep}",
-                num = range(1,5),
-                rep = range(1,6),
-        ),
-        expand('training_data/patches-semimanual-N{num}-raw-64x128x128', num=range(1,5)),
         #'models/stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep5'
         # TODO(erjel): Here, I use the "care" enhanced dataset instead of "raw" ...
         # TODO(erjel): stardist_192_48x96x96_patches-semimanual-raw-64x128x128_True_100prc_rep1 was not trained in this pipeline .. replace!
@@ -42,7 +45,7 @@ rule all:
         ## Try to recreate figures:
         'figures/fig3a',
         "figures/fig3b",
-        "figures/fig3c",
+        #"figures/fig3c",
         "figures/figS4",
         # TODO(erjel): The rendering needs to be executed in a rvs session locally ...
         #'figures/fig3d/stardist_fn_render.png',
@@ -113,16 +116,16 @@ ANNOTATED_TIFS = [
 ruleorder: create_partial_datasets > bronto_download_dataset
 rule create_partial_datasets:
     output:
-        directory('training_data/patches-semimanual-N{num_biofilms}-{tag}-{patchsize}'),
+        directory('training_data/patches-semimanual-N{num_biofilms}-raw-{patchsize}'),
     input:
         label_files = lambda wc: expand(
-            f'data_BiofilmQ/full_stacks_{wc.tag}/masks/{{tif_files}}',
-                tif_files = ANNOTATED_TIFS
-        )[1:int(wc.num_biofilms)+1],
+            'ZENODO/training_data/semi-manual/biofilm_{num}_labels.tif',
+            num = range(1, int(wc.num_biofilms)+2)
+        ),
         image_files = lambda wc: expand(
-            f'data_BiofilmQ/full_stacks_{wc.tag}/images/{{tif_files}}',
-                tif_files = ANNOTATED_TIFS
-        )[1:int(wc.num_biofilms)+1],
+            'ZENODO/raw_data/biofilm_{num}_raw.tif',
+            num = range(1, int(wc.num_biofilms)+2)
+        ),
     threads:
         1
     resources:

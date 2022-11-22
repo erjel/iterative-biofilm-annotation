@@ -135,7 +135,8 @@ def main():
                 continue
             elif not args.probs and file_out.is_file():
                 continue
-                
+            
+        logger.debug(f'Read file "{str(file_in)}"')        
         img = imread(file_in)
         
         if args.overview_plane:
