@@ -4,3 +4,9 @@ symlinks:
   input_data: '<custom input (aka time series experimental) data folder'
   interim_data: '<scratch storage>'
   tracks: '<folder for the final tracks>'
+
+
+slurm:
+  gpu_big: "<gpu partition name>"
+  gpu_big_gres: "<gpu partion gres>"
+  gpu_time_limit: "rule-dependent" # or a debugging time limit such as 00:15:00

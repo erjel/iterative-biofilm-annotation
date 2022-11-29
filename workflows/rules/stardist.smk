@@ -46,13 +46,13 @@ rule stardist_testing:
         40
     resources:
         partition='gpu_rtx5000',
-        time = "24:00:00",
+        time = "1:00:00", # Measured 20 min
         constraint = "gpu",
         gres = 'gpu:rtx5000:2',
         cpus_per_task=80,
         ntasks_per_core=2, # enable HT
         ntasks_per_node=1,
-        mem_mb='180G',
+        mem_mb='150G', # Measured 115G
     conda:
         r"../envs/stardist.yml"
     shell:

@@ -1,3 +1,15 @@
+#TODO(erjel): Save UNet prediction on disk before you use the merge code in order utilize the GPU nodes more efficiently
+
+slurm_config = config.get("slurm")
+
+if slurm_config:
+    gpu_big = slurm_config.get("gpu_big", "gpu_rtx5000")
+    gpu_big_gres = slurm_config.get("gpu_big_gres", "gpu:rtx5000:2")
+    gpu_time_limit = slurm_config.get("gpu_time_limit", "rule-dependent")
+else:
+    gpu_big = "gpu_rtx5000"
+    gpu_big_gres = "gpu:rtx5000:2"
+    gpu_time_limit = "rule-dependent"
 
 ruleorder:
     stardist_merge_inference > stardist_testing > stardist_inference # stardist_merge.smk vs stardist.smk
@@ -7,7 +19,7 @@ rule stardist_merge_inference:
         touch('interim_data/predictions/{data_folder}/{model_name}_merge/.chkpnt')
     input:
         folder="input_data/{data_folder}",
-    # TODO(erjel): Make the model dependentcy explicit again
+    # TODO(erjel): Make the model dependency explicit again
     params:
         model="models/{model_name}",
         output_dir="interim_data/predictions",
@@ -15,7 +27,7 @@ rule stardist_merge_inference:
         40
     resources:
         partition = 'gpu_rtx5000',
-        time = "24:00:00", # TODO(erjel): Max timelimit found reasonable one
+        time = "24:00:00", # TODO(erjel): Max timelimit; get reasonable one
         constraint = "gpu",
         gres = 'gpu:rtx5000:2',
         cpus_per_task=80,
@@ -50,10 +62,10 @@ rule stardist_merge_testing:
     threads:
         40
     resources:
-        partition = 'gpu_rtx5000',
-        time = "03:00:00",
+        partition = gpu_big,
+        time = "03:00:00" if gpu_time_limit == 'rule-dependent' else gpu_time_limit,
+        gres = gpu_big_gres,
         constraint = "gpu",
-        gres = 'gpu:rtx5000:2',
         cpus_per_task=80,
         ntasks_per_core=2, # enable HT
         ntasks_per_node=1,
