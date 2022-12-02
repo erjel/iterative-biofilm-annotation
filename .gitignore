@@ -56,3 +56,7 @@ config_local.yml
 
 # exclude slurm logs
 slurm-*.out
+
+
+# input data
+ZENODO
