@@ -33,9 +33,9 @@ rule bcm3d_training:
         4
     resources:
         time = "12:00:00",
-        partition = 'gpu1_rtx5000',
+        partition = gpu_big,
         constraint = 'gpu',
-        gres = 'gpu:rtx5000:1',
+        gres = gpu_big_gres,
         ntasks_per_core = 2,
         mem_mb = '16000',
     conda:

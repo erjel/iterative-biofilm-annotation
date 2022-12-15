@@ -13,6 +13,11 @@ include: "workflows/rules/trackmate.smk"
 include: "workflows/rules/analysis.smk"
 include: "workflows/rules/figures.smk"
 
+# resources config
+gpu_big = config['slurm']['gpu_big']
+gpu_big_gres = config['slurm']['gpu_big_gres']
+
+
 from pathlib import Path
 
 rule bcm3d:
