@@ -1,7 +1,6 @@
 .snakemake
 .ipynb_checkpoints
 Thumbs.db
-data
 reports
 *.tif
 *.mp4
