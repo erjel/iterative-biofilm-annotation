@@ -1,9 +1,11 @@
 rule bcm3d_data_preparation:
     output:
-        directory('training_data/{dataset_name}/target_bcm3d_1'),
-        directory('training_data/{dataset_name}/target_bcm3d_2'),
+        directory('training_data/{dataset_name}/{purpose}/target_bcm3d_1'),
+        directory('training_data/{dataset_name}/{purpose}/target_bcm3d_2'),
     input:
-        mask_dir = 'training_data/{dataset_name}/masks',
+        dataset_dir = 'training_data/.{dataset_name}.chkpt',
+    params:
+        mask_dir = 'training_data/{dataset_name}/{purpose}/masks'
     conda:
         "../envs/bcm3d_prep.yml"
     threads:
@@ -13,7 +15,7 @@ rule bcm3d_data_preparation:
         mem_mb = "16000",
     shell:
         "python -u iterative_biofilm_annotation/bcm3d/data_preparation.py" + \
-        " {input.mask_dir}"
+        " {params.mask_dir}"
 
 rule bcm3d_training:
     output:

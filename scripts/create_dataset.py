@@ -11,8 +11,6 @@ import numpy as np
 from pathlib import Path
 import argparse
 
-import sys
-sys.path.append(str(Path(os.getcwd())))
 from iterative_biofilm_annotation.stardist.data import sliceToShape, writeDatasetFolders, correctFullStackOffset, ImageInterpolation
 
 def main(annotation_path, raw_path, dataset_path, filetype, patch_size, exclude_file, dz):

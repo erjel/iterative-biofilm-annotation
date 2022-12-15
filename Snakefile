@@ -1,7 +1,8 @@
-# snakemake --cores 80 --profile cobra --use-conda
+# snakemake -j -c --profile cobra --use-conda
 configfile: "config.yml"
 
-include: r"workflows/rules/snakefile_care"
+include: "workflows/rules/data.smk"
+include: "workflows/rules/snakefile_care"
 include: "workflows/rules/stardist.smk"
 include: "workflows/rules/cellpose.smk"
 include: "workflows/rules/stardist_merge.smk"

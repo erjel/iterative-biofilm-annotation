@@ -1,11 +1,12 @@
 [tool.poetry]
-name = "interactive-biofilm-annotation"
-version = "0.1.2"
+name = "iterative-biofilm-annotation"
+version = "0.1.0"
 description = ""
 authors = ["Eric Jelli <eric.jelli@mpinb.mpg.de>"]
 
 [tool.poetry.dependencies]
-python = "^3.7"
+python = "^3.8"
+stardist = "^0.8.3"
 
 [tool.poetry.dev-dependencies]
 
