@@ -20,6 +20,7 @@ gpu_big_gres = config['slurm']['gpu_big_gres']
 
 from pathlib import Path
 
+
 rule bcm3d:
     input:
         expand("training_data/patches-semimanual-raw-64x128x128/{usage}/target_bcm3d_{n}",

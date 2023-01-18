@@ -59,6 +59,11 @@ def main(
         f'"{patch_size}" does not match pattern'
     X, Y = sliceToShape([X, Y], output_shape=tuple(int(s) for s in patch_size.split('x')))
 
+    patch_size = tuple(int(s) for s in patch_size.split('x'))
+
+    X = [x for x in X if x.shape == patch_size]
+    Y = [x for x in Y if x.shape == patch_size]
+
     # split randomly
     rng = np.random.RandomState(42)
     ind = rng.permutation(len(X))
