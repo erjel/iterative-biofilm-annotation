@@ -6,11 +6,16 @@ from typing import Tuple
 from csbdeep.data import shuffle_inplace
 from csbdeep.models import Config, CARE
 from csbdeep.utils import normalize
+from csbdeep.utils.tf import CARETensorBoardImage
+from csbdeep.internals.train import DataWrapper
 import numpy as np
 from tifffile import imread
 from tqdm import tqdm
 
-from iterative_biofilm_annotation.unet.utils import crop
+# TODO(erjel): from iterative_biofilm_annotation.unet.utils import crop
+def crop(u,shape=(48, 96, 96)):
+    """Crop central region of given shape"""
+    return u[tuple(slice((s-m)//2,(s-m)//2+m) for s,m in zip(u.shape,shape))]
 
 def train(
     basedir: Path,
@@ -21,6 +26,10 @@ def train(
     epochs: int,
     steps: int,
 ) -> None:
+
+    print(f'{patch_size=}')
+    print(f'{epochs=}')
+    print(f'{steps=}')
 
     # load and crop out central patch (for simplicity)
     X_train = [crop(imread(x), patch_size) for x in sorted(glob(f'training_data/{dataset}/train/images/*.tif'))]
@@ -42,9 +51,32 @@ def train(
     shuffle_inplace(X_valid, Y_valid, seed=0)
 
     axes = 'SZYXC'
-    config = Config(axes, n_channel_in=1, n_channel_out=1, train_steps_per_epoch=steps)
+    config = Config(axes, n_channel_in=1, n_channel_out=1, train_steps_per_epoch=steps, train_batch_size=16)
+    print(config)
+    print(X_train.shape, Y_train.shape)
+    print(X_valid.shape, Y_valid.shape)
+
+
     model = CARE(config, modelname, basedir=basedir)
-    history = model.train(X_train,Y_train, validation_data=(X_valid,Y_valid), epochs=epochs)
+
+    # NOTE(erjel): Need to rewrite CARE.train() to use a batch size of 16 instead of keras default 32
+    validation_data = (X_valid,Y_valid)
+
+    if not model._model_prepared:
+        model.prepare_for_training()
+
+    if (model.config.train_tensorboard and model.basedir is not None
+        and not any(isinstance(cb,CARETensorBoardImage) for cb in model.callbacks)):
+        model.callbacks.append(CARETensorBoardImage(model=model.keras_model, data=validation_data,
+                                                    log_dir=str(model.logdir/'logs'/'images'),
+                                                    n_images=3, prob_out=model.config.probabilistic))
+
+    training_data = DataWrapper(X_train, Y_train, model.config.train_batch_size, length=epochs*steps)
+
+    history = model.keras_model.fit(iter(training_data), validation_data=validation_data,
+                    epochs=epochs, steps_per_epoch=steps, validation_batch_size=model.config.train_batch_size,
+                    callbacks=model.callbacks, verbose=1)
+    model._training_finished()
 
     return
 

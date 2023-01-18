@@ -39,7 +39,7 @@ rule bcm3d_training:
         ntasks_per_core = 2,
         mem_mb = '16000',
     conda:
-        '../envs/stardist_poetry.yml',
+        '../envs/stardist_new.yml',
     shell:
         "python -u iterative_biofilm_annotation/bcm3d/train.py" + \
         " {params.modeldir}" +\
