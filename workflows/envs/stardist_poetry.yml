@@ -1,0 +1,11 @@
+channels:
+  - defaults
+dependencies:
+  - python=3.8
+  - pip
+  - libgcc
+  - tensorflow-gpu
+  - pip:
+    - numpy
+    - pyyaml
+    - ../../
