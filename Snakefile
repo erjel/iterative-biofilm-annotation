@@ -21,21 +21,6 @@ gpu_big_gres = config['slurm']['gpu_big_gres']
 from pathlib import Path
 
 
-rule bcm3d:
-    input:
-        expand("training_data/patches-semimanual-raw-64x128x128/{usage}/target_bcm3d_{n}",
-            usage = ['train', 'valid'],
-            n = [1, 2],
-        ),
-        "models/bcmd3d_48x96x96_patches-semimanual-raw-64x128x128_1_v1",
-        "models/bcmd3d_48x96x96_patches-semimanual-raw-64x128x128_2_v1",
-
-rule unet:
-    input:
-        expand(
-            "accuracies/unet_48x96x96_patches-semimanual-raw-64x128x128_rep{rep}/full_semimanual-raw.csv",
-            rep = range(5),
-        )
 
 rule all:
     input:
@@ -110,6 +95,21 @@ rule all:
         #'data/processed/tracks/care_model_eva-v1-dz400-care_rep1_vtk',
         #'data/processed/tracks/care_model_eva-v1-dz400-care_rep1_tif',
 
+rule bcm3d:
+    input:
+        expand("training_data/patches-semimanual-raw-64x128x128/{usage}/target_bcm3d_{n}",
+            usage = ['train', 'valid'],
+            n = [1, 2],
+        ),
+        "models/bcmd3d_48x96x96_patches-semimanual-raw-64x128x128_1_v1",
+        "models/bcmd3d_48x96x96_patches-semimanual-raw-64x128x128_2_v1",
+
+rule unet:
+    input:
+        expand(
+            "accuracies/unet_48x96x96_patches-semimanual-raw-64x128x128_rep{rep}/full_semimanual-raw.csv",
+            rep = range(5),
+        )
 
 
 ANNOTATED_TIFS = [

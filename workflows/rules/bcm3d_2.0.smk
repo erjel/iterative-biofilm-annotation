@@ -27,7 +27,6 @@ rule bcm3d_training:
         "training_data/{dataset_name}/train/target_bcm3d_{target}",
         "training_data/{dataset_name}/valid/target_bcm3d_{target}",
     params:
-        modeldir = 'models',
         target = 'target_bcm3d_{target}',
     threads:
         4
@@ -42,7 +41,7 @@ rule bcm3d_training:
         '../envs/stardist_new.yml',
     shell:
         "python -u iterative_biofilm_annotation/bcm3d/train.py" + \
-        " {params.modeldir}" +\
+        " {output}" +\
         " {wildcards.dataset_name}" +\
         " {params.target}" +\
         " {wildcards.patchSize}"    
