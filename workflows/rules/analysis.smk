@@ -64,11 +64,34 @@ rule calc_accuracies_biofilmq_full_stack:
         " {output} {input.pred_path} {params.gt_path}" + \
         " --pattern *Nz300.tif"
 
+
+
+# TODO(erjel): Recalculate these instead of downloading the files!
+localrules: download_copy_bronto_zip # Downloads files from MPCDF datashare
+rule download_copy_bronto_zip:
+    output:
+        "accuracies_copy_bronto.zip"
+    shell:
+        "wget -O accuracies_copy_bronto.zip https://datashare.mpcdf.mpg.de/s/cBGBaKNACWq3BVB/download"
+
+# TODO(erjel): Recalculate these instead of downloading the files!
+localrules: extract_accuracies_copy_bronto # Small system command to unzip the files
+rule extract_accuracies_copy_bronto:
+    output:
+        "accuracies_copy_bronto/{modelname}/{datasetname}.csv",
+    input:
+        "accuracies_copy_bronto.zip",
+    shell:
+        "unzip -p {input} {output}"
+
+
 rule calc_accuracies:
     output:
         csv_file = "accuracies/{modelname}/{datasetname}.csv"
     input:
         pred_path="interim_data/predictions/{datasetname}/test/images/{modelname}",
+        gt_path="training_data/.{datasetname}.chkpt",
+    params:
         gt_path="training_data/{datasetname}/test/masks"
     threads:
         4 
@@ -78,7 +101,7 @@ rule calc_accuracies:
     conda:
         "../envs/stardist.yml"
     shell:
-        "python iterative_biofilm_annotation/analysis/calc_accuracy_verbose.py {output.csv_file} {input.pred_path} {input.gt_path}"
+        "python iterative_biofilm_annotation/analysis/calc_accuracy_verbose.py {output.csv_file} {input.pred_path} {params.gt_path}"
 
 
 localrules: create_semi_manual_prediction
@@ -86,7 +109,9 @@ rule create_semi_manual_prediction:
     output:
         directory('interim_data/predictions/manual_raw_v3/test/images/semi_manual'),
     input:
-        "training_data/full_semimanual-huy/test/masks/im0.tif",
+        "training_data/.full_semimanual-raw.chkpt",
+    params:
+        image_path = "training_data/full_semimanual-raw/test/masks/im0.tif",
     conda:
         "../envs/calc.yml",
     shell:

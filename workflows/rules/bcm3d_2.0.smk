@@ -19,7 +19,7 @@ rule bcm3d_data_preparation:
 
 rule bcm3d_training:
     output:
-        directory("models/bcmd3d_{patchSize}_{dataset_name}_{target}_v{version}")
+        directory("models/bcm3d_{patchSize}_{dataset_name}_{target}_v{version}")
     wildcard_constraints:
         patchSize = '\d+x\d+x\d+',
         target = '(1|2)',
@@ -46,19 +46,36 @@ rule bcm3d_training:
         " {params.target}" +\
         " {wildcards.patchSize}"    
 
+rule bcm3d_predict:
+    output:
+        directory('interim_data/bcm3d_cnn_output/{data_folder}/{purpose}/{type}/{model_name}'),
+    wildcard_constraints:
+        model_name = 'bcm3d_.*'
+    input:
+        model = 'models/{model_name}',
+        dataset_dir = 'training_data/.{data_folder}.chkpt',
+    params:
+        folder = 'training_data/{data_folder}/{purpose}/{type}',
+        output_dir="interim_data/bcm3d_cnn_output",
+    conda:
+        r"../envs/stardist_new.yml"
+    shell:
+        "python -u iterative_biofilm_annotation/bcm3d/predict.py"
+        " {params.output_dir}/{wildcards.data_folder}"
+        " {input.model}"
+        " {params.folder}"
+
+
 rule bcm3d_post_processing:
     output:
-        touch('interim_data/predictions/{data_folder}/{model_name}/.chkpnt')
+        directory('interim_data/predictions/{data_folder}/bcm3d_{patch_size}_{dataset_name}_v{version}'),
     wildcard_constraints:
-        model_name = 'bcm3d_'
+        model_name = 'bcm3d_.*'
     input:
-        edt = 'interim_data/bcm3d_cnn_output/{data_folder}/{model_name}/.edt_chkpt',
-        cell_bdy = 'interim_data/bcm3d_cnn_output/{data_folder}/{model_name}/.bdy_chkpt',
-    params:
-        folder = 'training_data/{data_folder}',
-        output_dir="interim_data/predictions",
+        edt_dir = 'interim_data/bcm3d_cnn_output/{data_folder}/bcm3d_{patch_size}_{dataset_name}_1_v{version}',
+        cell_bdy_dir = 'interim_data/bcm3d_cnn_output/{data_folder}/bcm3d_{patch_size}_{dataset_name}_2_v{version}',
     conda:
-        r"../envs/bcm3d.yml"
+        r"../envs/bcm3d_prep.yml"
     threads:
         16
     resources:
@@ -66,8 +83,8 @@ rule bcm3d_post_processing:
         ntasks_per_core=2, # enable HT
         mem='16G',
     shell:
-        r"python iterative_biofilm_annotation/bcm3d/post_processing.py" + \
-        " {params.output_dir}/{wildcards.data_folder}" + \
-        " {input.model}" + \
-        " {params.folder}" + \
+        r"python iterative_biofilm_annotation/bcm3d/post_processing.py"
+        " {output}"
+        " {input.edt_dir}"
+        " {input.cell_bdy_dir}"
         " --input-pattern *_img.tif"

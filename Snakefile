@@ -162,17 +162,6 @@ rule bronto_download_dataset:
         'scp -r bronto:/volume1/bronto/Eric/2021_Iterative_Biofilm_Annotation_bk/datasets/{wildcards.dataset} ./training_data/{wildcards.dataset}'
 
 localrules:
-    create_symlinks
-
-rule create_symlinks:
-    output:
-        touch('.checkpoints/.symlink-{directory}')
-    params:
-        target = lambda wc: config["symlinks"][wc.directory]
-    shell:
-        "ln -s {params.target} {wildcards.directory}"
-
-localrules:
     download_biofilmq_includes
 rule download_biofilmq_includes:
     output:

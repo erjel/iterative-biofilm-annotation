@@ -1,4 +1,4 @@
-# Taken from 
+# Modified from 
 # https://github.com/CSBDeep/CSBDeep/blob/ad20e6d235efa205f175d63fb7c81b2c5e442922/examples/denoising3D/3_prediction.ipynb
 
 """
@@ -60,17 +60,19 @@ def parse_args() -> Namespace:
     parser = ArgumentParser()
     parser.add_argument('output_tif', type=Path)
     parser.add_argument('modelpath', type=Path)
-    parser.add_argument('input_tif', type=Path)
+    parser.add_argument('input_folder', type=Path)
 
     return parser.parse_args()
 
 def main() -> None:
     args = parse_args()
-    predict(
-        args.output_tif,
-        args.modelpath,
-        args.input_tif,
-    )
+    input_tifs = sorted(args.input_folder.glob('*.tif'))
+    for input_tif in input_tifs:
+        predict(
+            args.output_tif,
+            args.modelpath,
+            input_tif,
+        )
 
     return
     

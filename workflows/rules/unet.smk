@@ -25,14 +25,15 @@ rule train_unet:
         
 rule unet_testing:
     output:
-        directory('interim_data/predictions/{data_folder}/{model_name}')
+        directory('interim_data/predictions/{data_folder}/{purpose}/{type}/{model_name}')
     input:
-        folder="training_data/{data_folder}",
+        folder="training_data/.{data_folder}.chkpt",
         model="models/{model_name}",
     wildcard_constraints:
         model_name = "unet_.*_rep\d+"
     params:
-        output_dir="interim_data/predictions",
+        folder="training_data/{data_folder}/{purpose}/{type}",
+        output_dir="interim_data/predictions/{data_folder}/{purpose}/{type}",
     threads:
         8
     resources:
@@ -46,9 +47,9 @@ rule unet_testing:
         r"../envs/stardist.yml"
     shell:
         r"python iterative_biofilm_annotation/unet/predict.py" + \
-        " {params.output_dir}/{wildcards.data_folder}" + \
+        " {params.output_dir}" + \
         " {input.model}" + \
-        " {input.folder}"
+        " {params.folder}"
 
 rule unet_inference:
     output:

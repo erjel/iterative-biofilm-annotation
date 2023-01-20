@@ -27,13 +27,13 @@ rule cellpose_testing:
 
 rule horovod_cellpose_testing:
     output:
-        directory("interim_data/predictions/{datasetname}/horovod_cellpose_{modelname}")
+        directory("interim_data/predictions/{datasetname}/{purpose}/{type}/horovod_cellpose_{modelname}")
     input:
-        dataset_path="training_data/{datasetname}",
-        symlink = ".checkpoints/.symlink-models",
+        dataset_path="training_data/.{datasetname}.chkpt",
     params:
         # TODO(erjel): Make it an explizit dependency
         model_path="models/horovod_cellpose_{modelname}",
+        dataset_path = "training_data/{datasetname}/{purpose}/{type}",
     resources:
         partition = 'gpu1_rtx5000',
         constraint = 'gpu',

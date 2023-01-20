@@ -34,14 +34,15 @@ rule train_stardist_model:
         
 rule stardist_testing:
     output:
-        directory('interim_data/predictions/{data_folder}/{model_name}')
+        directory('interim_data/predictions/{data_folder}/{purpose}/{type}/{model_name}')
     input:
-        folder="training_data/{data_folder}",
+        folder="training_data/.{data_folder}.chkpt",
         model="models/{model_name}",
     wildcard_constraints:
         model_name = "stardist_.*_rep\d+"
     params:
-        output_dir="interim_data/predictions",
+        output_dir="interim_data/predictions/{data_folder}/{purpose}/{type}",
+        folder = "training_data/{data_folder}/{purpose}/{type}",
     threads:
         40
     resources:
@@ -57,9 +58,9 @@ rule stardist_testing:
         r"../envs/stardist.yml"
     shell:
         r"python iterative_biofilm_annotation/stardist/predict.py" + \
-        " {input.folder}" + \
+        " {params.folder}" + \
         " {input.model}" + \
-        " {params.output_dir}/{wildcards.data_folder}"
+        " {params.output_dir}"
 
 ruleorder: stardist_merge_inference > stardist_inference # stardist_merge.smk vs stardist.smk
 

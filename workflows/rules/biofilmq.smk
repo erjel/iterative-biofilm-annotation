@@ -1,3 +1,10 @@
+localrules: download_biofilmq_data # BiofilmQ single-cell is not published
+rule download_biofilmq_data:
+    output:
+        "data_BiofilmQ.zip"
+    shell:
+        "wget https://datashare.mpcdf.mpg.de/s/MIVweVPvg50Q388/download -O {output}"
+
 
 
 
@@ -8,14 +15,13 @@ rule copy_prediction:
     output:
         output_dir = directory('interim_data/predictions/full_stacks_huy/data_{biofilmq_settings}'),
     input:
-        symlink = ".checkpoints/.symlink-data_BiofilmQ",
+        "data_BiofilmQ.zip",
     params:
-        input_tif = "data_BiofilmQ/full_stacks_huy/predictions/data_{biofilmq_settings}/Pos1_ch1_frame000001_Nz300.tif",
+        zip_path = "data_BiofilmQ/full_stacks_huy/predictions/data_{biofilmq_settings}",
     wildcard_constraints:
         biofilmq_settings = "seeded_watershed|hartmann_et_al"
     shell:
-        "mkdir -p {output.output_dir} && " + \
-        "cp {params.input_tif} {output.output_dir}/"
+        "unzip -p {input} {params.zip_path} > {output}"
 
 localrules: create_biofilmq_manual_raw_v3_prediction
 rule create_biofilmq_manual_raw_v3_prediction:

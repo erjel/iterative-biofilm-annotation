@@ -224,17 +224,24 @@ def post_processing(output_tif: Path, edt_tif: Path, bdy_tif: Path) -> None:
 
 def parse_args() -> Namespace:
     parser = ArgumentParser()
-    parser.add_argument('output_tif', type=Path)
-    parser.add_argument('edt_tif', type=Path)
-    parser.add_argument('bdy_tif', type=Path)
+    parser.add_argument('output_dir', type=Path)
+    parser.add_argument('edt_dir', type=Path)
+    parser.add_argument('cell_bdy_dir', type=Path)
+    parser.add_argument('--input-pattern', type=str, default='*.tif')
 
 def main() -> None:
     args = parse_args()
-    post_processing(
-        args.output_tif,
-        args.edt_tif,
-        args.bdy_tif,
-    )
+
+    edt_files = sorted(args.input_dir.glob(args.input_pattern))
+    cell_bdy_files = sorted(args.input_dir.glob(args.input_pattern))
+
+    for edt_tif, bdy_tif in zip(edt_files, cell_bdy_files):
+        assert edt_tif.name == bdy_tif.name
+        post_processing(
+            args.output_dir / edt_tif.name,
+            edt_tif,
+            bdy_tif,
+        )
 
 if __name__ == '__main__':
     main()

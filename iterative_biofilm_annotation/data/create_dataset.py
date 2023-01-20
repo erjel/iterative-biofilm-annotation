@@ -2,6 +2,7 @@ import argparse
 import logging
 from pathlib import Path
 import re
+from typing import Optional
 
 from stardist import fill_label_holes
 
@@ -21,6 +22,7 @@ def main(
     image_stack_dir: Path, 
     pattern: str, 
     patch_size: str,
+    test_only: Optional[bool] = False,
     ) -> None:
     """Calculate patches for tif stacks
     """
@@ -55,28 +57,38 @@ def main(
     Y = [relabel_sequential(y)[0] for y in tqdm(Y)]
     Y = [fill_label_holes(y) for y in tqdm(Y)]
 
-    assert re.match('\d+x\d+x\d+', patch_size), \
-        f'"{patch_size}" does not match pattern'
-    X, Y = sliceToShape([X, Y], output_shape=tuple(int(s) for s in patch_size.split('x')))
 
-    patch_size = tuple(int(s) for s in patch_size.split('x'))
 
-    X = [x for x in X if x.shape == patch_size]
-    Y = [x for x in Y if x.shape == patch_size]
+    if re.match('\d+x\d+x\d+', patch_size):
+        X, Y = sliceToShape([X, Y], output_shape=tuple(int(s) for s in patch_size.split('x')))
+
+        patch_size = tuple(int(s) for s in patch_size.split('x'))
+
+        X = [x for x in X if x.shape == patch_size]
+        Y = [x for x in Y if x.shape == patch_size]
+    elif patch_size == 'all':
+        logger.info('Using complete images:')
+        for x, y in zip(X, Y):
+            print('x shape: ' + str(x.shape) + ' | y shape: ' + str(y.shape))
 
     # split randomly
-    rng = np.random.RandomState(42)
-    ind = rng.permutation(len(X))
-    n_test = max(1, int(round(0.10 * len(ind))))
-    ind_train, ind_test = ind[:-n_test], ind[-n_test:]
-    X_test, Y_test = [X[i] for i in ind_test], [Y[i] for i in ind_test]
-    X_trn,  Y_trn  = [X[i] for i in ind_train],[Y[i] for i in ind_train]
+    if not test_only:
+        rng = np.random.RandomState(42)
+        ind = rng.permutation(len(X))
+        n_test = max(1, int(round(0.10 * len(ind))))
+        ind_train, ind_test = ind[:-n_test], ind[-n_test:]
+        X_test, Y_test = [X[i] for i in ind_test], [Y[i] for i in ind_test]
+        X_trn,  Y_trn  = [X[i] for i in ind_train],[Y[i] for i in ind_train]
 
-    ind = rng.permutation(len(X_trn))
-    n_val = max(1, int(round(0.10 * len(ind))))
-    ind_train, ind_val = ind[:-n_val], ind[-n_val:]
-    X_val, Y_val   = [X_trn[i] for i in ind_val],  [Y_trn[i] for i in ind_val]
-    X_trn,  Y_trn  = [X_trn[i] for i in ind_train],[Y_trn[i] for i in ind_train]
+        ind = rng.permutation(len(X_trn))
+        n_val = max(1, int(round(0.10 * len(ind))))
+        ind_train, ind_val = ind[:-n_val], ind[-n_val:]
+        X_val, Y_val   = [X_trn[i] for i in ind_val],  [Y_trn[i] for i in ind_val]
+        X_trn,  Y_trn  = [X_trn[i] for i in ind_train],[Y_trn[i] for i in ind_train]
+    else:
+        X_test, Y_test = X, Y
+        X_val, Y_val = [], []
+        X_trn, Y_trn = [], []
 
     logger.info('number of images: %3d' % len(X))
     logger.info('- training:       %3d' % len(X_trn))
@@ -97,6 +109,7 @@ if __name__ == '__main__':
     parser.add_argument('image_stack_dir', type=Path)
     parser.add_argument('pattern', type=str)
     parser.add_argument('patchsize', type=str)
+    parser.add_argument('--test-only', action='store_true')
     args = parser.parse_args()
 
 
@@ -106,4 +119,5 @@ if __name__ == '__main__':
         args.image_stack_dir,
         args.pattern,
         args.patchsize,
+        args.test_only,
     )

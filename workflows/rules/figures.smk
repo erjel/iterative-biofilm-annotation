@@ -81,7 +81,10 @@ rule plot_fig3a:
             "accuracies/unet_48x96x96_patches-semimanual-raw-64x128x128_rep{rep}/full_semimanual-raw.csv",
             rep = range(5)
         ),
-        bcm3d_accuracies = ["accuracies/bcm3d_2.0/full_semimanual-raw.csv"],
+        bcm3d_accuracies = expand(
+            "accuracies/bcm3d_48x96x96_patches-semimanual-raw-64x128x128_v{rep}/full_semimanual-raw.csv",
+            rep = range(5)
+        ),
     params:
         labels = [
             'Stardist',
@@ -146,7 +149,10 @@ rule plot_fig3b:
             "accuracies/unet_48x96x96_patches-semimanual-raw-64x128x128_rep{rep}/full_semimanual-raw.csv",
             rep = range(5)
         ),
-        bcm3d_accuracies = ["accuracies/bcm3d_2.0/full_semimanual-raw.csv"],
+        bcm3d_accuracies = expand(
+            "accuracies/bcm3d_48x96x96_patches-semimanual-raw-64x128x128_v{rep}/full_semimanual-raw.csv",
+            rep = range(5)
+        ),
     params:
         labels = [
             ' Cellpose',
