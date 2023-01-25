@@ -9,9 +9,9 @@ rule train_unet:
         8
     resources:
         time="12:00:00",
-        partition = 'gpu1_rtx5000',
+        partition = config['slurm']['gpu_big'],
         constraint = "gpu",
-        gres = 'gpu:rtx5000:1',
+        gres = config['slurm']['gpu_big_gres'],
         ntasks_per_core=2, # enable HT
         mem_mb='16G',
     conda:
@@ -37,10 +37,10 @@ rule unet_testing:
     threads:
         8
     resources:
-        partition='gpu1_rtx5000',
+        partition = config['slurm']['gpu_big'],
         time = "00:15:00",
         constraint = "gpu",
-        gres = 'gpu:rtx5000:1',
+        gres = config['slurm']['gpu_big_gres'],
         ntasks_per_core=2, # enable HT
         mem_mb='16G',
     conda:
@@ -66,10 +66,10 @@ rule unet_inference:
     threads:
         16
     resources:
-        partition='gpu1_rtx5000',
+        partition=config['slurm']['gpu_big'],
         time = "01:00:00",
         constraint = "gpu",
-        gres = 'gpu:rtx5000:1',
+        gres = config['slurm']['gpu_big_gres'],
         ntasks_per_core=2, # enable HT
         mem='16G',
     shell:

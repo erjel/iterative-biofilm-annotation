@@ -56,12 +56,18 @@ rule bcm3d_predict:
         dataset_dir = 'training_data/.{data_folder}.chkpt',
     params:
         folder = 'training_data/{data_folder}/{purpose}/{type}',
-        output_dir="interim_data/bcm3d_cnn_output",
+    resources:
+        time = "01:00:00",
+        mem_mb = "16000",
+        partition = gpu_big,
+        constraint = 'gpu',
+        gres = gpu_big_gres,
+        ntasks_per_core = 2,
     conda:
         r"../envs/stardist_new.yml"
     shell:
         "python -u iterative_biofilm_annotation/bcm3d/predict.py"
-        " {params.output_dir}/{wildcards.data_folder}"
+        " {output}"
         " {input.model}"
         " {params.folder}"
 
@@ -75,16 +81,16 @@ rule bcm3d_post_processing:
         edt_dir = 'interim_data/bcm3d_cnn_output/{data_folder}/bcm3d_{patch_size}_{dataset_name}_1_v{version}',
         cell_bdy_dir = 'interim_data/bcm3d_cnn_output/{data_folder}/bcm3d_{patch_size}_{dataset_name}_2_v{version}',
     conda:
-        r"../envs/bcm3d_prep.yml"
+        r"../envs/stardist_new.yml"
     threads:
         16
     resources:
         time = "01:00:00",
         ntasks_per_core=2, # enable HT
-        mem='16G',
+        mem_mb='0', # TODO(erjel): Replace with actual memory usage
     shell:
         r"python iterative_biofilm_annotation/bcm3d/post_processing.py"
         " {output}"
         " {input.edt_dir}"
         " {input.cell_bdy_dir}"
-        " --input-pattern *_img.tif"
+        " --input-pattern im*.tif"

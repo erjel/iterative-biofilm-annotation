@@ -52,13 +52,14 @@ def predict(output_tif: Path, modelpath: Path, input_tif: Path) -> None:
     model = CARE(config=None, name=modelname, basedir=basedir)
     restored = model.predict(x, axes,n_tiles=(4, 4, 4))
 
+    output_tif.parent.mkdir(exist_ok=True, parents=True)
     imwrite(output_tif, restored, compression='zlib')
 
     return
 
 def parse_args() -> Namespace:
     parser = ArgumentParser()
-    parser.add_argument('output_tif', type=Path)
+    parser.add_argument('output_folder', type=Path)
     parser.add_argument('modelpath', type=Path)
     parser.add_argument('input_folder', type=Path)
 
@@ -69,7 +70,7 @@ def main() -> None:
     input_tifs = sorted(args.input_folder.glob('*.tif'))
     for input_tif in input_tifs:
         predict(
-            args.output_tif,
+            args.output_folder / input_tif.name,
             args.modelpath,
             input_tif,
         )

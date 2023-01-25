@@ -1,6 +1,10 @@
 # snakemake -j -c --profile cobra --use-conda
 configfile: "config.yml"
 
+# resources config
+gpu_big = config['slurm']['gpu_big']
+gpu_big_gres = config['slurm']['gpu_big_gres']
+
 include: "workflows/rules/data.smk"
 include: "workflows/rules/snakefile_care"
 include: "workflows/rules/stardist.smk"
@@ -13,9 +17,6 @@ include: "workflows/rules/trackmate.smk"
 include: "workflows/rules/analysis.smk"
 include: "workflows/rules/figures.smk"
 
-# resources config
-gpu_big = config['slurm']['gpu_big']
-gpu_big_gres = config['slurm']['gpu_big_gres']
 
 
 from pathlib import Path

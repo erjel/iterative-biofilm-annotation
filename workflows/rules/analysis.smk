@@ -46,14 +46,15 @@ rule calc_accuracies_biofilmq_full_stack:
     output:
         csv_file = "accuracies/data_{biofilmq_setting}/full_stacks_huy.csv",
     input:
-        pred_path= "interim_data/predictions/full_stacks_huy/data_{biofilmq_setting}",
+        pred_path= "interim_data/predictions/full_stacks_huy/data_{biofilmq_setting}-downsampled/Pos1_ch1_frame000001_Nz300.tif",
+        gt_chkpt="training_data/.full_semimanual-raw.chkpt",
     params:
         # TODO(erjel): Where does this come from?
-        gt_path = "data_BiofilmQ/full_stacks_huy/masks_intp",
+        gt_path = "training_data/full_semimanual-raw/test/masks",
+        pred_path = "interim_data/predictions/full_stacks_huy/data_{biofilmq_setting}-downsampled",
     resources:
-        partition = 'express',
         time="00:05:00",
-        mem='16G',
+        mem_mb='16G',
         ntasks_per_node=1,
         ntasks_per_core=2,
         cpus_per_task=16,
@@ -61,8 +62,10 @@ rule calc_accuracies_biofilmq_full_stack:
         "../envs/stardist.yml"
     shell:
         "python iterative_biofilm_annotation/analysis/calc_accuracy_verbose.py" + \
-        " {output} {input.pred_path} {params.gt_path}" + \
-        " --pattern *Nz300.tif"
+        " {output} {params.pred_path} {params.gt_path}" + \
+        " --pattern_pred *Nz300.tif"
+        " --pattern_gt im0.tif"
+        " --z-cutoff-gt 1:300"
 
 
 
@@ -81,8 +84,11 @@ rule extract_accuracies_copy_bronto:
         "accuracies_copy_bronto/{modelname}/{datasetname}.csv",
     input:
         "accuracies_copy_bronto.zip",
+    params:
+        zip_filename = "accuracies_copy_bronto/{modelname}/{datasetname}.csv"
     shell:
-        "unzip -p {input} {output}"
+        "mkdir -p accuracies_copy_bronto/{wildcards.modelname} &&"
+        " unzip -p {input} {params.zip_filename} > {output}"
 
 
 rule calc_accuracies:
@@ -115,31 +121,7 @@ rule create_semi_manual_prediction:
     conda:
         "../envs/calc.yml",
     shell:
-        "python iterative_biofilm_annotation/analysis/crop_biofilmq.py {output} {input}"
-
-rule downsample_biofilmq_prediction:
-    output:
-        touch('.checkpoints/interim_data/predictions/full_stacks_huy/data_{biofilmq_setting}-downsampled/Pos1_ch1_frame000001_Nz300.tif.chkpt'),
-        output_tif = 'interim_data/predictions/full_stacks_huy/data_{biofilmq_setting}-downsampled/Pos1_ch1_frame000001_Nz300.tif',
-    params:
-        input_tif = 'interim_data/predictions/full_stacks_huy/data_{biofilmq_setting}/Pos1_ch1_frame000001_Nz300.tif',
-        input_dz = 61, # nm
-        output_dz = 100, # nm
-    conda:
-        "../envs/stardist.yml",
-    resources:
-        partition = 'express',
-        time="00:05:00",
-        mem='8G',
-        ntasks_per_node=1,
-        ntasks_per_core=2,
-        cpus_per_task=4,
-    shell:
-        "python iterative_biofilm_annotation/analysis/downsample_biofilmq_prediction.py" + \
-        " {output.output_tif}" + \
-        " {params.input_tif}" + \
-        " {params.output_dz}" + \
-        " {params.input_dz}"
+        "python iterative_biofilm_annotation/analysis/crop_biofilmq.py {output} {params.image_path}"
 
 
 rule create_fn_fp_tifs:
@@ -166,7 +148,6 @@ rule create_fn_fp_tifs:
             'stardistMerge': 'False',
         }[wc.seg_type],
     resources:
-        partition = 'express',
         time="00:05:00",
         mem='16G',
         ntasks_per_node=1,
@@ -196,7 +177,6 @@ rule convert_tif2vtk_fn:
     envmodules:
         'matlab/R2019b',
     resources:
-        partition = 'express',
         time="00:10:00",
         mem='32G',
         ntasks_per_node=1,
@@ -224,7 +204,6 @@ rule convert_tif2vtk_fp:
     envmodules:
         'matlab/R2019b'
     resources:
-        partition = 'express',
         time="00:10:00",
         mem='32G',
         ntasks_per_node=1,

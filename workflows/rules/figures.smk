@@ -98,7 +98,6 @@ rule plot_fig3a:
     conda:
         "../envs/plot.yml"
     resources:
-        partition = 'express',
         time="00:05:00",
         mem='16G',
         ntasks_per_node=1,
@@ -177,7 +176,6 @@ rule plot_fig3b:
     threads:
         16
     resources:
-        partition = 'express',
         time="00:05:00",
         mem_mb ='16G',
         ntasks_per_core=2,
@@ -355,9 +353,8 @@ rule plot_fig3c:
     conda:
         "../envs/plot.yml",
     resources:
-        partition = 'express',
         time="00:05:00",
-        mem ='16G',
+        mem_mb ='16G',
         ntasks_per_node=1,
         ntasks_per_core=2,
         cpus_per_task=16,
@@ -418,9 +415,8 @@ rule plot_figS4:
     conda:
         "../envs/plot.yml"
     resources:
-        partition = 'express',
         time="00:05:00",
-        mem='16G',
+        mem_mb='16G',
         ntasks_per_node=1,
         ntasks_per_core=2,
         cpus_per_task=16,
