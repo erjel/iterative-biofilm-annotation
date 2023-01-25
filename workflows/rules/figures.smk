@@ -346,10 +346,12 @@ rule plot_fig3c:
     output:
         output_dir = directory('figures/fig3c'),
     input:
-        training_data_stardist = "training_data/patches-semimanual-raw-64x128x128",
+        training_data_stardist = "training_data/.patches-semimanual-raw-64x128x128.chkpt",
         cellpose_accuracies = get_dependency_accs_cellpose,
         stardist_accuracies = get_dependency_accs_stardist,
         stardist_merge_accuracies = get_dependency_accs_stardist_merge,
+    params:
+        training_data_stardist = "training_data/patches-semimanual-raw-64x128x128"
     conda:
         "../envs/plot.yml",
     resources:
@@ -361,7 +363,7 @@ rule plot_fig3c:
     shell:
         "python iterative_biofilm_annotation/figures/fig3c_data_abundance_dependency.py" + \
         " {output.output_dir}"
-        " {input.training_data_stardist}"
+        " {params.training_data_stardist}"
         " --cellpose_accuracies {input.cellpose_accuracies}"
         " --stardist_accuracies {input.stardist_accuracies}"
         " --stardist_merge_accuracies {input.stardist_merge_accuracies}"

@@ -2,7 +2,7 @@ rule train_unet:
     output:
         directory("models/unet_{patchSize}_patches-{dataset_name}_rep{replicate}")
     input:
-        dataset="training_data/patches-{dataset_name}",
+        dataset="training_data/.patches-{dataset_name}.chkpt",
     wildcard_constraints:
         patchSize = '\d+x\d+x\d+'
     threads:

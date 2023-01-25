@@ -3,8 +3,7 @@ rule train_stardist_model:
     output:
         directory("models/stardist_{n_rays}_{patchSize}_patches-{dataset_name}_{only_valid}_{percentage}prc_rep{replicate}")
     input:
-        dataset="training_data/patches-{dataset_name}",
-        #output_symlink = "models/.symlink"
+        dataset="training_data/.patches-{dataset_name}.chkpt",
     wildcard_constraints:
         patchSize = '\d+x\d+x\d+'
     threads:
