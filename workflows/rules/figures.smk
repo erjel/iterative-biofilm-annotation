@@ -81,7 +81,10 @@ rule plot_fig3a:
             "accuracies/unet_48x96x96_patches-semimanual-raw-64x128x128_rep{rep}/full_semimanual-raw.csv",
             rep = range(5)
         ),
-        bcm3d_accuracies = ["accuracies/bcm3d_2.0/full_semimanual-raw.csv"],
+        bcm3d_accuracies = expand(
+            "accuracies/bcm3d_48x96x96_patches-semimanual-raw-64x128x128_v{rep}/full_semimanual-raw.csv",
+            rep = range(5)
+        ),
     params:
         labels = [
             'Stardist',
@@ -95,7 +98,6 @@ rule plot_fig3a:
     conda:
         "../envs/plot.yml"
     resources:
-        partition = 'express',
         time="00:05:00",
         mem='16G',
         ntasks_per_node=1,
@@ -146,7 +148,10 @@ rule plot_fig3b:
             "accuracies/unet_48x96x96_patches-semimanual-raw-64x128x128_rep{rep}/full_semimanual-raw.csv",
             rep = range(5)
         ),
-        bcm3d_accuracies = ["accuracies/bcm3d_2.0/full_semimanual-raw.csv"],
+        bcm3d_accuracies = expand(
+            "accuracies/bcm3d_48x96x96_patches-semimanual-raw-64x128x128_v{rep}/full_semimanual-raw.csv",
+            rep = range(5)
+        ),
     params:
         labels = [
             ' Cellpose',
@@ -171,7 +176,6 @@ rule plot_fig3b:
     threads:
         16
     resources:
-        partition = 'express',
         time="00:05:00",
         mem_mb ='16G',
         ntasks_per_core=2,
@@ -342,23 +346,24 @@ rule plot_fig3c:
     output:
         output_dir = directory('figures/fig3c'),
     input:
-        training_data_stardist = "training_data/patches-semimanual-raw-64x128x128",
+        training_data_stardist = "training_data/.patches-semimanual-raw-64x128x128.chkpt",
         cellpose_accuracies = get_dependency_accs_cellpose,
         stardist_accuracies = get_dependency_accs_stardist,
         stardist_merge_accuracies = get_dependency_accs_stardist_merge,
+    params:
+        training_data_stardist = "training_data/patches-semimanual-raw-64x128x128"
     conda:
         "../envs/plot.yml",
     resources:
-        partition = 'express',
         time="00:05:00",
-        mem ='16G',
+        mem_mb ='16G',
         ntasks_per_node=1,
         ntasks_per_core=2,
         cpus_per_task=16,
     shell:
         "python iterative_biofilm_annotation/figures/fig3c_data_abundance_dependency.py" + \
         " {output.output_dir}"
-        " {input.training_data_stardist}"
+        " {params.training_data_stardist}"
         " --cellpose_accuracies {input.cellpose_accuracies}"
         " --stardist_accuracies {input.stardist_accuracies}"
         " --stardist_merge_accuracies {input.stardist_merge_accuracies}"
@@ -412,9 +417,8 @@ rule plot_figS4:
     conda:
         "../envs/plot.yml"
     resources:
-        partition = 'express',
         time="00:05:00",
-        mem='16G',
+        mem_mb='16G',
         ntasks_per_node=1,
         ntasks_per_core=2,
         cpus_per_task=16,

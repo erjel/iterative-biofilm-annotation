@@ -1,10 +1,4 @@
-symlinks:
-  training_data: '<custom training data folder>'
-  models: '<custom models folder>'
-  input_data: '<custom input (aka time series experimental) data folder'
-  interim_data: '<scratch storage>'
-  tracks: '<folder for the final tracks>'
-
+zenodo_data: <path of downloaded zenodo repository>
 
 slurm:
   gpu_big: "<gpu partition name>"

@@ -1,7 +1,6 @@
 .snakemake
 .ipynb_checkpoints
 Thumbs.db
-data
 reports
 *.tif
 *.mp4
@@ -56,3 +55,10 @@ config_local.yml
 
 # exclude slurm logs
 slurm-*.out
+
+
+# input data
+ZENODO
+
+# zip downloads
+*.zip

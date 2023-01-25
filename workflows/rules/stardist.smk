@@ -3,8 +3,7 @@ rule train_stardist_model:
     output:
         directory("models/stardist_{n_rays}_{patchSize}_patches-{dataset_name}_{only_valid}_{percentage}prc_rep{replicate}")
     input:
-        dataset="training_data/patches-{dataset_name}",
-        #output_symlink = "models/.symlink"
+        dataset="training_data/.patches-{dataset_name}.chkpt",
     wildcard_constraints:
         patchSize = '\d+x\d+x\d+'
     threads:
@@ -12,9 +11,9 @@ rule train_stardist_model:
     resources:
         # Single GPU OOM for 
         time="24:00:00",
-        partition = 'gpu1_rtx5000',
+        partition = config['slurm']['gpu_big'],
         constraint = "gpu",
-        gres = 'gpu:rtx5000:1',
+        gres = config['slurm']['gpu_big_gres'],
         cpus_per_task=40,
         ntasks_per_core=2, # enable HT
         ntasks_per_node=1,
@@ -34,21 +33,21 @@ rule train_stardist_model:
         
 rule stardist_testing:
     output:
-        directory('interim_data/predictions/{data_folder}/{model_name}')
-    input:
-        folder="training_data/{data_folder}",
-        model="models/{model_name}",
+        directory('interim_data/predictions/{data_folder}/{purpose}/{type}/{model_name}')
     wildcard_constraints:
         model_name = "stardist_.*_rep\d+"
+    input:
+        model = "models/{model_name}",
+        input_chkpt = "training_data/.{data_folder}.chkpt",
     params:
-        output_dir="interim_data/predictions",
+        input_dir = "training_data/{data_folder}/{purpose}/{type}",
     threads:
         40
     resources:
-        partition='gpu_rtx5000',
+        partition = config['slurm']['gpu_big'],
         time = "1:00:00", # Measured 20 min
         constraint = "gpu",
-        gres = 'gpu:rtx5000:2',
+        gres = config['slurm']['gpu_big_gres'],
         cpus_per_task=80,
         ntasks_per_core=2, # enable HT
         ntasks_per_node=1,
@@ -57,9 +56,9 @@ rule stardist_testing:
         r"../envs/stardist.yml"
     shell:
         r"python iterative_biofilm_annotation/stardist/predict.py" + \
-        " {input.folder}" + \
+        " {params.input_dir}" + \
         " {input.model}" + \
-        " {params.output_dir}/{wildcards.data_folder}"
+        " {output}"
 
 ruleorder: stardist_merge_inference > stardist_inference # stardist_merge.smk vs stardist.smk
 
@@ -69,21 +68,20 @@ rule stardist_inference:
     wildcard_constraints:
         model_name = 'stardist_*'
     input:
-        symlink = "input_data/.symlink",
-    # TODO(erjel): Make the model dependentcy explicit again
-    params:
+        input_chkpt = "input_data/.{data_folder}.chkpt",
         model="models/{model_name}",
-        output_dir="interim_data/predictions",
-        folder="input_data/{data_folder}",
+    params:
+        output_dir="interim_data/predictions/{data_folder}/{model_name}",
+        input_dir="input_data/{data_folder}",
     threads:
-        workflow.cores
+        40
     conda:
         r"../envs/stardist.yml"
     shell:
         r"python iterative_biofilm_annotation/stardist/predict.py" + \
-        " {params.folder}" + \
+        " {params.input_dir}" + \
         " {params.model}" + \
-        " {params.output_dir}\{wildcards.data_folder}" +\
+        " {params.output_dir}" +\
         " --intp-factor 4"
         
 # TODO(erjel): Is this rule required at some point?        

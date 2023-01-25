@@ -58,11 +58,11 @@ def readDataset(datasetName, verbose=False):
 
     return X, Y
 
-def writeDatasetFolders(X, datasetName, datafunction, datatype, filenames=None, verbose=True):
+def writeDatasetFolders(X, dataset_dir, datafunction, datatype, filenames=None, verbose=True):
 
     dataset_root = getRootDir()
     
-    im_dir = os.path.join(dataset_root, datasetName, datafunction, datatype)
+    im_dir = os.path.join(dataset_dir, datafunction, datatype)
     
     verbose and print('Write dataset to "{}"'.format(im_dir))
 
@@ -75,7 +75,7 @@ def writeDatasetFolders(X, datasetName, datafunction, datatype, filenames=None, 
         else:
             im_name = filenames[i]
         im_path = os.path.join(im_dir, im_name)
-        imsave(im_path, im, compress=9)
+        imsave(im_path, im)
 
     return
 

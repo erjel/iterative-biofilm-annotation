@@ -18,7 +18,6 @@ from scipy.ndimage import binary_erosion, grey_dilation
 from scipy.stats import iqr
 
 
-
 def normalize(img_stack: np.ndarray, low=3, high=99.9) -> np.ndarray:
     p_low, p_high = np.percentile(img_stack, [low, high])
     return (img_stack - p_low) / (p_high - p_low)
@@ -49,7 +48,8 @@ def delete_small_objects(label_stack: np.ndarray, thresh: float) -> np.ndarray:
     labels = np.array([p.label for p in props])
 
     lut = np.arange(label_stack.max()+1, dtype=label_stack.dtype)
-    lut[labels[volumes < thresh]] = 0
+    if len(labels) > 0:
+        lut[labels[volumes < thresh]] = 0
     
     return lut[label_stack]
 
@@ -218,23 +218,41 @@ def post_processing(output_tif: Path, edt_tif: Path, bdy_tif: Path) -> None:
 
     result_labels = grey_dilation(result_labels, size=(3,3,3))
 
+    output_tif.parent.mkdir(exist_ok=True, parents=True)
+
     imwrite(output_tif, result_labels)
 
     return
 
 def parse_args() -> Namespace:
     parser = ArgumentParser()
-    parser.add_argument('output_tif', type=Path)
-    parser.add_argument('edt_tif', type=Path)
-    parser.add_argument('bdy_tif', type=Path)
+    parser.add_argument('output_dir', type=Path)
+    parser.add_argument('edt_dir', type=Path)
+    parser.add_argument('cell_bdy_dir', type=Path)
+    parser.add_argument('--input-pattern', type=str, default='*.tif')
+
+    return parser.parse_args()
 
 def main() -> None:
     args = parse_args()
-    post_processing(
-        args.output_tif,
-        args.edt_tif,
-        args.bdy_tif,
-    )
+
+    print(f'EDT directory: {args.edt_dir}')
+    print(f'Cell boundary directory: {args.cell_bdy_dir}')
+    print(f'File pattern: {args.input_pattern}')
+
+    edt_files = sorted(args.edt_dir.glob(args.input_pattern))
+    cell_bdy_files = sorted(args.cell_bdy_dir.glob(args.input_pattern))
+
+    assert len(edt_files) > 0 
+
+
+    for edt_tif, bdy_tif in zip(edt_files, cell_bdy_files):
+        assert edt_tif.name == bdy_tif.name
+        post_processing(
+            args.output_dir / edt_tif.name,
+            edt_tif,
+            bdy_tif,
+        )
 
 if __name__ == '__main__':
     main()
