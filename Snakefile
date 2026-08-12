@@ -1,7 +1,12 @@
-# snakemake --cores 80 --profile cobra --use-conda
+# snakemake -j -c --profile cobra --use-conda
 configfile: "config.yml"
 
-include: r"workflows/rules/snakefile_care"
+# resources config
+gpu_big = config['slurm']['gpu_big']
+gpu_big_gres = config['slurm']['gpu_big_gres']
+
+include: "workflows/rules/data.smk"
+include: "workflows/rules/snakefile_care"
 include: "workflows/rules/stardist.smk"
 include: "workflows/rules/cellpose.smk"
 include: "workflows/rules/stardist_merge.smk"
@@ -12,23 +17,11 @@ include: "workflows/rules/trackmate.smk"
 include: "workflows/rules/analysis.smk"
 include: "workflows/rules/figures.smk"
 
+
+
 from pathlib import Path
 
-rule bcm3d:
-    input:
-        expand("training_data/patches-semimanual-raw-64x128x128/{usage}/target_bcm3d_{n}",
-            usage = ['train', 'valid'],
-            n = [1, 2],
-        ),
-        "models/bcmd3d_48x96x96_patches-semimanual-raw-64x128x128_1_v1",
-        "models/bcmd3d_48x96x96_patches-semimanual-raw-64x128x128_2_v1",
 
-rule unet:
-    input:
-        expand(
-            "accuracies/unet_48x96x96_patches-semimanual-raw-64x128x128_rep{rep}/full_semimanual-raw.csv",
-            rep = range(5),
-        )
 
 rule all:
     input:
@@ -103,6 +96,21 @@ rule all:
         #'data/processed/tracks/care_model_eva-v1-dz400-care_rep1_vtk',
         #'data/processed/tracks/care_model_eva-v1-dz400-care_rep1_tif',
 
+rule bcm3d:
+    input:
+        expand("training_data/patches-semimanual-raw-64x128x128/{usage}/target_bcm3d_{n}",
+            usage = ['train', 'valid'],
+            n = [1, 2],
+        ),
+        "models/bcmd3d_48x96x96_patches-semimanual-raw-64x128x128_1_v1",
+        "models/bcmd3d_48x96x96_patches-semimanual-raw-64x128x128_2_v1",
+
+rule unet:
+    input:
+        expand(
+            "accuracies/unet_48x96x96_patches-semimanual-raw-64x128x128_rep{rep}/full_semimanual-raw.csv",
+            rep = range(5),
+        )
 
 
 ANNOTATED_TIFS = [
@@ -153,17 +161,6 @@ rule bronto_download_dataset:
         'training_data/.symlink',
     shell:
         'scp -r bronto:/volume1/bronto/Eric/2021_Iterative_Biofilm_Annotation_bk/datasets/{wildcards.dataset} ./training_data/{wildcards.dataset}'
-
-localrules:
-    create_symlinks
-
-rule create_symlinks:
-    output:
-        touch('.checkpoints/.symlink-{directory}')
-    params:
-        target = lambda wc: config["symlinks"][wc.directory]
-    shell:
-        "ln -s {params.target} {wildcards.directory}"
 
 localrules:
     download_biofilmq_includes

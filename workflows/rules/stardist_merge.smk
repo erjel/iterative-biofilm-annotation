@@ -18,18 +18,18 @@ rule stardist_merge_inference:
     output:
         touch('interim_data/predictions/{data_folder}/{model_name}_merge/.chkpnt')
     input:
-        folder="input_data/{data_folder}",
-    # TODO(erjel): Make the model dependency explicit again
+        input_chkpt = "input_data/.{data_folder}.chkpt",
+        model = "models/{model_name}",
     params:
-        model="models/{model_name}",
-        output_dir="interim_data/predictions",
+        output_dir = "interim_data/predictions/{data_folder}/{model_name}_merge}",
+        input_dir = "input_data/{data_folder}",
     threads:
         40
     resources:
-        partition = 'gpu_rtx5000',
+        partition = config['slurm']['gpu_big'],
         time = "24:00:00", # TODO(erjel): Max timelimit; get reasonable one
         constraint = "gpu",
-        gres = 'gpu:rtx5000:2',
+        gres = config['slurm']['gpu_big_gres'],
         cpus_per_task=80,
         ntasks_per_core=2, # enable HT
         ntasks_per_node=1,
@@ -38,9 +38,9 @@ rule stardist_merge_inference:
         r"../envs/stardist_merge.yml"
     shell:
         r"python iterative_biofilm_annotation/stardist/predict.py" + \
-        " {input.folder}" + \
+        " {params.input_dir}" + \
         " {params.model}" + \
-        " {params.output_dir}/{wildcards.data_folder}" +\
+        " {params.output_dir}" +\
         " --intp-factor 4" + \
         " --use-merge"
 
@@ -51,14 +51,12 @@ ruleorder:
 
 rule stardist_merge_testing:
     output:
-        directory('interim_data/predictions/{data_folder}/{model_name}_merge')
+        directory('interim_data/predictions/{data_folder}/{purpose}/{type}/{model_name}_merge')
     input:
-        #symlink = ".checkpoints/.symlink-training_data"
-        #model="models/{model_name}",
+        model = "models/{model_name}",
+        input_chkpt = "training_data/.{data_folder}.chkpt",
     params:
-        model="models/{model_name}",
-        output_dir= lambda wc: "interim_data/predictions",
-        folder="training_data/{data_folder}",
+        input_dir = "training_data/{data_folder}/{purpose}/{type}",
     threads:
         40
     resources:
@@ -74,7 +72,7 @@ rule stardist_merge_testing:
         r"../envs/stardist_merge.yml"
     shell:
         r"python iterative_biofilm_annotation/stardist/predict.py" + \
-        " {params.folder}" + \
-        " {params.model}" + \
-        " {params.output_dir}/{wildcards.data_folder}" +\
+        " {params.input_dir}" + \
+        " {input.model}" + \
+        " {output}" +\
         " --use-merge"

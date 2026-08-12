@@ -2,16 +2,16 @@ rule train_unet:
     output:
         directory("models/unet_{patchSize}_patches-{dataset_name}_rep{replicate}")
     input:
-        dataset="training_data/patches-{dataset_name}",
+        dataset="training_data/.patches-{dataset_name}.chkpt",
     wildcard_constraints:
         patchSize = '\d+x\d+x\d+'
     threads:
         8
     resources:
         time="12:00:00",
-        partition = 'gpu1_rtx5000',
+        partition = config['slurm']['gpu_big'],
         constraint = "gpu",
-        gres = 'gpu:rtx5000:1',
+        gres = config['slurm']['gpu_big_gres'],
         ntasks_per_core=2, # enable HT
         mem_mb='16G',
     conda:
@@ -25,30 +25,31 @@ rule train_unet:
         
 rule unet_testing:
     output:
-        directory('interim_data/predictions/{data_folder}/{model_name}')
+        directory('interim_data/predictions/{data_folder}/{purpose}/{type}/{model_name}')
     input:
-        folder="training_data/{data_folder}",
+        folder="training_data/.{data_folder}.chkpt",
         model="models/{model_name}",
     wildcard_constraints:
         model_name = "unet_.*_rep\d+"
     params:
-        output_dir="interim_data/predictions",
+        folder="training_data/{data_folder}/{purpose}/{type}",
+        output_dir="interim_data/predictions/{data_folder}/{purpose}/{type}",
     threads:
         8
     resources:
-        partition='gpu1_rtx5000',
+        partition = config['slurm']['gpu_big'],
         time = "00:15:00",
         constraint = "gpu",
-        gres = 'gpu:rtx5000:1',
+        gres = config['slurm']['gpu_big_gres'],
         ntasks_per_core=2, # enable HT
         mem_mb='16G',
     conda:
         r"../envs/stardist.yml"
     shell:
         r"python iterative_biofilm_annotation/unet/predict.py" + \
-        " {params.output_dir}/{wildcards.data_folder}" + \
+        " {params.output_dir}" + \
         " {input.model}" + \
-        " {input.folder}"
+        " {params.folder}"
 
 rule unet_inference:
     output:
@@ -65,10 +66,10 @@ rule unet_inference:
     threads:
         16
     resources:
-        partition='gpu1_rtx5000',
+        partition=config['slurm']['gpu_big'],
         time = "01:00:00",
         constraint = "gpu",
-        gres = 'gpu:rtx5000:1',
+        gres = config['slurm']['gpu_big_gres'],
         ntasks_per_core=2, # enable HT
         mem='16G',
     shell:

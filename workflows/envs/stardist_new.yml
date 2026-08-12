@@ -1,0 +1,12 @@
+channels:
+  - defaults
+  - nvidia
+dependencies:
+  - python=3.8
+  - pip
+  - cudatoolkit=10.1.*
+  - cudnn=7.6.*
+  - ipython
+  - pip:
+    - tensorflow==2.3.*
+    - stardist==0.7.3

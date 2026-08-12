@@ -64,7 +64,7 @@ def parse_args():
 
     output = parser.add_argument_group('output')
     output.add_argument('output_path', metavar='OUTPUT', type=str)
-    output.add_argument('--output-name', type=str, default='{file_path}/{model_name}/{file_name}{file_ext}')
+    output.add_argument('--output-name', type=str, default='{file_name}{file_ext}')
     output.add_argument('--overwrite', action='store_true', default=False)
     output.add_argument('--use-merge', action='store_true', default=False)
   
@@ -122,10 +122,8 @@ def main():
     for file_in in tqdm(X_filenames):
 
         file_out = Path(args.output_path) / args.output_name.format (
-            file_path = str(file_in.relative_to(args.input_folder).parent),
             file_name = file_in.stem,
             file_ext = file_in.suffix,
-            model_name = Path(args.model_path).name if not use_merge else f'{Path(args.model_path).name}_merge'
         )
         
         prop_out = file_out.parent / 'probs' / file_out.name
